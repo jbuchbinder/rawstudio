@@ -1019,6 +1019,7 @@ gui_menu_preference_callback(gpointer callback_data, guint callback_action, GtkW
 	GtkWidget *export_filetype_label;
 	GtkWidget *export_filetype_combobox;
 
+	GtkWidget *cms_page;
 
 	gchar *conf_temp = NULL;
 	gint n;
@@ -1243,6 +1244,7 @@ gui_menu_preference_callback(gpointer callback_data, guint callback_action, GtkW
 	g_signal_connect ((gpointer) export_filetype_combobox, "changed", 
 		G_CALLBACK(gui_export_filetype_combobox_changed), export_filename_example_label2);
 	
+	cms_page = gui_preferences_make_cms_page(rs);
 	
 
 	notebook = gtk_notebook_new();
@@ -1250,6 +1252,7 @@ gui_menu_preference_callback(gpointer callback_data, guint callback_action, GtkW
 	gtk_notebook_append_page(GTK_NOTEBOOK(notebook), preview_page, gtk_label_new(_("Preview")));
 	//gtk_notebook_append_page(GTK_NOTEBOOK(notebook), batch_page, gtk_label_new(_("Batch")));
 	gtk_notebook_append_page(GTK_NOTEBOOK(notebook), export_page, gtk_label_new(_("Export")));
+	gtk_notebook_append_page(GTK_NOTEBOOK(notebook), cms_page, gtk_label_new(_("Colors")));
 	gtk_box_pack_start (GTK_BOX (vbox), notebook, FALSE, FALSE, 0);
 
 	button_close = gtk_button_new_from_stock(GTK_STOCK_CLOSE);
