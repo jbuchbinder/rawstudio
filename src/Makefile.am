@@ -9,7 +9,8 @@ AM_CFLAGS =\
 	-Wall\
 	-O4\
 	-DWITH_GCONF\
-	-DWITH_MMAP_HACK
+	-DWITH_MMAP_HACK\
+	-llcms
 
 bin_PROGRAMS = rawstudio
 
