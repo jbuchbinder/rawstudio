@@ -103,7 +103,6 @@ void gui_menu_paste_callback(gpointer callback_data, guint callback_action, GtkW
 void gui_menu_copy_callback(gpointer callback_data, guint callback_action, GtkWidget *widget);
 GtkWidget *gui_make_menubar(RS_BLOB *rs, GtkWidget *window, GtkListStore *store, GtkWidget *iconbox, GtkWidget *toolbox);
 GtkWidget *gui_window_make(RS_BLOB *rs);
-GtkWidget *gui_dialog_make_from_text(const gchar *stock_id, gchar *primary_text, gchar *secondary_text);
 GtkWidget *gui_dialog_make_from_widget(const gchar *stock_id, gchar *primary_text, GtkWidget *widget);
 
 
