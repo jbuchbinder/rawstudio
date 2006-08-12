@@ -484,9 +484,9 @@ rs_render(RS_PHOTO *photo, gint width, gint height, gushort *in,
 					: "r" (s)
 					: "memory"
 				);
-				buffer[destoffset++] = previewtable[r];
-				buffer[destoffset++] = previewtable[g];
-				buffer[destoffset++] = previewtable[b];
+				buffer[destoffset++] = r;
+				buffer[destoffset++] = g;
+				buffer[destoffset++] = b;
 				s += 4;
 			}
 			cmsDoTransform(displayTransform, buffer, out+height * out_rowstride, width);
