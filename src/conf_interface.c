@@ -338,3 +338,61 @@ rs_conf_set_double(const gchar *name, const gdouble float_value)
 #endif
 	return(ret);
 }
+
+GSList *
+rs_conf_get_list_string(const gchar *name)
+{
+#ifdef WITH_GCONF
+	GConfEngine *engine = get_gconf_engine();
+	GString *fullname = g_string_new(GCONF_PATH);
+	GSList *list = NULL;
+
+	g_string_append(fullname, name);
+	if (engine)
+		list = gconf_engine_get_list(engine, fullname->str, GCONF_VALUE_STRING, NULL);
+	g_string_free(fullname, TRUE);
+#endif
+#ifdef WITH_REGISTRY
+	/* FIXME: stub */
+#endif
+	return list;
+}
+
+gboolean
+rs_conf_set_list_string(const gchar *name, GSList *list)
+{
+	gboolean ret = FALSE;
+#ifdef WITH_GCONF
+	GConfEngine *engine = get_gconf_engine();
+	GString *fullname = g_string_new(GCONF_PATH);
+
+	g_string_append(fullname, name);
+	if (engine)
+		ret = gconf_engine_set_list(engine, fullname->str, GCONF_VALUE_STRING, list, NULL);
+	g_string_free(fullname, TRUE);
+#endif
+#ifdef WITH_REGISTRY
+	/* FIXME: stub */
+#endif
+	return(ret);
+}
+
+gboolean
+rs_conf_add_string_to_list_string(const gchar *name, gchar *value)
+{
+	gboolean ret = FALSE;
+
+	GSList *newlist = NULL;
+	GSList *oldlist = rs_conf_get_list_string(name);
+
+	while (oldlist)
+	{
+		newlist = g_slist_append(newlist, oldlist->data);
+		oldlist = oldlist->next;
+	}
+
+	newlist = g_slist_append(newlist, value);
+	ret = rs_conf_set_list_string(name, newlist);
+
+	return(ret);
+}
