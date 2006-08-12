@@ -1547,6 +1547,8 @@ main(int argc, char **argv)
 	cmsCIExyY D65;
 	LPGAMMATABLE gamma[3];
 
+	cmsErrorAction(LCMS_ERROR_IGNORE);
+
 	gamma[0] = gamma[1] = gamma[2] = cmsBuildGamma(2,1.0);
 	cmsWhitePointFromTemp(6504, &D65);
 
