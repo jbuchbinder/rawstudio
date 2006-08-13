@@ -475,6 +475,7 @@ gui_preferences_make_cms_page(RS_BLOB *rs)
 	cms_in_profile_combobox = gtk_combo_box_entry_new_text();
 	gtk_combo_box_append_text(GTK_COMBO_BOX(cms_in_profile_combobox), _("BuildInRGBProfile"));
 	temp_conf_gslist = rs_conf_get_list_string(CONF_CMS_IN_PROFILE_LIST);
+	temp_conf_gint = 0;
 	rs_conf_get_integer(CONF_CMS_IN_PROFILE_SELECTED, &temp_conf_gint);
 
 	while(temp_conf_gslist)
@@ -513,6 +514,7 @@ gui_preferences_make_cms_page(RS_BLOB *rs)
 	cms_di_profile_combobox = gtk_combo_box_entry_new_text();
 	gtk_combo_box_append_text(GTK_COMBO_BOX(cms_di_profile_combobox), _("BuildInRGBProfile"));
 	temp_conf_gslist = rs_conf_get_list_string(CONF_CMS_DI_PROFILE_LIST);
+	temp_conf_gint = 0;
 	rs_conf_get_integer(CONF_CMS_DI_PROFILE_SELECTED, &temp_conf_gint);
 
 	while(temp_conf_gslist)
@@ -551,6 +553,7 @@ gui_preferences_make_cms_page(RS_BLOB *rs)
 	cms_ex_profile_combobox = gtk_combo_box_entry_new_text();
 	gtk_combo_box_append_text(GTK_COMBO_BOX(cms_ex_profile_combobox), _("BuildInRGBProfile"));
 	temp_conf_gslist = rs_conf_get_list_string(CONF_CMS_EX_PROFILE_LIST);
+	temp_conf_gint = 0;
 	rs_conf_get_integer(CONF_CMS_EX_PROFILE_SELECTED, &temp_conf_gint);
 
 	while(temp_conf_gslist)
