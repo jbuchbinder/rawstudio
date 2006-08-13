@@ -1613,7 +1613,7 @@ main(int argc, char **argv)
 	bind_textdomain_codeset(GETTEXT_PACKAGE, "UTF-8");
 	textdomain(GETTEXT_PACKAGE);
 #endif
-	cmsHPROFILE workProfile, displayProfile = NULL, loadProfile = NULL;
+	cmsHPROFILE workProfile;
 	cmsCIExyY D65;
 	LPGAMMATABLE gamma[3];
 	gint cms_intent;
@@ -1641,28 +1641,28 @@ main(int argc, char **argv)
 
 	custom_cms_in_profile = rs_get_profile(RS_CMS_PROFILE_IN);
 	if (custom_cms_in_profile)
-		loadProfile = cmsOpenProfileFromFile(custom_cms_in_profile, "r");
+		rs->loadProfile = cmsOpenProfileFromFile(custom_cms_in_profile, "r");
 	g_free(custom_cms_in_profile);
-	if (!loadProfile)
-		loadProfile = cmsCreateRGBProfile(&D65, &load, gamma);
+	if (!rs->loadProfile)
+		rs->loadProfile = cmsCreateRGBProfile(&D65, &load, gamma);
 
 	custom_cms_display_profile = rs_get_profile(RS_CMS_PROFILE_DISPLAY);	
 	if (custom_cms_display_profile)
-		displayProfile = cmsOpenProfileFromFile(custom_cms_display_profile, "r");
+		rs->displayProfile = cmsOpenProfileFromFile(custom_cms_display_profile, "r");
 	g_free(custom_cms_display_profile);
-	if (!displayProfile)
-		displayProfile = cmsCreate_sRGBProfile();
+	if (!rs->displayProfile)
+		rs->displayProfile = cmsCreate_sRGBProfile();
 
 	cms_intent = rs_cms_get_intent();
 
 	/* transform for loading images */
-	loadTransform = cmsCreateTransform(loadProfile, TYPE_RGB_16,
+	loadTransform = cmsCreateTransform(rs->loadProfile, TYPE_RGB_16,
 		workProfile, TYPE_RGB_16, cms_intent, 0);
 	cmsSetUserFormatters(loadTransform, TYPE_RGB_16, mycms_unroll_rgb_w, TYPE_RGB_16, mycms_pack_rgb4_w);
 
 	/* transform for displaying preview */
 	displayTransform = cmsCreateTransform(workProfile, TYPE_RGB_16,
-		displayProfile, TYPE_RGB_8, cms_intent, 0);
+		rs->displayProfile, TYPE_RGB_8, cms_intent, 0);
 	cmsSetUserFormatters(displayTransform, TYPE_RGB_16, mycms_unroll_rgb_w, TYPE_RGB_8, mycms_pack_rgb_b);
 
 	rs_conf_get_boolean(CONF_CACHEDIR_IS_LOCAL, &dotdir_is_local);

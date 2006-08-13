@@ -185,6 +185,8 @@ typedef struct {
 	gboolean show_exposure_overlay;
 	GArray *batch_queue;
 	RS_QUEUE *queue;
+	void *loadProfile;
+	void *displayProfile;
 } RS_BLOB;
 
 enum {
