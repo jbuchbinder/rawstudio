@@ -63,7 +63,6 @@ enum {
 	RS_CMS_PROFILE_EXPORT
 };
 
-void update_previewtable(const double gamma, const double contrast);
 inline void rs_photo_prepare(RS_PHOTO *photo, gdouble gamma);
 void update_scaled(RS_BLOB *rs);
 inline void rs_render_mask(guchar *pixels, guchar *mask, guint length);
@@ -179,7 +178,6 @@ update_scaled(RS_BLOB *rs)
 inline void
 rs_photo_prepare(RS_PHOTO *photo, gdouble gamma)
 {
-	update_previewtable(gamma, photo->settings[photo->current_setting]->contrast);
 	matrix4_identity(&photo->mat);
 	matrix4_color_exposure(&photo->mat, photo->settings[photo->current_setting]->exposure);
 
@@ -964,6 +962,7 @@ rs_new()
 		rs->gamma = 2.2;
 		rs_conf_set_double(CONF_GAMMAVALUE,rs->gamma);
 	}
+	update_previewtable(rs->gamma, 1.0);
 	g_signal_connect(G_OBJECT(rs->scale), "value_changed",
 		G_CALLBACK(update_scale_callback), rs);
 	rs->histogram_dataset = NULL;

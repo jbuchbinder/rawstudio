@@ -207,6 +207,7 @@ typedef struct {
 	void (*load_meta)(const gchar *, RS_METADATA *);
 } RS_FILETYPE;
 
+void update_previewtable(const double gamma, const double contrast);
 void rs_local_cachedir(gboolean new_value);
 void rs_load_gdk(gboolean new_value);
 void update_preview(RS_BLOB *rs);

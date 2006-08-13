@@ -126,6 +126,18 @@ update_preview_callback(GtkAdjustment *do_not_use_this, RS_BLOB *rs)
 }
 
 gboolean
+update_previewtable_callback(GtkAdjustment *do_not_use_this, RS_BLOB *rs)
+{
+	if (rs->photo)
+	{
+		rs_settings_to_rs_settings_double(rs->settings[rs->current_setting], rs->photo->settings[rs->photo->current_setting]);
+		update_previewtable(rs->gamma, rs->photo->settings[rs->photo->current_setting]->contrast);
+		update_preview(rs);
+	}
+	return(FALSE);
+}
+
+gboolean
 update_scale_callback(GtkAdjustment *do_not_use_this, RS_BLOB *rs)
 {
 	rs->zoom_to_fit = FALSE;
@@ -934,7 +946,11 @@ gui_gamma_value_changed(GtkAdjustment *caller, RS_BLOB *rs)
 {
 	rs_conf_set_double(CONF_GAMMAVALUE, caller->value);
 	rs->gamma = caller->value;
-	update_preview(rs);
+	if (rs->photo)
+	{
+		update_previewtable(rs->gamma, rs->photo->settings[rs->photo->current_setting]->contrast);
+		update_preview(rs);
+	}
 	return(FALSE);
 }
 
