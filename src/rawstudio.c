@@ -1641,7 +1641,7 @@ main(int argc, char **argv)
 	if (!displayProfile)
 		displayProfile = cmsCreate_sRGBProfile();
 
-	cms_intent = rs_get_intent();
+	cms_intent = rs_cms_get_intent();
 
 	/* transform for loading images */
 	loadTransform = cmsCreateTransform(loadProfile, TYPE_RGB_16,
