@@ -52,6 +52,7 @@
 
 guint cpuflags = 0;
 guchar previewtable[65536];
+gushort previewtable16[65536];
 
 cmsHTRANSFORM displayTransform;
 cmsHTRANSFORM loadTransform;
@@ -128,9 +129,16 @@ update_previewtable(const gdouble gamma, const gdouble contrast)
 	for(n=0;n<65536;n++)
 	{
 		nd = ((gdouble) n) / 65535.0;
-		res = (gint) ((pow(nd, gammavalue)*contrast+postadd) * 255.0);
+		nd = pow(nd, gammavalue)*contrast+postadd;
+
+		res = (gint) (nd*255.0);
 		_CLAMP255(res);
 		previewtable[n] = res;
+
+		nd = pow(nd, gamma);
+		res = (gint) (nd*65535.0);
+		_CLAMP65535(res);
+		previewtable16[n] = res;
 	}
 }
 
@@ -491,9 +499,9 @@ rs_render(RS_PHOTO *photo, gint width, gint height, gushort *in,
 					: "r" (s)
 					: "memory"
 				);
-				buffer[destoffset++] = r;
-				buffer[destoffset++] = g;
-				buffer[destoffset++] = b;
+				buffer[destoffset++] = previewtable16[r];
+				buffer[destoffset++] = previewtable16[g];
+				buffer[destoffset++] = previewtable16[b];
 				s += 4;
 			}
 			cmsDoTransform(displayTransform, buffer, out+height * out_rowstride, width);
@@ -592,9 +600,9 @@ rs_render(RS_PHOTO *photo, gint width, gint height, gushort *in,
 					: "+r" (s), "+r" (r), "+r" (g), "+r" (b)
 					: "r" (&mat)
 				);
-				buffer[destoffset++] = r;
-				buffer[destoffset++] = g;
-				buffer[destoffset++] = b;
+				buffer[destoffset++] = previewtable16[r];
+				buffer[destoffset++] = previewtable16[g];
+				buffer[destoffset++] = previewtable16[b];
 			}
 			cmsDoTransform(displayTransform, buffer, out+height * out_rowstride, width);
 		}
@@ -630,9 +638,9 @@ rs_render(RS_PHOTO *photo, gint width, gint height, gushort *in,
 					+ gg*photo->mati.coeff[2][1]
 					+ bb*photo->mati.coeff[2][2])>>MATRIX_RESOLUTION;
 				_CLAMP65535_TRIPLET(r,g,b);
-				buffer[destoffset++] = r;
-				buffer[destoffset++] = g;
-				buffer[destoffset++] = b;
+				buffer[destoffset++] = previewtable16[r];
+				buffer[destoffset++] = previewtable16[g];
+				buffer[destoffset++] = previewtable16[b];
 				srcoffset+=in_channels;
 			}
 			cmsDoTransform(displayTransform, buffer, out+y * out_rowstride, width);
@@ -675,9 +683,9 @@ rs_histogram_update_table(RS_BLOB *rs, RS_IMAGE16 *input, guint *table)
 				+ gg*rs->photo->mati.coeff[2][1]
 				+ bb*rs->photo->mati.coeff[2][2])>>MATRIX_RESOLUTION;
 			_CLAMP65535_TRIPLET(r,g,b);
-			table[(previewtable[r]>>8)]++;
-			table[256+(previewtable[g]>>8)]++;
-			table[512+(previewtable[b]>>8)]++;
+			table[previewtable[r]]++;
+			table[256+previewtable[g]]++;
+			table[512+previewtable[b]]++;
 			srcoffset+=input->pixelsize;
 		}
 	}
