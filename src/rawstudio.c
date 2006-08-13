@@ -56,6 +56,12 @@ guchar previewtable[65536];
 cmsHTRANSFORM displayTransform;
 cmsHTRANSFORM loadTransform;
 
+enum {
+	RS_CMS_PROFILE_IN,
+	RS_CMS_PROFILE_DISPLAY,
+	RS_CMS_PROFILE_EXPORT
+};
+
 void update_previewtable(const double gamma, const double contrast);
 inline void rs_photo_prepare(RS_PHOTO *photo, gdouble gamma);
 void update_scaled(RS_BLOB *rs);
@@ -1469,6 +1475,34 @@ rs_apply_settings_from_double(RS_SETTINGS *rss, RS_SETTINGS_DOUBLE *rsd, gint ma
 		SETVAL(rss->tint,rsd->tint);
 	return;
 }
+
+gchar *
+rs_get_profile(gint type)
+{
+	gchar *ret = NULL;
+	gint selected = 0;
+	if (type == RS_CMS_PROFILE_IN)
+	{
+		rs_conf_get_integer(CONF_CMS_IN_PROFILE_SELECTED, &selected);
+		if (selected > 0)
+			ret = rs_conf_get_nth_string_from_list_string(CONF_CMS_IN_PROFILE_LIST, --selected);
+	}
+	else if (type == RS_CMS_PROFILE_DISPLAY)
+	{
+		rs_conf_get_integer(CONF_CMS_DI_PROFILE_SELECTED, &selected);
+		if (selected > 0)
+			ret = rs_conf_get_nth_string_from_list_string(CONF_CMS_DI_PROFILE_LIST, --selected);
+	} 
+	else if (type == RS_CMS_PROFILE_EXPORT)
+	{
+		rs_conf_get_integer(CONF_CMS_EX_PROFILE_SELECTED, &selected);
+		if (selected > 0)
+			ret = rs_conf_get_nth_string_from_list_string(CONF_CMS_EX_PROFILE_LIST, --selected);
+	}
+
+	return ret;
+}
+
 
 static guchar *
 mycms_pack_rgb_b(void *info, register WORD wOut[], register LPBYTE output)
