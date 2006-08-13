@@ -79,6 +79,7 @@ RS_PHOTO *rs_photo_open_dcraw(const gchar *filename);
 RS_PHOTO *rs_photo_open_gdk(const gchar *filename);
 GdkPixbuf *rs_thumb_grt(const gchar *src);
 GdkPixbuf *rs_thumb_gdk(const gchar *src);
+gint rs_cms_get_intent();
 static guchar *mycms_pack_rgb_b(void *info, register WORD wOut[], register LPBYTE output);
 static guchar *mycms_unroll_rgb_w(void *info, register WORD wIn[], register LPBYTE accum);
 static guchar *mycms_unroll_rgb4_w(void *info, register WORD wIn[], register LPBYTE accum);
@@ -1503,6 +1504,30 @@ rs_get_profile(gint type)
 	return ret;
 }
 
+gint rs_cms_get_intent()
+{
+	gint intent;
+
+	rs_conf_get_integer(CONF_CMS_INTENT, &intent);
+
+	switch(intent)
+	{
+		case 0:
+			return INTENT_PERCEPTUAL;
+			break;
+		case 1:
+			return INTENT_RELATIVE_COLORIMETRIC;
+			break;
+		case 2:
+			return INTENT_SATURATION;
+			break;
+		case 3:
+			return INTENT_ABSOLUTE_COLORIMETRIC;
+			break;
+		default:
+			return INTENT_PERCEPTUAL;
+	}
+}
 
 static guchar *
 mycms_pack_rgb_b(void *info, register WORD wOut[], register LPBYTE output)
