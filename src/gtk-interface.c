@@ -1898,7 +1898,7 @@ gui_dialog_make_from_widget(const gchar *stock_id, gchar *primary_text, GtkWidge
 }
 
 int
-gui_init(int argc, char **argv)
+gui_init(int argc, char **argv, RS_BLOB *rs)
 {
 	GtkWidget *window;
 	GtkWidget *vbox;
@@ -1908,7 +1908,6 @@ gui_init(int argc, char **argv)
 	GtkWidget *preview;
 	GtkListStore *store;
 	GtkWidget *menubar;
-	RS_BLOB *rs;
 	gchar *lwd = NULL;
 	GtkTreePath *path;
 	GtkTreePath *openpath = NULL;
@@ -1916,9 +1915,6 @@ gui_init(int argc, char **argv)
 	gchar *name;
 	gchar *filename;
 
-	gtk_init(&argc, &argv);
-	
-	rs = rs_new();
 	window = gui_window_make(rs);
 	statusbar = (GtkStatusbar *) gtk_statusbar_new();
 	toolbox = make_toolbox(rs);

@@ -1617,6 +1617,10 @@ main(int argc, char **argv)
 	cmsCIExyY D65;
 	LPGAMMATABLE gamma[3];
 	gint cms_intent;
+	RS_BLOB *rs;
+
+	gtk_init(&argc, &argv);
+	rs = rs_new();
 
 	cmsErrorAction(LCMS_ERROR_IGNORE);
 
@@ -1663,7 +1667,7 @@ main(int argc, char **argv)
 
 	rs_conf_get_boolean(CONF_CACHEDIR_IS_LOCAL, &dotdir_is_local);
 	rs_conf_get_boolean(CONF_LOAD_GDK, &load_gdk);
-	gui_init(argc, argv);
+	gui_init(argc, argv, rs);
 	return(0);
 }
 
