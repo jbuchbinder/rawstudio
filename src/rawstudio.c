@@ -1608,6 +1608,7 @@ main(int argc, char **argv)
 	cmsHPROFILE workProfile, displayProfile = NULL, loadProfile = NULL;
 	cmsCIExyY D65;
 	LPGAMMATABLE gamma[3];
+	gint cms_intent;
 
 	cmsErrorAction(LCMS_ERROR_IGNORE);
 
@@ -1640,14 +1641,16 @@ main(int argc, char **argv)
 	if (!displayProfile)
 		displayProfile = cmsCreate_sRGBProfile();
 
+	cms_intent = rs_get_intent();
+
 	/* transform for loading images */
 	loadTransform = cmsCreateTransform(loadProfile, TYPE_RGB_16,
-		workProfile, TYPE_RGB_16, INTENT_PERCEPTUAL, 0);
+		workProfile, TYPE_RGB_16, cms_intent, 0);
 	cmsSetUserFormatters(loadTransform, TYPE_RGB_16, mycms_unroll_rgb_w, TYPE_RGB_16, mycms_pack_rgb4_w);
 
 	/* transform for displaying preview */
 	displayTransform = cmsCreateTransform(workProfile, TYPE_RGB_16,
-		displayProfile, TYPE_RGB_8, INTENT_PERCEPTUAL, 0);
+		displayProfile, TYPE_RGB_8, cms_intent, 0);
 	cmsSetUserFormatters(displayTransform, TYPE_RGB_16, mycms_unroll_rgb_w, TYPE_RGB_8, mycms_pack_rgb_b);
 
 	rs_conf_get_boolean(CONF_CACHEDIR_IS_LOCAL, &dotdir_is_local);
