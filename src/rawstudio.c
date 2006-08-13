@@ -1543,6 +1543,9 @@ mycms_pack_rgb4_w(void *info, register WORD wOut[], register LPBYTE output)
 int
 main(int argc, char **argv)
 {
+	gchar *custom_cms_in_profile;
+	gchar *custom_cms_display_profile;
+	//gchar *custom_cms_export_profile;
 #ifdef __i386__
 	guint a,b,c,d;
 	asm(
@@ -1577,7 +1580,7 @@ main(int argc, char **argv)
 	bind_textdomain_codeset(GETTEXT_PACKAGE, "UTF-8");
 	textdomain(GETTEXT_PACKAGE);
 #endif
-	cmsHPROFILE workProfile, displayProfile, loadProfile;
+	cmsHPROFILE workProfile, displayProfile = NULL, loadProfile = NULL;
 	cmsCIExyY D65;
 	LPGAMMATABLE gamma[3];
 
@@ -1597,10 +1600,20 @@ main(int argc, char **argv)
 		{0.7, 0.3, 0.25},
 		{0.2, 0.7, 0.6},
 		{0.2, 0.1, 0.1}};
-	loadProfile = cmsCreateRGBProfile(&D65, &load, gamma);
 
-// 	loadProfile = cmsOpenProfileFromFile("20d.icm", "r");
-	displayProfile = cmsCreate_sRGBProfile();
+	custom_cms_in_profile = rs_get_profile(RS_CMS_PROFILE_IN);
+	if (custom_cms_in_profile)
+		loadProfile = cmsOpenProfileFromFile(custom_cms_in_profile, "r");
+	g_free(custom_cms_in_profile);
+	if (!loadProfile)
+		loadProfile = cmsCreateRGBProfile(&D65, &load, gamma);
+
+	custom_cms_display_profile = rs_get_profile(RS_CMS_PROFILE_DISPLAY);	
+	if (custom_cms_display_profile)
+		displayProfile = cmsOpenProfileFromFile(custom_cms_display_profile, "r");
+	g_free(custom_cms_display_profile);
+	if (!displayProfile)
+		displayProfile = cmsCreate_sRGBProfile();
 
 	/* transform for loading images */
 	loadTransform = cmsCreateTransform(loadProfile, TYPE_RGB_16,
