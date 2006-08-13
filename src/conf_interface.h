@@ -70,3 +70,4 @@ gboolean rs_conf_set_double(const gchar *name, const gdouble float_value);
 GSList *rs_conf_get_list_string(const gchar *name);
 gboolean rs_conf_set_list_string(const gchar *name, GSList *list);
 gboolean rs_conf_add_string_to_list_string(const gchar *name, gchar *value);
+gchar *rs_conf_get_nth_string_from_list_string(const gchar *name, gint num);

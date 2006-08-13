@@ -396,3 +396,19 @@ rs_conf_add_string_to_list_string(const gchar *name, gchar *value)
 
 	return(ret);
 }
+
+gchar *
+rs_conf_get_nth_string_from_list_string(const gchar *name, gint num)
+{
+	GSList *list = rs_conf_get_list_string(name);
+	gint i;
+	gchar *value;
+
+	for (i = 0; i < num; i++)
+		list = list->next;
+	if (list)
+		value = (gchar *) list->data;
+	else
+		value = NULL;
+	return value;
+}
