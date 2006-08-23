@@ -1515,7 +1515,7 @@ rs_get_profile(gint type)
 
 gint rs_cms_get_intent()
 {
-	gint intent;
+	gint intent = 0;
 
 	rs_conf_get_integer(CONF_CMS_INTENT, &intent);
 
