@@ -976,6 +976,8 @@ rs_new()
 	rs->photo = NULL;
 	rs->queue = batch_new_queue();
 	rs->zoom_to_fit = TRUE;
+	rs->loadProfile = NULL;
+	rs->displayProfile = NULL;
 	for(c=0;c<3;c++)
 		rs->settings[c] = rs_settings_new();
 	return(rs);
