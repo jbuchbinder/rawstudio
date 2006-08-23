@@ -618,7 +618,7 @@ make_iconbox(RS_BLOB *rs, GtkListStore *store)
 	e_label3 = gui_tooltip_no_window(count->label3, _("Priority 2 photos"), NULL);
 	e_label4 = gui_tooltip_no_window(count->label4, _("Priority 3 photos"), NULL);
 	e_label5 = gui_tooltip_no_window(count->label5, _("Unprioritized photos"), NULL);
-	e_label6 = gui_tooltip_no_window(count->label6, _("Deleded photos"), NULL);
+	e_label6 = gui_tooltip_no_window(count->label6, _("Deleted photos"), NULL);
 
 	gtk_misc_set_alignment(GTK_MISC(count->label1), 0.0, 0.5);
 	gtk_misc_set_alignment(GTK_MISC(count->label2), 0.0, 0.5);
