@@ -196,11 +196,11 @@ gui_cms_intent_combobox_changed(GtkComboBox *combobox, gpointer user_data)
 	return;
 }
 
-void
-gui_cms_in_profile_button_clicked(GtkButton *button, gpointer user_data)
+gchar *
+gui_cms_choose_profile(const gchar *path)
 {
+	gchar *ret = NULL;
 	GtkWidget *fc;
-	GtkWidget *combobox = GTK_WIDGET(user_data);
 	GtkFileFilter *file_filter_all;
 	GtkFileFilter *file_filter_color_profiles;
 	gint n;
@@ -210,6 +210,11 @@ gui_cms_in_profile_button_clicked(GtkButton *button, gpointer user_data)
 		GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
 		GTK_STOCK_OPEN, GTK_RESPONSE_ACCEPT, NULL);
 	gtk_dialog_set_default_response(GTK_DIALOG(fc), GTK_RESPONSE_ACCEPT);
+
+	if (path)
+		gtk_file_chooser_set_current_folder(GTK_FILE_CHOOSER(fc), path);
+	else
+		gtk_file_chooser_set_current_folder(GTK_FILE_CHOOSER(fc), "/usr/share/color/icc");
 
 	file_filter_all = gtk_file_filter_new();
 	file_filter_color_profiles = gtk_file_filter_new();
@@ -231,19 +236,10 @@ gui_cms_in_profile_button_clicked(GtkButton *button, gpointer user_data)
 	if (gtk_dialog_run (GTK_DIALOG (fc)) == GTK_RESPONSE_ACCEPT)
 	{
 		gchar *filename;
-		cmsHPROFILE color_profile;
 		filename = gtk_file_chooser_get_filename (GTK_FILE_CHOOSER (fc));
-		gtk_widget_destroy (fc);
 
-		color_profile = cmsOpenProfileFromFile(filename, "r");
-		if (color_profile)
-		{
-			cmsCloseProfile(color_profile);
-			gtk_combo_box_append_text(GTK_COMBO_BOX(combobox), g_basename(filename));
-			// FIXME: gtk_combo_box_set_active(GTK_COMBO_BOX(combobox), __SELECT_LAST__);
-			rs_conf_add_string_to_list_string(CONF_CMS_IN_PROFILE_LIST, filename);
-			rs_conf_set_integer(CONF_CMS_IN_PROFILE_SELECTED, gtk_combo_box_get_active(GTK_COMBO_BOX(combobox)));
-		}
+		if (rs_cms_is_profile_valid(filename))
+			ret = filename;
 		else
 		{
 			GtkWidget *warning = gui_dialog_make_from_text(GTK_STOCK_DIALOG_WARNING,
@@ -254,176 +250,66 @@ gui_cms_in_profile_button_clicked(GtkButton *button, gpointer user_data)
 			
 			gtk_widget_show_all(warning);
 			
-        	if((gtk_dialog_run(GTK_DIALOG(warning)) == GTK_RESPONSE_ACCEPT))
-	        {
-				gtk_widget_destroy(warning);
-				return;
-	        }
-    	    else
-			{
-				gtk_widget_destroy(warning);
-				return;
-			}
+        	gtk_dialog_run(GTK_DIALOG(warning));
+			gtk_widget_destroy(warning);
 		}
+	}
+	gtk_widget_destroy (fc);
 
-		g_free (filename);
-	} else
-		gtk_widget_destroy (fc);
+	return(ret);
+}
 
+void
+gui_cms_in_profile_button_clicked(GtkButton *button, gpointer user_data)
+{
+	GtkWidget *combobox = GTK_WIDGET(user_data);
+	gchar *filename;
+
+	filename = gui_cms_choose_profile(NULL);
+
+	if (filename)
+	{
+		gtk_combo_box_append_text(GTK_COMBO_BOX(combobox), g_basename(filename));
+		// FIXME: gtk_combo_box_set_active(GTK_COMBO_BOX(combobox), __SELECT_LAST__);
+		rs_conf_add_string_to_list_string(CONF_CMS_IN_PROFILE_LIST, filename);
+		rs_conf_set_integer(CONF_CMS_IN_PROFILE_SELECTED, gtk_combo_box_get_active(GTK_COMBO_BOX(combobox)));
+	}
 	return;
 }
 
 void
 gui_cms_di_profile_button_clicked(GtkButton *button, gpointer user_data)
 {
-	GtkWidget *fc;
 	GtkWidget *combobox = GTK_WIDGET(user_data);
-	GtkFileFilter *file_filter_all;
-	GtkFileFilter *file_filter_color_profiles;
-	gint n;
+	gchar *filename; 
 
-	fc = gtk_file_chooser_dialog_new (_("Select color profile"), NULL,
-		GTK_FILE_CHOOSER_ACTION_OPEN,
-		GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
-		GTK_STOCK_OPEN, GTK_RESPONSE_ACCEPT, NULL);
-	gtk_dialog_set_default_response(GTK_DIALOG(fc), GTK_RESPONSE_ACCEPT);
+	filename = gui_cms_choose_profile(NULL);
 
-	file_filter_all = gtk_file_filter_new();
-	file_filter_color_profiles = gtk_file_filter_new();
-
-	n=0;
-	while(color_profiles[n])
+	if (filename)
 	{
-		gtk_file_filter_add_pattern(file_filter_color_profiles, color_profiles[n]);
-		n++;
+		gtk_combo_box_append_text(GTK_COMBO_BOX(combobox), g_basename(filename));
+		// FIXME: gtk_combo_box_set_active(GTK_COMBO_BOX(combobox), __SELECT_LAST__);
+		rs_conf_add_string_to_list_string(CONF_CMS_DI_PROFILE_LIST, filename);
+		rs_conf_set_integer(CONF_CMS_DI_PROFILE_SELECTED, gtk_combo_box_get_active(GTK_COMBO_BOX(combobox)));
 	}
-
-	gtk_file_filter_add_pattern(file_filter_all, "*");
-
-	gtk_file_filter_set_name(file_filter_all, _("All files"));
-	gtk_file_filter_set_name(file_filter_color_profiles, _("Color profiles (icc and icm)"));
-
-	gtk_file_chooser_add_filter(GTK_FILE_CHOOSER(fc), file_filter_color_profiles);
-	gtk_file_chooser_add_filter(GTK_FILE_CHOOSER(fc), file_filter_all);
-	if (gtk_dialog_run (GTK_DIALOG (fc)) == GTK_RESPONSE_ACCEPT)
-	{
-		gchar *filename;
-		cmsHPROFILE color_profile;
-		filename = gtk_file_chooser_get_filename (GTK_FILE_CHOOSER (fc));
-		gtk_widget_destroy (fc);
-
-		color_profile = cmsOpenProfileFromFile(filename, "r");
-		if (color_profile)
-		{
-			cmsCloseProfile(color_profile);
-			gtk_combo_box_append_text(GTK_COMBO_BOX(combobox), g_basename(filename));
-			// FIXME: gtk_combo_box_set_active(GTK_COMBO_BOX(combobox), __SELECT_LAST__);
-			rs_conf_add_string_to_list_string(CONF_CMS_DI_PROFILE_LIST, filename);
-			rs_conf_set_integer(CONF_CMS_DI_PROFILE_SELECTED, gtk_combo_box_get_active(GTK_COMBO_BOX(combobox)));
-		}
-		else
-		{
-			GtkWidget *warning = gui_dialog_make_from_text(GTK_STOCK_DIALOG_WARNING,
-				_("Not a valid color profile."), 
-				_("The file you selected does not appear to be a valid color profile."));
-			GtkWidget *ok_button = gtk_button_new_from_stock(GTK_STOCK_OK);
-			gtk_dialog_add_action_widget(GTK_DIALOG(warning), ok_button, GTK_RESPONSE_ACCEPT);
-			
-			gtk_widget_show_all(warning);
-			
-        	if((gtk_dialog_run(GTK_DIALOG(warning)) == GTK_RESPONSE_ACCEPT))
-	        {
-				gtk_widget_destroy(warning);
-				return;
-	        }
-    	    else
-			{
-				gtk_widget_destroy(warning);
-				return;
-			}
-		}
-
-		g_free (filename);
-	} else
-		gtk_widget_destroy (fc);
-
 	return;
 }
 
 void
 gui_cms_ex_profile_button_clicked(GtkButton *button, gpointer user_data)
 {
-	GtkWidget *fc;
 	GtkWidget *combobox = GTK_WIDGET(user_data);
-	GtkFileFilter *file_filter_all;
-	GtkFileFilter *file_filter_color_profiles;
-	gint n;
+	gchar *filename;
 
-	fc = gtk_file_chooser_dialog_new (_("Select color profile"), NULL,
-		GTK_FILE_CHOOSER_ACTION_OPEN,
-		GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
-		GTK_STOCK_OPEN, GTK_RESPONSE_ACCEPT, NULL);
-	gtk_dialog_set_default_response(GTK_DIALOG(fc), GTK_RESPONSE_ACCEPT);
+	filename = gui_cms_choose_profile(NULL);
 
-	file_filter_all = gtk_file_filter_new();
-	file_filter_color_profiles = gtk_file_filter_new();
-
-	n=0;
-	while(color_profiles[n])
+	if (filename)
 	{
-		gtk_file_filter_add_pattern(file_filter_color_profiles, color_profiles[n]);
-		n++;
+		gtk_combo_box_append_text(GTK_COMBO_BOX(combobox), g_basename(filename));
+		// FIXME: gtk_combo_box_set_active(GTK_COMBO_BOX(combobox), __SELECT_LAST__);
+		rs_conf_add_string_to_list_string(CONF_CMS_DI_PROFILE_LIST, filename);
+		rs_conf_set_integer(CONF_CMS_DI_PROFILE_SELECTED, gtk_combo_box_get_active(GTK_COMBO_BOX(combobox)));
 	}
-
-	gtk_file_filter_add_pattern(file_filter_all, "*");
-
-	gtk_file_filter_set_name(file_filter_all, _("All files"));
-	gtk_file_filter_set_name(file_filter_color_profiles, _("Color profiles (icc and icm)"));
-
-	gtk_file_chooser_add_filter(GTK_FILE_CHOOSER(fc), file_filter_color_profiles);
-	gtk_file_chooser_add_filter(GTK_FILE_CHOOSER(fc), file_filter_all);
-	if (gtk_dialog_run (GTK_DIALOG (fc)) == GTK_RESPONSE_ACCEPT)
-	{
-		gchar *filename;
-		cmsHPROFILE color_profile;
-		filename = gtk_file_chooser_get_filename (GTK_FILE_CHOOSER (fc));
-		gtk_widget_destroy (fc);
-
-		color_profile = cmsOpenProfileFromFile(filename, "r");
-		if (color_profile)
-		{
-			cmsCloseProfile(color_profile);
-			gtk_combo_box_append_text(GTK_COMBO_BOX(combobox), g_basename(filename));
-			// FIXME: gtk_combo_box_set_active(GTK_COMBO_BOX(combobox), __SELECT_LAST__);
-			rs_conf_add_string_to_list_string(CONF_CMS_DI_PROFILE_LIST, filename);
-			rs_conf_set_integer(CONF_CMS_DI_PROFILE_SELECTED, gtk_combo_box_get_active(GTK_COMBO_BOX(combobox)));
-		}
-		else
-		{
-			GtkWidget *warning = gui_dialog_make_from_text(GTK_STOCK_DIALOG_WARNING,
-				_("Not a valid color profile."), 
-				_("The file you selected does not appear to be a valid color profile."));
-			GtkWidget *ok_button = gtk_button_new_from_stock(GTK_STOCK_OK);
-			gtk_dialog_add_action_widget(GTK_DIALOG(warning), ok_button, GTK_RESPONSE_ACCEPT);
-			
-			gtk_widget_show_all(warning);
-			
-        	if((gtk_dialog_run(GTK_DIALOG(warning)) == GTK_RESPONSE_ACCEPT))
-	        {
-				gtk_widget_destroy(warning);
-				return;
-	        }
-    	    else
-			{
-				gtk_widget_destroy(warning);
-				return;
-			}
-		}
-
-		g_free (filename);
-	} else
-		gtk_widget_destroy (fc);
-
 	return;
 }
 
