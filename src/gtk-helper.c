@@ -170,29 +170,90 @@ gui_export_filename_entry_changed(GtkComboBox *combobox, gpointer user_data)
 void
 gui_cms_in_profile_combobox_changed(GtkComboBox *combobox, gpointer user_data)
 {
+	RS_BLOB *rs = (RS_BLOB *) user_data;
+	gchar *filename;
+
 	rs_conf_set_integer(CONF_CMS_IN_PROFILE_SELECTED, gtk_combo_box_get_active(GTK_COMBO_BOX(combobox)));
+	filename = rs_get_profile(RS_CMS_PROFILE_IN);
+
+	if (rs->loadProfile)
+	{
+		cmsCloseProfile(rs->loadProfile);
+		rs->loadProfile = NULL;
+	}
+
+	if (filename)
+	{
+		rs->loadProfile = cmsOpenProfileFromFile(filename, "r");
+		g_free(filename);
+	}
+
+	rs_cms_prepare_transforms(rs);
+	update_preview_callback(NULL, rs);
 	return;
 }
 
 void
 gui_cms_di_profile_combobox_changed(GtkComboBox *combobox, gpointer user_data)
 {
+	RS_BLOB *rs = (RS_BLOB *) user_data;
+	gchar *filename;
+
 	rs_conf_set_integer(CONF_CMS_DI_PROFILE_SELECTED, gtk_combo_box_get_active(GTK_COMBO_BOX(combobox)));
+	filename = rs_get_profile(RS_CMS_PROFILE_DISPLAY);
+
+	if (rs->displayProfile)
+	{
+		cmsCloseProfile(rs->displayProfile);
+		rs->displayProfile = NULL;
+	}
+
+	if (filename)
+	{
+		rs->displayProfile = cmsOpenProfileFromFile(filename, "r");
+		g_free(filename);
+	}
+
+	rs_cms_prepare_transforms(rs);
+	update_preview_callback(NULL, rs);
 	return;
 }
 
 void
 gui_cms_ex_profile_combobox_changed(GtkComboBox *combobox, gpointer user_data)
 {
+	RS_BLOB *rs = (RS_BLOB *) user_data;
+	gchar *filename;
+
 	rs_conf_set_integer(CONF_CMS_EX_PROFILE_SELECTED, gtk_combo_box_get_active(GTK_COMBO_BOX(combobox)));
+	filename = rs_get_profile(RS_CMS_PROFILE_EXPORT);
+
+	if (rs->exportProfile)
+	{
+		cmsCloseProfile(rs->exportProfile);
+		rs->exportProfile = NULL;
+	}
+
+	if (filename)
+	{
+		rs->exportProfile = cmsOpenProfileFromFile(filename, "r");
+		g_free(filename);
+	}
+
+	rs_cms_prepare_transforms(rs);
+	update_preview_callback(NULL, rs);
 	return;
 }
 
 void
 gui_cms_intent_combobox_changed(GtkComboBox *combobox, gpointer user_data)
 {
+	RS_BLOB *rs = (RS_BLOB *) user_data;
 	gint active = gtk_combo_box_get_active(combobox);
 	rs_conf_set_integer(CONF_CMS_INTENT, active);
+	rs->cms_intent = rs_cms_get_intent();
+	rs_cms_prepare_transforms(rs);
+	update_preview_callback(NULL, rs);
 	return;
 }
 
@@ -502,14 +563,14 @@ gui_preferences_make_cms_page(RS_BLOB *rs)
 	gtk_box_pack_start (GTK_BOX (cms_page), cms_gamma_hbox, FALSE, TRUE, 0);
 
 	g_signal_connect ((gpointer) cms_in_profile_combobox, "changed",
-			G_CALLBACK(gui_cms_in_profile_combobox_changed), NULL);
+			G_CALLBACK(gui_cms_in_profile_combobox_changed), rs);
 	g_signal_connect ((gpointer) cms_di_profile_combobox, "changed",
-			G_CALLBACK(gui_cms_di_profile_combobox_changed), NULL);
+			G_CALLBACK(gui_cms_di_profile_combobox_changed), rs);
 	g_signal_connect ((gpointer) cms_ex_profile_combobox, "changed",
-			G_CALLBACK(gui_cms_ex_profile_combobox_changed), NULL);
+			G_CALLBACK(gui_cms_ex_profile_combobox_changed), rs);
 			
 	g_signal_connect ((gpointer) cms_intent_combobox, "changed",
-			G_CALLBACK(gui_cms_intent_combobox_changed), NULL);
+			G_CALLBACK(gui_cms_intent_combobox_changed), rs);
 			
 	g_signal_connect ((gpointer) cms_in_profile_button, "clicked",
 			G_CALLBACK(gui_cms_in_profile_button_clicked), (gpointer) cms_in_profile_combobox);
