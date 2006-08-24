@@ -187,6 +187,10 @@ typedef struct {
 	RS_QUEUE *queue;
 	void *loadProfile;
 	void *displayProfile;
+	void *exportProfile;
+	void *displayTransform;
+	void *exportTransform;
+	gint cms_intent;
 } RS_BLOB;
 
 enum {

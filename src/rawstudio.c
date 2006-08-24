@@ -54,8 +54,13 @@ guint cpuflags = 0;
 guchar previewtable[65536];
 gushort previewtable16[65536];
 
-cmsHTRANSFORM displayTransform;
+cmsHPROFILE genericLoadProfile;
+cmsHPROFILE genericRGBProfile;
+cmsHPROFILE workProfile;
+
 cmsHTRANSFORM loadTransform;
+cmsHTRANSFORM displayTransform;
+cmsHTRANSFORM exportTransform;
 
 enum {
 	RS_CMS_PROFILE_IN,
@@ -1556,6 +1561,88 @@ rs_cms_is_profile_valid(const gchar *path)
 	return(ret);
 }
 
+void
+rs_cms_prepare_transforms(RS_BLOB *rs)
+{
+	if (rs->loadProfile)
+	{
+		if (loadTransform)
+			cmsDeleteTransform(loadTransform);
+		loadTransform = cmsCreateTransform(rs->loadProfile, TYPE_RGB_16,
+			workProfile, TYPE_RGB_16, rs->cms_intent, 0);
+	}
+	else
+		loadTransform = cmsCreateTransform(genericLoadProfile, TYPE_RGB_16,
+			workProfile, TYPE_RGB_16, rs->cms_intent, 0);
+	cmsSetUserFormatters(loadTransform, TYPE_RGB_16, mycms_unroll_rgb_w, TYPE_RGB_16, mycms_pack_rgb4_w);
+
+	if (rs->displayProfile)
+	{
+		if (displayTransform)
+			cmsDeleteTransform(displayTransform);
+		displayTransform = cmsCreateTransform(workProfile, TYPE_RGB_16,
+			rs->displayProfile, TYPE_RGB_8, rs->cms_intent, 0);
+	}
+	else
+		displayTransform = cmsCreateTransform(workProfile, TYPE_RGB_16,
+			genericRGBProfile, TYPE_RGB_8, rs->cms_intent, 0);
+	cmsSetUserFormatters(displayTransform, TYPE_RGB_16, mycms_unroll_rgb_w, TYPE_RGB_8, mycms_pack_rgb_b);
+
+	if (rs->exportProfile)
+	{
+		if (exportTransform)
+			cmsDeleteTransform(exportTransform);
+	}
+	else
+		exportTransform = cmsCreateTransform(workProfile, TYPE_RGB_16,
+			genericRGBProfile, TYPE_RGB_8, rs->cms_intent, 0);
+	cmsSetUserFormatters(displayTransform, TYPE_RGB_16, mycms_unroll_rgb_w, TYPE_RGB_8, mycms_pack_rgb_b);
+
+	return;
+}
+
+void
+rs_cms_init(RS_BLOB *rs)
+{
+	gchar *custom_cms_in_profile;
+	gchar *custom_cms_display_profile;
+	cmsCIExyY D65;
+	LPGAMMATABLE gamma[3];
+	cmsCIExyYTRIPLE AdobeRGBPrimaries = {
+		{0.6400, 0.3300, 0.297361},
+		{0.2100, 0.7100, 0.627355},
+		{0.1500, 0.0600, 0.075285}};
+	cmsCIExyYTRIPLE genericLoadPrimaries = { /* FIXME: these is just from the top of my head! */
+		{0.7, 0.3, 0.25},
+		{0.2, 0.7, 0.6},
+		{0.2, 0.1, 0.1}};
+
+	cmsErrorAction(LCMS_ERROR_IGNORE);
+	cmsWhitePointFromTemp(6504, &D65);
+	gamma[0] = gamma[1] = gamma[2] = cmsBuildGamma(2,1.0);
+
+
+	/* set up builtin profiles */
+	workProfile = cmsCreateRGBProfile(&D65, &AdobeRGBPrimaries, gamma);
+	genericRGBProfile = cmsCreate_sRGBProfile();
+	genericLoadProfile = cmsCreateRGBProfile(&D65, &genericLoadPrimaries, gamma);
+
+	custom_cms_in_profile = rs_get_profile(RS_CMS_PROFILE_IN);
+	if (custom_cms_in_profile)
+		rs->loadProfile = cmsOpenProfileFromFile(custom_cms_in_profile, "r");
+	g_free(custom_cms_in_profile);
+
+	custom_cms_display_profile = rs_get_profile(RS_CMS_PROFILE_DISPLAY);
+	if (custom_cms_display_profile)
+		rs->displayProfile = cmsOpenProfileFromFile(custom_cms_display_profile, "r");
+	g_free(custom_cms_display_profile);
+
+	rs->cms_intent = rs_cms_get_intent();
+
+	rs_cms_prepare_transforms(rs);
+	return;
+}
+
 static guchar *
 mycms_pack_rgb_b(void *info, register WORD wOut[], register LPBYTE output)
 {
@@ -1595,8 +1682,6 @@ mycms_pack_rgb4_w(void *info, register WORD wOut[], register LPBYTE output)
 int
 main(int argc, char **argv)
 {
-	gchar *custom_cms_in_profile;
-	gchar *custom_cms_display_profile;
 	//gchar *custom_cms_export_profile;
 #ifdef __i386__
 	guint a,b,c,d;
@@ -1632,58 +1717,11 @@ main(int argc, char **argv)
 	bind_textdomain_codeset(GETTEXT_PACKAGE, "UTF-8");
 	textdomain(GETTEXT_PACKAGE);
 #endif
-	cmsHPROFILE workProfile;
-	cmsCIExyY D65;
-	LPGAMMATABLE gamma[3];
-	gint cms_intent;
 	RS_BLOB *rs;
 
 	gtk_init(&argc, &argv);
 	rs = rs_new();
-
-	cmsErrorAction(LCMS_ERROR_IGNORE);
-
-	gamma[0] = gamma[1] = gamma[2] = cmsBuildGamma(2,1.0);
-	cmsWhitePointFromTemp(6504, &D65);
-
-	cmsCIExyYTRIPLE AdobeRGBPrimaries = {
-		{0.6400, 0.3300, 0.297361},
-		{0.2100, 0.7100, 0.627355},
-		{0.1500, 0.0600, 0.075285}};
-	workProfile = cmsCreateRGBProfile(&D65, &AdobeRGBPrimaries, gamma);
-
-	/* FIXME: these is just from the top of my head! */
-	cmsCIExyYTRIPLE load = {
-		{0.7, 0.3, 0.25},
-		{0.2, 0.7, 0.6},
-		{0.2, 0.1, 0.1}};
-
-	custom_cms_in_profile = rs_get_profile(RS_CMS_PROFILE_IN);
-	if (custom_cms_in_profile)
-		rs->loadProfile = cmsOpenProfileFromFile(custom_cms_in_profile, "r");
-	g_free(custom_cms_in_profile);
-	if (!rs->loadProfile)
-		rs->loadProfile = cmsCreateRGBProfile(&D65, &load, gamma);
-
-	custom_cms_display_profile = rs_get_profile(RS_CMS_PROFILE_DISPLAY);	
-	if (custom_cms_display_profile)
-		rs->displayProfile = cmsOpenProfileFromFile(custom_cms_display_profile, "r");
-	g_free(custom_cms_display_profile);
-	if (!rs->displayProfile)
-		rs->displayProfile = cmsCreate_sRGBProfile();
-
-	cms_intent = rs_cms_get_intent();
-
-	/* transform for loading images */
-	loadTransform = cmsCreateTransform(rs->loadProfile, TYPE_RGB_16,
-		workProfile, TYPE_RGB_16, cms_intent, 0);
-	cmsSetUserFormatters(loadTransform, TYPE_RGB_16, mycms_unroll_rgb_w, TYPE_RGB_16, mycms_pack_rgb4_w);
-
-	/* transform for displaying preview */
-	displayTransform = cmsCreateTransform(workProfile, TYPE_RGB_16,
-		rs->displayProfile, TYPE_RGB_8, cms_intent, 0);
-	cmsSetUserFormatters(displayTransform, TYPE_RGB_16, mycms_unroll_rgb_w, TYPE_RGB_8, mycms_pack_rgb_b);
-
+	rs_cms_init(rs);
 	rs_conf_get_boolean(CONF_CACHEDIR_IS_LOCAL, &dotdir_is_local);
 	rs_conf_get_boolean(CONF_LOAD_GDK, &load_gdk);
 	gui_init(argc, argv, rs);
