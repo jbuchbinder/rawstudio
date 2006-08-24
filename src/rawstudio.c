@@ -1538,6 +1538,24 @@ gint rs_cms_get_intent()
 	}
 }
 
+gboolean
+rs_cms_is_profile_valid(const gchar *path)
+{
+	gboolean ret = FALSE;
+	cmsHPROFILE profile;
+
+	if (path)
+	{
+		profile = cmsOpenProfileFromFile(path, "r");
+		if (color_profile)
+		{
+			cmsCloseProfile(profile);
+			ret = TRUE;
+		}
+	}
+	return(ret);
+}
+
 static guchar *
 mycms_pack_rgb_b(void *info, register WORD wOut[], register LPBYTE output)
 {
