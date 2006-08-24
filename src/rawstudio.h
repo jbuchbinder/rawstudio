@@ -243,6 +243,7 @@ void rs_set_wb_from_mul(RS_BLOB *rs, gdouble *mul);
 void rs_set_wb(RS_BLOB *rs, gfloat warmth, gfloat tint);
 void rs_apply_settings_from_double(RS_SETTINGS *rss, RS_SETTINGS_DOUBLE *rsd, gint mask);
 gboolean rs_cms_is_profile_valid(const gchar *path);
+void rs_cms_prepare_transforms(RS_BLOB *rs);
 gboolean rs_shutdown(GtkWidget *dummy1, GdkEvent *dummy2, RS_BLOB *rs);
 #if !GLIB_CHECK_VERSION(2,8,0)
 int g_mkdir_with_parents (const gchar *pathname, int mode);
