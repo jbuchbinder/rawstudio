@@ -977,6 +977,7 @@ rs_new()
 	rs->zoom_to_fit = TRUE;
 	rs->loadProfile = NULL;
 	rs->displayProfile = NULL;
+	rs->exportProfile = NULL;
 	for(c=0;c<3;c++)
 		rs->settings[c] = rs_settings_new();
 	return(rs);
