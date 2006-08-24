@@ -1547,7 +1547,7 @@ rs_cms_is_profile_valid(const gchar *path)
 	if (path)
 	{
 		profile = cmsOpenProfileFromFile(path, "r");
-		if (color_profile)
+		if (profile)
 		{
 			cmsCloseProfile(profile);
 			ret = TRUE;
