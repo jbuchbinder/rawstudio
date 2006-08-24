@@ -62,12 +62,6 @@ cmsHTRANSFORM loadTransform;
 cmsHTRANSFORM displayTransform;
 cmsHTRANSFORM exportTransform;
 
-enum {
-	RS_CMS_PROFILE_IN,
-	RS_CMS_PROFILE_DISPLAY,
-	RS_CMS_PROFILE_EXPORT
-};
-
 inline void rs_photo_prepare(RS_PHOTO *photo, gdouble gamma);
 void update_scaled(RS_BLOB *rs);
 inline void rs_render_mask(guchar *pixels, guchar *mask, guint length);
