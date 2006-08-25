@@ -69,9 +69,6 @@ inline void rs_photo_prepare(RS_PHOTO *photo, gdouble gamma);
 void update_scaled(RS_BLOB *rs);
 inline void rs_render_mask(guchar *pixels, guchar *mask, guint length);
 gboolean rs_render_idle(RS_BLOB *rs);
-void rs_render_overlay(RS_PHOTO *photo, gint width, gint height, gushort *in,
-	gint in_rowstride, gint in_channels, guchar *out, gint out_rowstride,
-	guchar *mask, gint mask_rowstride);
 inline void rs_histogram_update_table(RS_BLOB *rs, RS_IMAGE16 *input, guint *table);
 RS_SETTINGS *rs_settings_new();
 void rs_settings_free(RS_SETTINGS *rss);
