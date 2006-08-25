@@ -187,7 +187,6 @@ typedef struct {
 	gint preview_height;
 	gboolean preview_idle_render;
 	gboolean preview_done;
-	GdkPixmap *preview_backing;
 	gint preview_idle_render_lastrow;
 	gboolean show_exposure_overlay;
 	GArray *batch_queue;

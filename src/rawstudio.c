@@ -953,7 +953,6 @@ rs_new()
 		G_CALLBACK(update_scale_callback), rs);
 	rs->histogram_dataset = NULL;
 	rs->preview_exposed = (RS_RECT *) g_malloc(sizeof(RS_RECT));
-	rs->preview_backing = NULL;
 	rs->preview_done = FALSE;
 	rs->preview_idle_render = FALSE;
 	rs->settings_buffer = NULL;
