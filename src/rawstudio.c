@@ -172,12 +172,6 @@ update_scaled(RS_BLOB *rs)
 		gtk_widget_set_size_request(rs->preview_drawingarea, rs->photo->scaled->w, rs->photo->scaled->h);
 	}
 
-	/* allocate mask-buffer if needed */
-	if (!rs_image16_8_cmp_size(rs->photo->scaled, rs->photo->mask))
-	{
-		rs_image8_free(rs->photo->mask);
-		rs->photo->mask = rs_image8_new(rs->photo->scaled->w, rs->photo->scaled->h, 1, 1);
-	}
 	return;
 }
 
@@ -254,27 +248,6 @@ update_preview_region(RS_BLOB *rs, RS_RECT *region)
 		rs->preview_drawingarea->style->fg_gc[GTK_STATE_NORMAL],
 		rs->photo->preview->image,
 		x1, y1, x1, y1, x2-x1, y2-y1);
-	return;
-}
-
-inline void
-rs_render_mask(guchar *pixels, guchar *mask, guint length)
-{
-	guchar *pixel = pixels;
-	while(length--)
-	{
-		*mask = 0x0;
-		if (pixel[R] == 255)
-			*mask |= MASK_OVER;
-		else if (pixel[G] == 255)
-			*mask |= MASK_OVER;
-		else if (pixel[B] == 255)
-			*mask |= MASK_OVER;
-		else if ((pixel[R] < 2 && pixel[G] < 2) && pixel[B] < 2)
-			*mask |= MASK_UNDER;
-		pixel+=x_bytes_per_pixel;
-		mask++;
-	}
 	return;
 }
 
@@ -362,40 +335,6 @@ rs_render_idle(RS_BLOB *rs)
 	rs->preview_done = TRUE;
 	rs->preview_idle_render = FALSE;
 	return(FALSE);
-}
-
-void
-rs_render_overlay(RS_PHOTO *photo, gint width, gint height, gushort *in,
-	gint in_rowstride, gint in_channels, guchar *out, gint out_rowstride,
-	guchar *mask, gint mask_rowstride)
-{
-	gint y,x;
-	gint maskoffset, destoffset;
-	rs_render(photo, width, height, in, in_rowstride, in_channels, out, out_rowstride, displayTransform);
-	for(y=0 ; y<height ; y++)
-	{
-		destoffset = y * out_rowstride;
-		maskoffset = y * mask_rowstride;
-		rs_render_mask(out+destoffset, mask+maskoffset, width);
-		for(x=0 ; x<width ; x++)
-		{
-			if (mask[maskoffset] & MASK_OVER)
-			{
-				out[destoffset+B] = 255;
-				out[destoffset+R] = 0;
-				out[destoffset+G] = 0;
-			}
-			if (mask[maskoffset] & MASK_UNDER)
-			{
-				out[destoffset+B] = 0;
-				out[destoffset+R] = 255;
-				out[destoffset+G] = 0;
-			}
-			maskoffset++;
-			destoffset+=x_bytes_per_pixel;
-		}
-	}
-	return;
 }
 
 inline void
@@ -857,7 +796,6 @@ rs_photo_new()
 	photo->input = NULL;
 	photo->scaled = NULL;
 	photo->preview = NULL;
-	photo->mask = NULL;
 	ORIENTATION_RESET(photo->orientation);
 	photo->current_setting = 0;
 	photo->priority = PRIO_U;
