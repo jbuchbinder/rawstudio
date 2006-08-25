@@ -44,8 +44,8 @@ drawingarea_expose (GtkWidget *widget, GdkEventExpose *event, RS_BLOB *rs)
 	rs->preview_exposed->x2 = ((gint) hadj->page_size)+rs->preview_exposed->x1;
 	rs->preview_exposed->y2 = ((gint) vadj->page_size)+rs->preview_exposed->y1;
 	if (rs->preview_done)
-		gdk_draw_drawable(widget->window, widget->style->fg_gc[GTK_WIDGET_STATE (widget)],
-			rs->preview_backing,
+		gdk_draw_image(widget->window, widget->style->fg_gc[GTK_WIDGET_STATE (widget)],
+			rs->photo->preview->image,
 			event->area.x, event->area.y,
 			event->area.x, event->area.y,
 			event->area.width, event->area.height);

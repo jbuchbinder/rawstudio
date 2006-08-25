@@ -54,6 +54,9 @@ guint cpuflags = 0;
 guchar previewtable[65536];
 gushort previewtable16[65536];
 
+gint x_depth = 0;
+gint x_bytes_per_pixel = 0;
+
 cmsHPROFILE genericLoadProfile;
 cmsHPROFILE genericRGBProfile;
 cmsHPROFILE workProfile;
@@ -78,6 +81,11 @@ RS_PHOTO *rs_photo_open_dcraw(const gchar *filename);
 RS_PHOTO *rs_photo_open_gdk(const gchar *filename);
 GdkPixbuf *rs_thumb_grt(const gchar *src);
 GdkPixbuf *rs_thumb_gdk(const gchar *src);
+static guchar *mycms_pack_rgb_x15(void *info, register WORD wOut[], register LPBYTE output);
+static guchar *mycms_pack_rgb_x16(void *info, register WORD wOut[], register LPBYTE output);
+static guchar *mycms_pack_rgb_x24(void *info, register WORD wOut[], register LPBYTE output);
+static guchar *mycms_pack_rgb_x32(void *info, register WORD wOut[], register LPBYTE output);
+static guchar *mycms_pack_rgb_x32_mask(void *info, register WORD wOut[], register LPBYTE output);
 static guchar *mycms_pack_rgb_b(void *info, register WORD wOut[], register LPBYTE output);
 static guchar *mycms_unroll_rgb_w(void *info, register WORD wIn[], register LPBYTE accum);
 static guchar *mycms_unroll_rgb4_w(void *info, register WORD wIn[], register LPBYTE accum);
@@ -160,7 +168,7 @@ update_scaled(RS_BLOB *rs)
 	if (!rs_image16_8_cmp_size(rs->photo->scaled, rs->photo->preview))
 	{
 		rs_image8_free(rs->photo->preview);
-		rs->photo->preview = rs_image8_new(rs->photo->scaled->w, rs->photo->scaled->h, 3, 3);
+		rs->photo->preview = rs_image8_new(rs->photo->scaled->w, rs->photo->scaled->h, 3, x_bytes_per_pixel);
 		gtk_widget_set_size_request(rs->preview_drawingarea, rs->photo->scaled->w, rs->photo->scaled->h);
 	}
 
@@ -240,20 +248,12 @@ update_preview_region(RS_BLOB *rs, RS_RECT *region)
 
 	pixels = rs->photo->preview->pixels+(y1*rs->photo->preview->rowstride+x1*rs->photo->preview->pixelsize);
 	in = rs->photo->scaled->pixels+(y1*rs->photo->scaled->rowstride+x1*rs->photo->scaled->pixelsize);
-	if (unlikely(rs->show_exposure_overlay))
-	{
-		guchar *mask = rs->photo->mask->pixels+(y1*rs->photo->mask->rowstride+x1*rs->photo->mask->pixelsize);
-		rs_render_overlay(rs->photo, x2-x1, y2-y1, in, rs->photo->scaled->rowstride,
-			rs->photo->scaled->pixelsize, pixels, rs->photo->preview->rowstride,
-			mask, rs->photo->mask->rowstride);
-	}
-	else
-		rs_render(rs->photo, x2-x1, y2-y1, in, rs->photo->scaled->rowstride,
-			rs->photo->scaled->pixelsize, pixels, rs->photo->preview->rowstride, displayTransform);
-	gdk_draw_rgb_image(rs->preview_drawingarea->window,
+	rs_render(rs->photo, x2-x1, y2-y1, in, rs->photo->scaled->rowstride,
+		rs->photo->scaled->pixelsize, pixels, rs->photo->preview->rowstride, displayTransform);
+	gdk_draw_image(rs->preview_drawingarea->window,
 		rs->preview_drawingarea->style->fg_gc[GTK_STATE_NORMAL],
-		x1, y1, x2-x1, y2-y1,
-		GDK_RGB_DITHER_NONE, pixels, rs->photo->preview->rowstride);
+		rs->photo->preview->image,
+		x1, y1, x1, y1, x2-x1, y2-y1);
 	return;
 }
 
@@ -272,7 +272,7 @@ rs_render_mask(guchar *pixels, guchar *mask, guint length)
 			*mask |= MASK_OVER;
 		else if ((pixel[R] < 2 && pixel[G] < 2) && pixel[B] < 2)
 			*mask |= MASK_UNDER;
-		pixel+=3;
+		pixel+=x_bytes_per_pixel;
 		mask++;
 	}
 	return;
@@ -344,7 +344,7 @@ rs_render_idle(RS_BLOB *rs)
 {
 	gint row;
 	gushort *in;
-	guchar *out, *mask;
+	guchar *out;
 
 	if (rs->in_use && (!rs->preview_done))
 		for(row=rs->preview_idle_render_lastrow; row<rs->photo->scaled->h; row++)
@@ -352,21 +352,9 @@ rs_render_idle(RS_BLOB *rs)
 			in = rs->photo->scaled->pixels + row*rs->photo->scaled->rowstride;
 			out = rs->photo->preview->pixels + row*rs->photo->preview->rowstride;
 
-			if (unlikely(rs->show_exposure_overlay))
-			{
-				mask = rs->photo->mask->pixels + row*rs->photo->mask->rowstride;
-				rs_render_overlay(rs->photo, rs->photo->scaled->w, 1, in, rs->photo->scaled->rowstride,
-					rs->photo->scaled->pixelsize, out, rs->photo->preview->rowstride,
-					mask, rs->photo->mask->rowstride);
-			}
-			else
-				rs_render(rs->photo, rs->photo->scaled->w, 1, in, rs->photo->scaled->rowstride,
-					rs->photo->scaled->pixelsize, out, rs->photo->preview->rowstride, displayTransform);
-	
-			gdk_draw_rgb_image(rs->preview_backing,
-				rs->preview_drawingarea->style->fg_gc[GTK_STATE_NORMAL], 0, row,
-				rs->photo->scaled->w, 1, GDK_RGB_DITHER_NONE, out,
-				rs->photo->preview->rowstride);
+			rs_render(rs->photo, rs->photo->scaled->w, 1, in, rs->photo->scaled->rowstride,
+				rs->photo->scaled->pixelsize, out, rs->photo->preview->rowstride, displayTransform);
+
 			rs->preview_idle_render_lastrow=row+1;
 			if (gtk_events_pending()) return(TRUE);
 		}
@@ -393,18 +381,18 @@ rs_render_overlay(RS_PHOTO *photo, gint width, gint height, gushort *in,
 		{
 			if (mask[maskoffset] & MASK_OVER)
 			{
-				out[destoffset+R] = 255;
-				out[destoffset+B] = 0;
+				out[destoffset+B] = 255;
+				out[destoffset+R] = 0;
 				out[destoffset+G] = 0;
 			}
 			if (mask[maskoffset] & MASK_UNDER)
 			{
-				out[destoffset+R] = 0;
-				out[destoffset+B] = 255;
+				out[destoffset+B] = 0;
+				out[destoffset+R] = 255;
 				out[destoffset+G] = 0;
 			}
 			maskoffset++;
-			destoffset+=3;
+			destoffset+=x_bytes_per_pixel;
 		}
 	}
 	return;
@@ -1580,7 +1568,37 @@ rs_cms_prepare_transforms(RS_BLOB *rs)
 	else
 		displayTransform = cmsCreateTransform(workProfile, TYPE_RGB_16,
 			genericRGBProfile, TYPE_RGB_8, rs->cms_intent, 0);
-	cmsSetUserFormatters(displayTransform, TYPE_RGB_16, mycms_unroll_rgb_w, TYPE_RGB_8, mycms_pack_rgb_b);
+	if (rs->show_exposure_overlay && x_bytes_per_pixel==4)
+		cmsSetUserFormatters(displayTransform, TYPE_RGB_16,
+			mycms_unroll_rgb_w, TYPE_RGB_8, mycms_pack_rgb_x32_mask);
+	else
+		switch(x_depth)
+		{
+			case 15:
+				cmsSetUserFormatters(displayTransform, TYPE_RGB_16,
+					mycms_unroll_rgb_w, TYPE_RGB_8, mycms_pack_rgb_x15);
+				break;
+			case 16:
+				cmsSetUserFormatters(displayTransform, TYPE_RGB_16,
+					mycms_unroll_rgb_w, TYPE_RGB_8, mycms_pack_rgb_x16);
+				break;
+			case 24:
+				if (x_bytes_per_pixel==4)
+					cmsSetUserFormatters(displayTransform, TYPE_RGB_16,
+						mycms_unroll_rgb_w, TYPE_RGB_8, mycms_pack_rgb_x32);
+				else
+					cmsSetUserFormatters(displayTransform, TYPE_RGB_16,
+						mycms_unroll_rgb_w, TYPE_RGB_8, mycms_pack_rgb_x24);
+				break;
+			case 32:
+				cmsSetUserFormatters(displayTransform, TYPE_RGB_16,
+					mycms_unroll_rgb_w, TYPE_RGB_8, mycms_pack_rgb_x32);
+				break;
+			default:
+				printf("unsupport depth\n");
+				exit(1);
+				break;
+		}
 
 	if (rs->exportProfile)
 	{
@@ -1643,6 +1661,83 @@ rs_cms_init(RS_BLOB *rs)
 
 	rs_cms_prepare_transforms(rs);
 	return;
+}
+
+static guchar *
+mycms_pack_rgb_x15(void *info, register WORD wOut[], register LPBYTE output)
+{
+	gushort *o = (gushort *) output;
+	*o = (RGB_16_TO_8(wOut[2])>>3)
+		|((RGB_16_TO_8(wOut[1])>>3)<<5)
+		|((RGB_16_TO_8(wOut[0])>>3)<<10);
+	output+=2;
+	return(output);
+}
+
+static guchar *
+mycms_pack_rgb_x16(void *info, register WORD wOut[], register LPBYTE output)
+{
+	gushort *o = (gushort *) output;
+	*o = (RGB_16_TO_8(wOut[2])>>3)
+		|((RGB_16_TO_8(wOut[1])>>2)<<5)
+		|((RGB_16_TO_8(wOut[0])>>3)<<11);
+	output+=2;
+	return(output);
+}
+
+static guchar *
+mycms_pack_rgb_x24(void *info, register WORD wOut[], register LPBYTE output)
+{
+	*output++ = RGB_16_TO_8(wOut[2]);
+	*output++ = RGB_16_TO_8(wOut[1]);
+	*output++ = RGB_16_TO_8(wOut[0]);
+	return(output);
+}
+
+static guchar *
+mycms_pack_rgb_x32(void *info, register WORD wOut[], register LPBYTE output)
+{
+	guint *o = (guint *) output;
+	*o = RGB_16_TO_8(wOut[2]) 
+		| (RGB_16_TO_8(wOut[1])<<8)
+		| (RGB_16_TO_8(wOut[0])<<16);
+	output+=4;
+	return(output);
+}
+
+static guchar *
+mycms_pack_rgb_x32_mask(void *info, register WORD wOut[], register LPBYTE output)
+{
+	guchar mask = 0x0;
+	guchar a = RGB_16_TO_8(wOut[2]);
+	guchar b = RGB_16_TO_8(wOut[1]);
+	guchar c = RGB_16_TO_8(wOut[0]);
+
+	if (a == 0xff)
+		mask |= MASK_OVER;
+	else if (b == 0xff)
+		mask |= MASK_OVER;
+	else if (c == 0xff)
+		mask |= MASK_OVER;
+	else if ((a < 2 && b < 2) && c < 2)
+		mask |= MASK_UNDER;
+
+	if (mask & MASK_OVER)
+	{
+		a = b = 0;
+		c = 0xff;
+	}
+	else if (mask & MASK_UNDER)
+	{
+		b = c = 0;
+		a = 0xff;
+	}
+
+	*output++ = a;
+	*output++ = b;
+	*output++ = c;
+	*output++;
+	return(output);
 }
 
 static guchar *
@@ -1720,8 +1815,22 @@ main(int argc, char **argv)
 	textdomain(GETTEXT_PACKAGE);
 #endif
 	RS_BLOB *rs;
+	GdkImage *image;
+	GdkVisual *visual;
 
 	gtk_init(&argc, &argv);
+	x_depth = gdk_visual_get_best_depth();
+	if (x_depth < 15)
+	{
+		printf("Rawstudio requires at least a 15 bit display.\n");
+		exit(1);
+	}
+
+	visual = gdk_visual_get_system();
+	image = gdk_image_new(GDK_IMAGE_FASTEST, visual, 1,1);
+	x_bytes_per_pixel = image->bpp;
+	g_object_unref(image);
+
 	rs = rs_new();
 	rs_cms_init(rs);
 	rs_conf_get_boolean(CONF_CACHEDIR_IS_LOCAL, &dotdir_is_local);

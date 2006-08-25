@@ -1631,6 +1631,7 @@ gui_menu_show_exposure_mask_callback(gpointer callback_data, guint callback_acti
 	else
 	  gui_status_push(_("Hiding exposure mask"));
 	rs->show_exposure_overlay = GTK_CHECK_MENU_ITEM(widget)->active;
+	rs_cms_prepare_transforms(rs);
 	update_preview(rs);
 	return;
 }

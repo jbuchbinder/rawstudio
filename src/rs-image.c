@@ -335,13 +335,14 @@ rs_image8_new(const guint width, const guint height, const guint channels, const
 {
 	RS_IMAGE8 *rsi;
 	GdkVisual *vis;
+	extern gint x_bytes_per_pixel;
 
 	rsi = (RS_IMAGE8 *) g_malloc(sizeof(RS_IMAGE8));
 	rsi->image = NULL;
 	rsi->w = width;
 	rsi->h = height;
 	ORIENTATION_RESET(rsi->orientation);
-	if ((channels==3) && (pixelsize==4))
+	if ((channels==3) && (pixelsize==x_bytes_per_pixel))
 	{
 		vis = gdk_visual_get_system();
 		rsi->image = gdk_image_new(GDK_IMAGE_FASTEST, vis, width, height);
