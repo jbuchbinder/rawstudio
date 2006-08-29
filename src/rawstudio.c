@@ -80,6 +80,7 @@ RS_PHOTO *rs_photo_open_gdk(const gchar *filename);
 GdkPixbuf *rs_thumb_grt(const gchar *src);
 GdkPixbuf *rs_thumb_gdk(const gchar *src);
 static guchar *mycms_pack_rgb_x_generic(void *info, register WORD wOut[], register LPBYTE output);
+static guchar *mycms_pack_rgb_x_generic_mask(void *info, register WORD wOut[], register LPBYTE output);
 static guchar *mycms_pack_rgb_x15(void *info, register WORD wOut[], register LPBYTE output);
 static guchar *mycms_pack_rgb_x16(void *info, register WORD wOut[], register LPBYTE output);
 static guchar *mycms_pack_rgb_x24(void *info, register WORD wOut[], register LPBYTE output);
@@ -1504,9 +1505,18 @@ rs_cms_prepare_transforms(RS_BLOB *rs)
 	else
 		displayTransform = cmsCreateTransform(workProfile, TYPE_RGB_16,
 			genericRGBProfile, TYPE_RGB_8, rs->cms_intent, 0);
-	if (rs->show_exposure_overlay && x_bytes_per_pixel==4)
-		cmsSetUserFormatters(displayTransform, TYPE_RGB_16,
-			mycms_unroll_rgb_w, TYPE_RGB_8, mycms_pack_rgb_x32_mask);
+	if (rs->show_exposure_overlay)
+		switch (x_bytes_per_pixel)
+		{
+			case 4:
+				cmsSetUserFormatters(displayTransform, TYPE_RGB_16,
+					mycms_unroll_rgb_w, TYPE_RGB_8, mycms_pack_rgb_x32_mask);
+				break;
+			default:
+				cmsSetUserFormatters(displayTransform, TYPE_RGB_16,
+					mycms_unroll_rgb_w, TYPE_RGB_8, mycms_pack_rgb_x_generic_mask);
+				break;
+		}
 	else
 		switch(x_depth)
 		{
@@ -1606,6 +1616,25 @@ mycms_pack_rgb_x_generic(void *info, register WORD wOut[], register LPBYTE outpu
 	*o = ((RGB_16_TO_8(wOut[0]) >> (8-system_visual->red_prec))   << system_visual->red_shift)
 		|((RGB_16_TO_8(wOut[1]) >> (8-system_visual->green_prec)) << system_visual->green_shift)
 		|((RGB_16_TO_8(wOut[2]) >> (8-system_visual->blue_prec))  << system_visual->blue_shift);
+	output+=x_bytes_per_pixel;
+	return(output);
+}
+
+static guchar *
+mycms_pack_rgb_x_generic_mask(void *info, register WORD wOut[], register LPBYTE output)
+{
+	guint *o = (guint *) output;
+	*o = ((RGB_16_TO_8(wOut[0]) >> (8-system_visual->red_prec))   << system_visual->red_shift)
+		|((RGB_16_TO_8(wOut[1]) >> (8-system_visual->green_prec)) << system_visual->green_shift)
+		|((RGB_16_TO_8(wOut[2]) >> (8-system_visual->blue_prec))  << system_visual->blue_shift);
+
+	if ((((*o&system_visual->red_mask) == system_visual->red_mask)
+		| ((*o&system_visual->green_mask) == system_visual->green_mask))
+		| ((*o&system_visual->blue_mask) == system_visual->blue_mask))
+		*o = 0xff0000;
+
+	/* FIXME: catch underexposed */
+
 	output+=x_bytes_per_pixel;
 	return(output);
 }
