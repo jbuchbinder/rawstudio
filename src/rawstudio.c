@@ -56,6 +56,7 @@ gushort previewtable16[65536];
 
 gint x_depth = 0;
 gint x_bytes_per_pixel = 0;
+GdkVisual *system_visual = NULL;
 
 cmsHPROFILE genericLoadProfile;
 cmsHPROFILE genericRGBProfile;
@@ -78,6 +79,7 @@ RS_PHOTO *rs_photo_open_dcraw(const gchar *filename);
 RS_PHOTO *rs_photo_open_gdk(const gchar *filename);
 GdkPixbuf *rs_thumb_grt(const gchar *src);
 GdkPixbuf *rs_thumb_gdk(const gchar *src);
+static guchar *mycms_pack_rgb_x_generic(void *info, register WORD wOut[], register LPBYTE output);
 static guchar *mycms_pack_rgb_x15(void *info, register WORD wOut[], register LPBYTE output);
 static guchar *mycms_pack_rgb_x16(void *info, register WORD wOut[], register LPBYTE output);
 static guchar *mycms_pack_rgb_x24(void *info, register WORD wOut[], register LPBYTE output);
@@ -1529,8 +1531,8 @@ rs_cms_prepare_transforms(RS_BLOB *rs)
 					mycms_unroll_rgb_w, TYPE_RGB_8, mycms_pack_rgb_x32);
 				break;
 			default:
-				printf("unsupport depth\n");
-				exit(1);
+				cmsSetUserFormatters(displayTransform, TYPE_RGB_16,
+					mycms_unroll_rgb_w, TYPE_RGB_8, mycms_pack_rgb_x_generic);
 				break;
 		}
 
@@ -1595,6 +1597,17 @@ rs_cms_init(RS_BLOB *rs)
 
 	rs_cms_prepare_transforms(rs);
 	return;
+}
+
+static guchar *
+mycms_pack_rgb_x_generic(void *info, register WORD wOut[], register LPBYTE output)
+{
+	guint *o = (guint *) output;
+	*o = ((RGB_16_TO_8(wOut[0]) >> (8-system_visual->red_prec))   << system_visual->red_shift)
+		|((RGB_16_TO_8(wOut[1]) >> (8-system_visual->green_prec)) << system_visual->green_shift)
+		|((RGB_16_TO_8(wOut[2]) >> (8-system_visual->blue_prec))  << system_visual->blue_shift);
+	output+=x_bytes_per_pixel;
+	return(output);
 }
 
 static guchar *
@@ -1750,7 +1763,6 @@ main(int argc, char **argv)
 #endif
 	RS_BLOB *rs;
 	GdkImage *image;
-	GdkVisual *visual;
 
 	gtk_init(&argc, &argv);
 	x_depth = gdk_visual_get_best_depth();
@@ -1760,8 +1772,8 @@ main(int argc, char **argv)
 		exit(1);
 	}
 
-	visual = gdk_visual_get_system();
-	image = gdk_image_new(GDK_IMAGE_FASTEST, visual, 1,1);
+	system_visual = gdk_visual_get_system();
+	image = gdk_image_new(GDK_IMAGE_FASTEST, system_visual, 1,1);
 	x_bytes_per_pixel = image->bpp;
 	g_object_unref(image);
 
