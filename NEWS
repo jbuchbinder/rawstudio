@@ -1,3 +1,6 @@
+News for version 0.6.1:
+This release fixes a few serious bugs and adds support for Canon EOS 40D.
+
 News for version 0.6:
 This release adds the much awaited curve-tool and supprt for DNG-files and
 more cameras. Rawstudio now remembers the state of the GUI and a progressbar
