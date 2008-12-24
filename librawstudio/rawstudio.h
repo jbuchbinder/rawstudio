@@ -22,7 +22,6 @@
 
 #include <sys/types.h>
 #include "rs-types.h"
-#include "color.h"
 
 #include "rs-macros.h"
 

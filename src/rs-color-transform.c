@@ -18,7 +18,6 @@
  */
 
 #include "application.h"
-#include "color.h"
 #include "rs-color-transform.h"
 #include "rs-spline.h"
 

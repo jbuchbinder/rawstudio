@@ -39,6 +39,9 @@
 #define __deprecated
 #endif
 
+/* Default gamma */
+#define GAMMA (2.2)
+
 #define _CLAMP65535(a) do { (a) = CLAMP((a), 0, 65535); } while(0)
 
 #define _CLAMP65535_TRIPLET(a, b, c) do {_CLAMP65535(a); _CLAMP65535(b); _CLAMP65535(c); } while (0)

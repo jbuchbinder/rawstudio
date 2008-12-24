@@ -22,7 +22,6 @@
 #include <gtk/gtk.h>
 #include <config.h>
 #include "gettext.h"
-#include "color.h"
 #include "application.h"
 #include "rs-actions.h"
 #include "conf_interface.h"

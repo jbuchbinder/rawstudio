@@ -19,7 +19,6 @@
 
 #include <rawstudio.h>
 #include "rs-photo.h"
-#include "color.h"
 #include "rs-cache.h"
 #include "rs-curve.h"
 #include "rs-preload.h"

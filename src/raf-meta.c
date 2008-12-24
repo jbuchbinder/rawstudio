@@ -24,7 +24,6 @@
 #include "application.h"
 #include "rawfile.h"
 #include "tiff-meta.h"
-#include "color.h"
 #include "rs-metadata.h"
 
 void
