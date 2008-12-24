@@ -43,5 +43,12 @@ typedef struct {
 	gint y2;
 } RS_RECT;
 
+typedef enum {
+	R = 0,
+	G = 1,
+	B = 2,
+	G2 = 3
+} RSColor;
+
 #endif /* RS_TYPES_H */
 

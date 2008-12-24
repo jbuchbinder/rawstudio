@@ -41,11 +41,4 @@ a = MAX(MIN(65535,a),0);b = MAX(MIN(65535,b),0);c = MAX(MIN(65535,c),0)
 
 #define COLOR_BLACK(c) do { c.red=0; c.green=0; c.blue=0; } while (0)
 
-enum {
-	R=0,
-	G=1,
-	B=2,
-	G2=3
-};
-
 #endif /* _COLOR_H_ */
