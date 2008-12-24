@@ -17,6 +17,9 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
+#ifndef RS_PLUGIN_H
+#define RS_PLUGIN_H
+
 #include <glib-object.h>
 
 G_BEGIN_DECLS
@@ -39,3 +42,5 @@ void rs_plugin_load(RSPlugin *plugin);
 void rs_plugin_unload(RSPlugin *plugin);
 
 G_END_DECLS
+
+#endif /* RS_PLUGIN_H */
