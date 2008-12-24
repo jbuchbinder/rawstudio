@@ -34,7 +34,6 @@
 #include "ciff-meta.h"
 #include "mrw-meta.h"
 #include "x3f-meta.h"
-#include "rs-image.h"
 #include "gettext.h"
 #include "conf_interface.h"
 #include "filename.h"
@@ -52,7 +51,6 @@
 #include "rs-math.h"
 #include "rs-exif.h"
 #include "rs-metadata.h"
-#include "rs-filetypes.h"
 
 static void photo_settings_changed(RS_PHOTO *photo, RSSettingsMask mask, RS_BLOB *rs);
 static void photo_spatial_changed(RS_PHOTO *photo, RS_BLOB *rs);
@@ -94,26 +92,6 @@ rs_init_filetypes(void)
 	rs_filetype_register_loader(extension, description, load, 10); \
 	rs_filetype_register_meta_loader(extension, description, meta, 10); \
 } while(0)
-
-	/* Raw file formats */
-	REGISTER_FILETYPE(".cr2", _("Canon CR2"), rs_image16_open_dcraw,  rs_tiff_load_meta);
-	REGISTER_FILETYPE(".crw", _("Canon CIFF"), rs_image16_open_dcraw, rs_ciff_load_meta);
-	REGISTER_FILETYPE(".nef", _("Nikon NEF"), rs_image16_open_dcraw, rs_tiff_load_meta);
-	REGISTER_FILETYPE(".mrw", _("Minolta raw"), rs_image16_open_dcraw, rs_mrw_load_meta);
-	REGISTER_FILETYPE(".tif", _("Canon TIFF"), rs_image16_open_dcraw, rs_tiff_load_meta);
-	REGISTER_FILETYPE(".arw", _("Sony"), rs_image16_open_dcraw, rs_tiff_load_meta);
-	REGISTER_FILETYPE(".sr2", _("Sony"), rs_image16_open_dcraw, rs_tiff_load_meta);
-	REGISTER_FILETYPE(".srf", _("Sony"), rs_image16_open_dcraw, rs_tiff_load_meta);
-	REGISTER_FILETYPE(".kdc", _("Kodak"), rs_image16_open_dcraw, rs_tiff_load_meta);
-	REGISTER_FILETYPE(".dcr", _("Kodak"), rs_image16_open_dcraw, rs_tiff_load_meta);
-	REGISTER_FILETYPE(".x3f", _("Sigma"), rs_image16_open_dcraw, rs_x3f_load_meta);
-	REGISTER_FILETYPE(".orf", _("Olympus"), rs_image16_open_dcraw, rs_tiff_load_meta);
-	REGISTER_FILETYPE(".raw", _("Panasonic raw"), rs_image16_open_dcraw, rs_tiff_load_meta);
-	REGISTER_FILETYPE(".pef", _("Pentax raw"), rs_image16_open_dcraw, rs_tiff_load_meta);
-	REGISTER_FILETYPE(".dng", _("Adobe Digital negative"), rs_image16_open_dcraw, rs_tiff_load_meta);
-	REGISTER_FILETYPE(".mef", _("Mamiya"), rs_image16_open_dcraw, rs_tiff_load_meta);
-	REGISTER_FILETYPE(".3fr", _("Hasselblad"), rs_image16_open_dcraw, rs_tiff_load_meta);
-	REGISTER_FILETYPE(".erf", _("Epson"), rs_image16_open_dcraw, rs_tiff_load_meta);
 
 	/* GDK formats */
 	REGISTER_FILETYPE(".jpg", _("JPEG (Joint Photographic Experts Group)"), rs_image16_open_gdk, rs_gdk_load_meta);

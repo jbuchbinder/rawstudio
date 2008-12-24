@@ -31,7 +31,6 @@
 #include "toolbox.h"
 #include "conf_interface.h"
 #include "rs-cache.h"
-#include "rs-image.h"
 #include "rs-batch.h"
 #include "gettext.h"
 #include "rs-batch.h"

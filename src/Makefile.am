@@ -26,7 +26,6 @@ EXTRA_DIST = \
 
 rawstudio_SOURCES = \
 	application.c application.h \
-	rs-filetypes.c rs-filetypes.h \
 	rs-job.c rs-job.h \
 	rs-actions.c rs-actions.h \
 	rs-preload.c rs-preload.h \
@@ -47,7 +46,6 @@ rawstudio_SOURCES = \
 	mrw-meta.c mrw-meta.h \
 	x3f-meta.c x3f-meta.h \
 	raf-meta.c raf-meta.h \
-	rs-image.c rs-image.h \
 	rs-photo.c rs-photo.h \
 	dcraw_api.cc dcraw_api.h \
 	dcraw.cc dcraw.h \
@@ -69,7 +67,6 @@ rawstudio_SOURCES = \
 	rs-pixbuf.c rs-pixbuf.h \
 	rs-external-editor.c rs-external-editor.h \
 	rs-dir-selector.c rs-dir-selector.h \
-	rs-metadata.c rs-metadata.h \
 	rs-exif.cc rs-exif.h
 
 rawstudio_LDADD = ../librawstudio/librawstudio-0.1.la @PACKAGE_LIBS@ @LIBJPEG@ @LIBTIFF@ $(INTLLIBS)

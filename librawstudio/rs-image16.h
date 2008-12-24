@@ -21,7 +21,6 @@
 #define RS_IMAGE16_H
 
 #include <glib-object.h>
-#include "application.h"
 
 #define RS_TYPE_IMAGE16        (rs_image16_get_type ())
 #define RS_IMAGE16(obj)        (G_TYPE_CHECK_INSTANCE_CAST ((obj), RS_TYPE_IMAGE16, RS_IMAGE16))
@@ -129,17 +128,8 @@ extern RS_IMAGE16 *rs_image16_sharpen(RS_IMAGE16 *in, RS_IMAGE16 *out, gdouble a
 extern RS_IMAGE16 *(*rs_image16_copy_double)(RS_IMAGE16 *in, RS_IMAGE16 *out);
 extern RS_IMAGE16 *rs_image16_copy_double_c(RS_IMAGE16 *in, RS_IMAGE16 *out);
 #if defined (__i386__) || defined (__x86_64__)
-extern RS_IMAGE16 *rs_image16_copy_double_mmx(RS_IMAGE16 *in, RS_IMAGE16 *out);
+//extern RS_IMAGE16 *rs_image16_copy_double_mmx(RS_IMAGE16 *in, RS_IMAGE16 *out);
 #endif /* defined (__i386__) || defined (__x86_64__) */
-
-/**
- * Open an image using the dcraw-engine
- * @param filename The filename to open
- * @param half_size Open in half size - without NN-demosaic
- * @return The newly created RS_IMAGE16 or NULL on error
- */
-RS_IMAGE16 *
-rs_image16_open_dcraw(const gchar *filename, gboolean half_size);
 
 /**
  * Open an image using the GDK-engine
@@ -151,10 +141,10 @@ RS_IMAGE16 *
 rs_image16_open_gdk(const gchar *filename, gboolean half_size);
 
 /* For arch binders */
-extern void (*rs_image16_open_dcraw_apply_black_and_shift)(dcraw_data *raw, RS_IMAGE16 *image) __rs_optimized;
-extern void rs_image16_open_dcraw_apply_black_and_shift_c(dcraw_data *raw, RS_IMAGE16 *image);
+//extern void (*rs_image16_open_dcraw_apply_black_and_shift)(dcraw_data *raw, RS_IMAGE16 *image) __rs_optimized;
+//extern void rs_image16_open_dcraw_apply_black_and_shift_c(dcraw_data *raw, RS_IMAGE16 *image);
 #if defined (__i386__) || defined (__x86_64__)
-extern void rs_image16_open_dcraw_apply_black_and_shift_mmx(dcraw_data *raw, RS_IMAGE16 *image);
+//extern void rs_image16_open_dcraw_apply_black_and_shift_mmx(dcraw_data *raw, RS_IMAGE16 *image);
 #endif
 
 /**

@@ -19,13 +19,11 @@
 
 #include <rawstudio.h>
 #include "rs-photo.h"
-#include "rs-image.h"
 #include "color.h"
 #include "rs-cache.h"
 #include "rs-curve.h"
 #include "rs-preload.h"
 #include "rs-metadata.h"
-#include "rs-filetypes.h"
 
 static void rs_photo_class_init (RS_PHOTOClass *klass);
 

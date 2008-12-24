@@ -24,9 +24,7 @@
 #include "rawfile.h"
 #include "tiff-meta.h"
 #include "adobe-coeff.h"
-#include "rs-image.h"
 #include "rs-color-transform.h"
-#include "rs-filetypes.h"
 #include "rs-metadata.h"
 
 /* It is required having some arbitrary maximum exposure time to prevent borked

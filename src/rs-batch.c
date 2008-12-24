@@ -32,7 +32,6 @@
 #include "filename.h"
 #include "rs-cache.h"
 #include "rs-color-transform.h"
-#include "rs-image.h"
 #include "rs-photo.h"
 #include "rs-metadata.h"
 

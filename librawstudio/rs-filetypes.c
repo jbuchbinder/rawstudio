@@ -18,6 +18,7 @@
  */
 
 #include "rs-filetypes.h"
+#include "rs-metadata.h"
 
 static gint tree_sort(gconstpointer a, gconstpointer b);
 static gint tree_search_func(gconstpointer a, gconstpointer b);

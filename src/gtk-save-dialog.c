@@ -25,7 +25,6 @@
 #include "gtk-save-dialog.h"
 #include "gtk-helper.h"
 #include "conf_interface.h"
-#include "rs-image.h"
 #include "rs-cms.h"
 #include <gettext.h>
 #include <config.h>

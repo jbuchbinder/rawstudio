@@ -36,7 +36,6 @@
 #include "rs-preload.h"
 #include "rs-photo.h"
 #include "rs-metadata.h"
-#include "rs-filetypes.h"
 
 /* How many different icon views do we have (tabs) */
 #define NUM_VIEWS 6

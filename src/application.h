@@ -33,25 +33,6 @@
 #error GLib was not compiled with thread support, Rawstudio needs threads - sorry.
 #endif
 
-#define ORIENTATION_RESET(orientation) orientation = 0
-#define ORIENTATION_90(orientation) orientation = (orientation&4) | ((orientation+1)&3)
-#define ORIENTATION_180(orientation) orientation = (orientation^2)
-#define ORIENTATION_270(orientation) orientation = (orientation&4) | ((orientation+3)&3)
-#define ORIENTATION_FLIP(orientation) orientation = (orientation^4)
-#define ORIENTATION_MIRROR(orientation) orientation = ((orientation&4)^4) | ((orientation+2)&3)
-
-#if __GNUC__ >= 3
-#define likely(x) __builtin_expect (!!(x), 1)
-#define unlikely(x) __builtin_expect (!!(x), 0)
-#define align(x) __attribute__ ((aligned (x)))
-#define __deprecated __attribute__ ((deprecated))
-#else
-#define likely(x) (x)
-#define unlikely(x) (x)
-#define align(x)
-#define __deprecated
-#endif
-
 /* The problem with the align GNU extension, is that it doesn't work
  * reliably with local variables, depending on versions and targets.
  * So better use a tricky define to ensure alignment even in these
@@ -67,12 +48,6 @@ typedef struct _RS_QUEUE RS_QUEUE;
 
 /* Defined in rs-color-transform.c */
 typedef struct _RSColorTransform RSColorTransform;
-
-/* Defined in rs-metadata.h */
-typedef struct _RSMetadata RSMetadata;
-
-/* Defined in rs-image.h */
-typedef struct _rs_image16 RS_IMAGE16;
 
 typedef struct _photo {
 	GObject parent;

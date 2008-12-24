@@ -23,10 +23,6 @@
 #include <libxml/encoding.h>
 #include <libxml/xmlwriter.h>
 #include "gettext.h"
-#include "rs-metadata.h"
-#include "application.h"
-#include "rs-math.h"
-#include "rs-filetypes.h"
 
 G_DEFINE_TYPE (RSMetadata, rs_metadata, G_TYPE_OBJECT)
 

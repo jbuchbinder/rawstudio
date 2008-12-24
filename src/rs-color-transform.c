@@ -21,7 +21,6 @@
 #include "color.h"
 #include "rs-color-transform.h"
 #include "rs-spline.h"
-#include "rs-image.h"
 
 static void make_tables(RSColorTransform *rct);
 static gboolean select_render(RSColorTransform *rct);

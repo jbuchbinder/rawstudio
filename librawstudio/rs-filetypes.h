@@ -19,12 +19,10 @@
 #ifndef RS_FILETYPES_H
 #define RS_FILETYPES_H
 
-#include "rs-metadata.h"
-#include "rs-image.h"
+#include "rs-types.h"
 
 typedef RS_IMAGE16 *(*RSFileLoaderFunc)(const gchar *filename, const gboolean half_size);
 typedef void (*RSFileMetaLoaderFunc)(const gchar *filename, RSMetadata *meta);
-typedef gboolean (*RSFileSaverFunc)(RS_PHOTO *photo, const gchar *filename, const gint width, const gint height, const gboolean keep_aspect, const gdouble scale, const gint snapshot, const RS_CMS *cms);
 
 /**
  * Initialize the RSFiletype subsystem, this MUST be called before any other

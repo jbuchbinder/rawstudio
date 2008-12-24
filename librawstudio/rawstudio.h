@@ -20,10 +20,18 @@
 #ifndef RAWSTUDIO_H
 #define RAWSTUDIO_H
 
+#include <sys/types.h>
 #include "rs-types.h"
 #include "color.h"
 
+#include "rs-macros.h"
+
+#include "rs-settings.h"
 #include "rs-image.h"
+#include "rs-image16.h"
+#include "rs-metadata.h"
+#include "rs-filetypes.h"
+#include "rs-plugin.h"
 #include "rs-filter.h"
 #include "rs-plugin-manager.h"
 #include "rs-utils.h"

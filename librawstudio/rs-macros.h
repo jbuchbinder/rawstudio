@@ -17,31 +17,26 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-#include "rs-color-transform.h"
+#ifndef RS_MACROS_H
+#define RS_MACROS_H
 
-/* Default dsp function binder, defined for all archs so that a common C
- * implementation of every optimized function is shared among archs */
-void
-rs_bind_default_functions(void)
-{
-	/* Bind all default C implementation fucntions */
+#define ORIENTATION_RESET(orientation) orientation = 0
+#define ORIENTATION_90(orientation) orientation = (orientation&4) | ((orientation+1)&3)
+#define ORIENTATION_180(orientation) orientation = (orientation^2)
+#define ORIENTATION_270(orientation) orientation = (orientation&4) | ((orientation+3)&3)
+#define ORIENTATION_FLIP(orientation) orientation = (orientation^4)
+#define ORIENTATION_MIRROR(orientation) orientation = ((orientation&4)^4) | ((orientation+2)&3)
 
-	/* Image size doubler */
-//	rs_image16_copy_double = rs_image16_copy_double_c;
-
-	/* Black point and shift applier */
-//	rs_image16_open_dcraw_apply_black_and_shift = rs_image16_open_dcraw_apply_black_and_shift_c;
-
-	/* Renderers */
-	transform_nocms8 = transform_nocms_c;
-	transform_cms8 = transform_cms_c;
-}
-
-#if !defined (__i386__) && !defined(__x86_64__)
-/* Optimized dsp function binder, defined for all archs that don't have 
- * custom code - a stub for the generic C arch */
-void
-rs_bind_optimized_functions(void)
-{
-}
+#if __GNUC__ >= 3
+#define likely(x) __builtin_expect (!!(x), 1)
+#define unlikely(x) __builtin_expect (!!(x), 0)
+#define align(x) __attribute__ ((aligned (x)))
+#define __deprecated __attribute__ ((deprecated))
+#else
+#define likely(x) (x)
+#define unlikely(x) (x)
+#define align(x)
+#define __deprecated
 #endif
+
+#endif /* RS_MACROS_H */

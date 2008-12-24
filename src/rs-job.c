@@ -20,7 +20,6 @@
 #include <glib.h>
 #include "rs-job.h"
 #include "application.h"
-#include "rs-image.h"
 #include "rs-color-transform.h"
 
 typedef enum {
