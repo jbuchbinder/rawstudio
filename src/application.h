@@ -19,6 +19,7 @@
 #ifndef APPLICATION_H
 #define APPLICATION_H
 
+#include <rawstudio.h>
 #include <gtk/gtk.h>
 #include <glib.h>
 #include <lcms.h>
@@ -79,13 +80,6 @@ typedef struct {double coeff[3][3]; } RS_MATRIX3;
 typedef struct {int coeff[3][3]; } RS_MATRIX3Int;
 typedef struct {double coeff[4][4]; } RS_MATRIX4;
 typedef struct {int coeff[4][4]; } RS_MATRIX4Int;
-
-typedef struct {
-	gint x1;
-	gint y1;
-	gint x2;
-	gint y2;
-} RS_RECT;
 
 typedef struct _photo {
 	GObject parent;

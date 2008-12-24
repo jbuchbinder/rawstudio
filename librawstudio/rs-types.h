@@ -17,9 +17,17 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-#ifndef RAWSTUDIO_H
-#define RAWSTUDIO_H
+#ifndef RS_TYPES_H
+#define RS_TYPES_H
 
-#include "rs-types.h"
+#include <gtk/gtk.h>
 
-#endif /* RAWSTUDIO_H */
+typedef struct {
+	gint x1;
+	gint y1;
+	gint x2;
+	gint y2;
+} RS_RECT;
+
+#endif /* RS_TYPES_H */
+
