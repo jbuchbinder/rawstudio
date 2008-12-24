@@ -79,7 +79,7 @@ rs_plugin_manager_load_all_plugins()
 		g_debug("- %s", klass->name);
 		g_type_class_unref(klass);
 	}
-	g_free(filter);
+	g_free(filters);
 
 	if (dir)
 		g_dir_close(dir);
