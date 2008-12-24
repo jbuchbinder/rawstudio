@@ -39,4 +39,12 @@
 #define __deprecated
 #endif
 
+#define _CLAMP65535(a) do { (a) = CLAMP((a), 0, 65535); } while(0)
+
+#define _CLAMP65535_TRIPLET(a, b, c) do {_CLAMP65535(a); _CLAMP65535(b); _CLAMP65535(c); } while (0)
+
+#define _CLAMP255(a) do { (a) = CLAMP((a), 0, 255); } while (0)
+
+#define COLOR_BLACK(c) do { (c).red=0; (c).green=0; (c).blue=0; } while (0)
+
 #endif /* RS_MACROS_H */
