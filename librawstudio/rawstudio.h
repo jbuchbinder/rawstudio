@@ -23,5 +23,6 @@
 #include "rs-types.h"
 #include "color.h"
 #include "rs-utils.h"
+#include "rs-settings.h"
 
 #endif /* RAWSTUDIO_H */

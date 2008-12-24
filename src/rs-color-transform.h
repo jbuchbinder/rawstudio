@@ -23,7 +23,6 @@
 #include <glib-object.h>
 #include "application.h"
 #include "rs-math.h"
-#include "rs-settings.h"
 
 #define RS_TYPE_COLOR_TRANSFORM rs_color_transform_get_type()
 #define RS_COLOR_TRANSFORM(obj) (G_TYPE_CHECK_INSTANCE_CAST ((obj), RS_TYPE_COLOR_TRANSFORM, RSColorTransform))

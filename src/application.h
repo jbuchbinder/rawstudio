@@ -74,8 +74,6 @@ typedef struct _RSMetadata RSMetadata;
 /* Defined in rs-image.h */
 typedef struct _rs_image16 RS_IMAGE16;
 
-#include "rs-settings.h" /* FIXME: This is getting pathetic */
-
 typedef struct _photo {
 	GObject parent;
 	gchar *filename;
