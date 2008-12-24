@@ -22,12 +22,6 @@
 
 //#include "x86_cpu.h"
 
-/* luminance weight, notice that these is used for linear data */
-
-#define RLUM (0.3086)
-#define GLUM (0.6094)
-#define BLUM (0.0820)
-
 #define GAMMA 2.2 /* this is ONLY used to render the histogram */
 
 #endif /* _COLOR_H_ */

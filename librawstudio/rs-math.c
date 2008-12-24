@@ -23,6 +23,11 @@
 #include "color.h"
 #include "rs-math.h"
 
+/* luminance weights, notice that these is used for linear data */
+#define RLUM (0.3086)
+#define GLUM (0.6094)
+#define BLUM (0.0820)
+
 static void matrix4_zshear (RS_MATRIX4 *matrix, double dx, double dy);
 static void matrix4_xrotate(RS_MATRIX4 *matrix, double rs, double rc);
 static void matrix4_yrotate(RS_MATRIX4 *matrix, double rs, double rc);
