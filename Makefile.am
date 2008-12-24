@@ -1,6 +1,6 @@
 ## Process this file with automake to produce Makefile.in
 
-SUBDIRS = src po pixmaps
+SUBDIRS = librawstudio src po pixmaps
 
 desktopdir = $(datadir)/applications
 desktop_DATA = rawstudio.desktop

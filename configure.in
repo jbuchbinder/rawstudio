@@ -72,6 +72,7 @@ AC_CHECK_FUNCS(memmem)
 
 AC_OUTPUT([
 Makefile
+librawstudio/Makefile
 src/Makefile
 po/Makefile.in
 pixmaps/Makefile
