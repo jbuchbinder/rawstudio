@@ -19,6 +19,7 @@
 
 #include <stdio.h>
 #include <math.h>
+#include <stdlib.h>
 #include "color.h"
 #include "rs-math.h"
 

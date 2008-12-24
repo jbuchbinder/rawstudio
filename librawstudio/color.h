@@ -20,7 +20,7 @@
 #ifndef _COLOR_H_
 #define _COLOR_H_
 
-#include "x86_cpu.h"
+//#include "x86_cpu.h"
 
 /* luminance weight, notice that these is used for linear data */
 

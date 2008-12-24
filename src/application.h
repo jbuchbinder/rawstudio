@@ -76,11 +76,6 @@ typedef struct _rs_image16 RS_IMAGE16;
 
 #include "rs-settings.h" /* FIXME: This is getting pathetic */
 
-typedef struct {double coeff[3][3]; } RS_MATRIX3;
-typedef struct {int coeff[3][3]; } RS_MATRIX3Int;
-typedef struct {double coeff[4][4]; } RS_MATRIX4;
-typedef struct {int coeff[4][4]; } RS_MATRIX4Int;
-
 typedef struct _photo {
 	GObject parent;
 	gchar *filename;

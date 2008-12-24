@@ -17,6 +17,7 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
+#include <rawstudio.h>
 #include <gtk/gtk.h>
 #include <string.h>
 #define _ISOC9X_SOURCE 1 /* lrint() */
@@ -24,7 +25,7 @@
 #define	__USE_ISOC9X 1
 #define	__USE_ISOC99 1
 #include <math.h> /* floor() */
-#include "color.h"
+#include "x86_cpu.h"
 #include "rs-math.h"
 #include "application.h"
 #include "rs-image.h"

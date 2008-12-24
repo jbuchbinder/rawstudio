@@ -21,6 +21,7 @@
 #define RAWSTUDIO_H
 
 #include "rs-types.h"
+#include "color.h"
 #include "rs-utils.h"
 
 #endif /* RAWSTUDIO_H */

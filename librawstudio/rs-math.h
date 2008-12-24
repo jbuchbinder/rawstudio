@@ -20,7 +20,7 @@
 #ifndef RS_MATRIX_H
 #define RS_MATRIX_H
 
-#include "application.h"
+#include "rs-types.h"
 
 #define MATRIX_RESOLUTION (8) /* defined in bits! */
 

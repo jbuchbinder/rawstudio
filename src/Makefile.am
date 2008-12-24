@@ -7,7 +7,7 @@ INCLUDES = \
 	-I../librawstudio/
 
 AM_CFLAGS =\
-	-Wall\
+	-Wall -fno-strict-aliasing\
 	-O4\
 	-DWITH_GCONF\
 	-DDCRAW_NOMAIN\
@@ -30,7 +30,6 @@ rawstudio_SOURCES = \
 	rs-settings.c rs-settings.h \
 	rs-job.c rs-job.h \
 	rs-actions.c rs-actions.h \
-	rs-math.c rs-math.h \
 	rs-preload.c rs-preload.h \
 	gtk-helper.c gtk-helper.h \
 	gtk-interface.c gtk-interface.h \
