@@ -23,7 +23,7 @@
 #include <config.h>
 #include <libxml/encoding.h>
 #include <libxml/xmlwriter.h>
-#include "rawstudio.h"
+#include "application.h"
 #include "rs-batch.h"
 #include "conf_interface.h"
 #include "gettext.h"

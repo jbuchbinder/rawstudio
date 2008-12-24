@@ -18,7 +18,7 @@
  */
 
 #include <glib.h>
-#include "rawstudio.h"
+#include "application.h"
 #include "rawfile.h"
 #include "x3f-meta.h"
 #include "rs-utils.h"

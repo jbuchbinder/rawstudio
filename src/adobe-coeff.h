@@ -19,7 +19,7 @@
 
 #ifndef ADOBE_COEFF_H
 #define ADOBE_COEFF_H
-#include "rawstudio.h"
+#include "application.h"
 
 gboolean adobe_coeff_set(RS_MATRIX4 *matrix, gchar *make, gchar *model);
 #endif

@@ -19,7 +19,7 @@
 
 #include <glib/gstdio.h>
 #include <config.h>
-#include "rawstudio.h"
+#include "application.h"
 #include "conf_interface.h"
 #include "color.h"
 #include "rs-cms.h"

@@ -23,7 +23,7 @@
 #include <config.h>
 #include "gettext.h"
 #include "color.h"
-#include "rawstudio.h"
+#include "application.h"
 #include "rs-actions.h"
 #include "conf_interface.h"
 #include "rs-store.h"

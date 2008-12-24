@@ -16,8 +16,8 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-#ifndef RS_RAWSTUDIO_H
-#define RS_RAWSTUDIO_H
+#ifndef APPLICATION_H
+#define APPLICATION_H
 
 #include <gtk/gtk.h>
 #include <glib.h>
@@ -149,4 +149,4 @@ void rs_white_black_point(RS_BLOB *rs);
 /* Contains a list of supported filetypes */
 extern RS_FILETYPE *filetypes;
 
-#endif /* RS_RAWSTUDIO_H */
+#endif /* APPLICATION_H */

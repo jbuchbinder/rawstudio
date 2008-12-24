@@ -17,7 +17,7 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-#include "rawstudio.h"
+#include "application.h"
 
 extern gboolean exif_reader(RAWFILE *rawfile, guint offset, RSMetadata *meta);
 extern void rs_tiff_load_meta_from_rawfile(RAWFILE *rawfile, guint offset, RSMetadata *meta);

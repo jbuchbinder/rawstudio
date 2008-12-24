@@ -23,7 +23,7 @@
 #include <libxml/encoding.h>
 #include <libxml/xmlwriter.h>
 #include <glib.h>
-#include "rawstudio.h"
+#include "application.h"
 #include "conf_interface.h"
 #include "gettext.h"
 #include "rs-store.h"

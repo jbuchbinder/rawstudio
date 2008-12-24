@@ -23,7 +23,7 @@
 #include <string.h> /* memset() */
 #include <time.h>
 #include <config.h>
-#include "rawstudio.h"
+#include "application.h"
 #include "gtk-interface.h"
 #include "gtk-helper.h"
 #include "rs-cache.h"

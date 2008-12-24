@@ -20,7 +20,7 @@
 #include <gtk/gtk.h>
 #include <string.h> /* memset() */
 #include <config.h>
-#include "rawstudio.h"
+#include "application.h"
 #include "gtk-helper.h"
 #include "gtk-interface.h"
 #include "toolbox.h"

@@ -17,7 +17,7 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-#include "rawstudio.h"
+#include "application.h"
 
 extern void rs_raf_load_meta(const gchar *filename, RSMetadata *meta);
 extern GdkPixbuf *rs_raf_load_thumb(const gchar *src);

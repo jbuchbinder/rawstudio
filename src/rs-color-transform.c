@@ -17,7 +17,7 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-#include "rawstudio.h"
+#include "application.h"
 #include "color.h"
 #include "rs-color-transform.h"
 #include "rs-spline.h"

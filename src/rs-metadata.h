@@ -21,7 +21,7 @@
 #define RS_METADATA_H
 
 #include <glib-object.h>
-#include "rawstudio.h" /* FIXME: This is so broken! */
+#include "application.h" /* FIXME: This is so broken! */
 
 G_BEGIN_DECLS
 

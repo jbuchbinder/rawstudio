@@ -24,7 +24,7 @@ EXTRA_DIST = \
 	$(ui_DATA)
 
 rawstudio_SOURCES = \
-	rawstudio.c rawstudio.h \
+	application.c application.h \
 	rs-filetypes.c rs-filetypes.h \
 	rs-settings.c rs-settings.h \
 	rs-utils.c rs-utils.h \

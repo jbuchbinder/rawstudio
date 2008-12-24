@@ -18,7 +18,7 @@
  */
 
 #include <gtk/gtk.h>
-#include "rawstudio.h"
+#include "application.h"
 #include "rawfile.h"
 #include "mrw-meta.h"
 #include "tiff-meta.h"

@@ -26,7 +26,7 @@
 #include <math.h> /* floor() */
 #include "color.h"
 #include "rs-math.h"
-#include "rawstudio.h"
+#include "application.h"
 #include "rs-image.h"
 
 #define PITCH(width) ((((width)+15)/16)*16)

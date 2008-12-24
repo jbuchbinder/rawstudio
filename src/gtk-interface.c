@@ -23,7 +23,7 @@
 #include <gdk/gdkkeysyms.h>
 #include <config.h>
 #include "color.h"
-#include "rawstudio.h"
+#include "application.h"
 #include "gtk-helper.h"
 #include "gtk-interface.h"
 #include "gtk-save-dialog.h"

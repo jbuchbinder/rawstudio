@@ -21,7 +21,7 @@
 #define RS_COLOR_TRANSFORM_H
 
 #include <glib-object.h>
-#include "rawstudio.h"
+#include "application.h"
 #include "rs-math.h"
 #include "rs-settings.h"
 
@@ -32,7 +32,7 @@
 #define RS_IS_COLOR_TRANSFORM_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE ((klass), RS_TYPE_COLOR_TRANSFORM))
 #define RS_COLOR_TRANSFORM_GET_CLASS(obj) (G_TYPE_INSTANCE_GET_CLASS ((obj), RS_TYPE_COLOR_TRANSFORM, RSColorTransformClass))
 
-/* RSColorTransform typedef'ed in rawstudio.h */
+/* RSColorTransform typedef'ed in application.h */
 
 typedef struct _RSColorTransformClass {
   GObjectClass parent_class;

@@ -20,7 +20,7 @@
 #include <gtk/gtk.h>
 #include <math.h>
 #include "raf-meta.h"
-#include "rawstudio.h"
+#include "application.h"
 #include "rawfile.h"
 #include "tiff-meta.h"
 #include "color.h"

@@ -22,7 +22,7 @@
 #define _RS_CURVE_H_
 
 #include <gtk/gtk.h>
-#include "rawstudio.h"
+#include "application.h"
 
 /* Declared in rs-curve.c */
 typedef struct _RSCurveWidget            RSCurveWidget;

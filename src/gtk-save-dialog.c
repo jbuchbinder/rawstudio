@@ -19,7 +19,7 @@
 
 #include <gtk/gtk.h>
 #include <config.h>
-#include "rawstudio.h"
+#include "application.h"
 #include "gettext.h"
 #include "gtk-interface.h"
 #include "gtk-save-dialog.h"

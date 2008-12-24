@@ -19,7 +19,7 @@
 
 #include <gtk/gtk.h>
 #include <math.h>
-#include "rawstudio.h"
+#include "application.h"
 #include "rawfile.h"
 #include "ciff-meta.h"
 #include "adobe-coeff.h"

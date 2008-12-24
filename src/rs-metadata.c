@@ -23,7 +23,7 @@
 #include <libxml/xmlwriter.h>
 #include "gettext.h"
 #include "rs-metadata.h"
-#include "rawstudio.h"
+#include "application.h"
 #include "rs-math.h"
 #include "rs-filetypes.h"
 #include "rs-utils.h"

@@ -21,7 +21,7 @@
 #include "rs-math.h"
 #include "rs-image.h"
 #include "color.h"
-#include "rawstudio.h"
+#include "application.h"
 #include "gtk-interface.h"
 #include "gtk-helper.h"
 #include "rs-color-transform.h"

@@ -24,7 +24,7 @@
 #include <unistd.h>
 #include <fcntl.h>
 #include <tiffio.h>
-#include "rawstudio.h"
+#include "application.h"
 #include "rs-tiff.h"
 #include "rs-image.h"
 
