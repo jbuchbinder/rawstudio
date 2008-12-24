@@ -17,6 +17,7 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
+#include <rawstudio.h>
 #include <gtk/gtk.h>
 #include <glib/gprintf.h>
 #include <config.h>
@@ -36,7 +37,6 @@
 #include "rs-photo.h"
 #include "rs-metadata.h"
 #include "rs-filetypes.h"
-#include "rs-utils.h"
 
 /* How many different icon views do we have (tabs) */
 #define NUM_VIEWS 6

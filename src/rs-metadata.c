@@ -17,6 +17,7 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
+#include <rawstudio.h>
 #include <glib/gstdio.h> /* g_unlink() */
 #include <config.h>
 #include <libxml/encoding.h>
@@ -26,7 +27,6 @@
 #include "application.h"
 #include "rs-math.h"
 #include "rs-filetypes.h"
-#include "rs-utils.h"
 
 G_DEFINE_TYPE (RSMetadata, rs_metadata, G_TYPE_OBJECT)
 

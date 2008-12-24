@@ -18,6 +18,7 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  ****************************************************************************/
 
+#include <rawstudio.h>
 #include <math.h>
 #include <libxml/encoding.h>
 #include <libxml/xmlwriter.h>
@@ -27,7 +28,6 @@
 #include "rs-curve.h"
 #include "rs-color-transform.h"
 #include "gtk-interface.h"
-#include "rs-utils.h"
 
 struct _RSCurveWidget
 {

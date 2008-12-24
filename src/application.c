@@ -17,6 +17,7 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
+#include <rawstudio.h>
 #include <glib/gstdio.h>
 #include <unistd.h>
 #include <math.h> /* pow() */
@@ -52,7 +53,6 @@
 #include "rs-exif.h"
 #include "rs-metadata.h"
 #include "rs-filetypes.h"
-#include "rs-utils.h"
 
 static void photo_settings_changed(RS_PHOTO *photo, RSSettingsMask mask, RS_BLOB *rs);
 static void photo_spatial_changed(RS_PHOTO *photo, RS_BLOB *rs);

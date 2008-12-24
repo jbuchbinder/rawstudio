@@ -17,13 +17,13 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
+#include <rawstudio.h>
 #include <gtk/gtk.h>
 #include <math.h>
 #include "application.h"
 #include "rawfile.h"
 #include "ciff-meta.h"
 #include "adobe-coeff.h"
-#include "rs-utils.h"
 #include "rs-metadata.h"
 
 gboolean raw_crw_walker(RAWFILE *rawfile, guint offset, guint length, RSMetadata *meta);

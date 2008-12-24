@@ -20,6 +20,7 @@
 #ifndef RS_UTILS_H
 #define RS_UTILS_H
 
+#include <rs-types.h>
 #include <glib.h>
 
 #define GETVAL(adjustment) \

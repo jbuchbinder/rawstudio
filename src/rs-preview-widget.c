@@ -17,6 +17,7 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
+#include <rawstudio.h>
 #include "rs-preview-widget.h"
 #include "rs-math.h"
 #include "rs-image.h"
@@ -32,7 +33,6 @@
 #include "rs-actions.h"
 #include "rs-job.h"
 #include "rs-metadata.h" /* FIXME: Remove this line and add rs_metadata_get_adobe_matrix() */
-#include "rs-utils.h"
 #include <gettext.h>
 
 enum {

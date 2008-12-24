@@ -3,7 +3,8 @@
 INCLUDES = \
 	-DPACKAGE_DATA_DIR=\""$(datadir)"\" \
 	-DPACKAGE_LOCALE_DIR=\""$(prefix)/$(DATADIRNAME)/locale"\" \
-	@PACKAGE_CFLAGS@
+	@PACKAGE_CFLAGS@ \
+	-I../librawstudio/
 
 AM_CFLAGS =\
 	-Wall\
@@ -27,7 +28,6 @@ rawstudio_SOURCES = \
 	application.c application.h \
 	rs-filetypes.c rs-filetypes.h \
 	rs-settings.c rs-settings.h \
-	rs-utils.c rs-utils.h \
 	rs-job.c rs-job.h \
 	rs-actions.c rs-actions.h \
 	rs-math.c rs-math.h \
@@ -74,4 +74,5 @@ rawstudio_SOURCES = \
 	rs-metadata.c rs-metadata.h \
 	rs-exif.cc rs-exif.h
 
-rawstudio_LDADD = @PACKAGE_LIBS@ @LIBJPEG@ @LIBTIFF@ $(INTLLIBS)
+rawstudio_LDADD = ../librawstudio/librawstudio-0.1.la @PACKAGE_LIBS@ @LIBJPEG@ @LIBTIFF@ $(INTLLIBS)
+

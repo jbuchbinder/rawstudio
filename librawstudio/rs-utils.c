@@ -22,7 +22,9 @@
 #include <glib.h>
 #include <glib/gstdio.h>
 #include <time.h>
-#include "conf_interface.h"
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <unistd.h>
 #include "rs-utils.h"
 
 #define DOTDIR ".rawstudio"
@@ -206,7 +208,8 @@ rs_dotdir_get(const gchar *filename)
 	gchar *directory;
 	GString *dotdir;
 	gboolean dotdir_is_local = FALSE;
-	rs_conf_get_boolean(CONF_CACHEDIR_IS_LOCAL, &dotdir_is_local);
+	/* FIXME: Port rs_conf to library */
+//	rs_conf_get_boolean(CONF_CACHEDIR_IS_LOCAL, &dotdir_is_local);
 
 	directory = g_path_get_dirname(filename);
 	if (dotdir_is_local)

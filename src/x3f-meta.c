@@ -17,11 +17,11 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
+#include <rawstudio.h>
 #include <glib.h>
 #include "application.h"
 #include "rawfile.h"
 #include "x3f-meta.h"
-#include "rs-utils.h"
 #include "rs-metadata.h"
 
 /* http://www.x3f.info/technotes/FileDocs/X3F_Format.pdf */
