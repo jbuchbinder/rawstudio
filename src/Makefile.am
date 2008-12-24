@@ -51,7 +51,6 @@ rawstudio_SOURCES = \
 	dcraw.cc dcraw.h \
 	rs-jpeg.c rs-jpeg.h \
 	rs-tiff.c rs-tiff.h \
-	color.h \
 	gettext.h \
 	rs-arch.h \
 	arch-generic.c \
