@@ -17,8 +17,8 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-#ifndef RS_IMAGE_H
-#define RS_IMAGE_H
+#ifndef RS_IMAGE16_H
+#define RS_IMAGE16_H
 
 #include <glib-object.h>
 #include "application.h"
@@ -165,4 +165,4 @@ extern void rs_image16_open_dcraw_apply_black_and_shift_mmx(dcraw_data *raw, RS_
  */
 gboolean rs_image16_demosaic(RS_IMAGE16 *image, RS_DEMOSAIC demosaic);
 
-#endif
+#endif /* RS_IMAGE16_H */

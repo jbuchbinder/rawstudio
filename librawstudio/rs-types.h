@@ -22,6 +22,9 @@
 
 #include <gtk/gtk.h>
 
+/* Defined in rs-image.c */
+typedef struct _RSImage RSImage;
+
 typedef struct {double coeff[3][3]; } RS_MATRIX3;
 typedef struct {int coeff[3][3]; } RS_MATRIX3Int;
 typedef struct {double coeff[4][4]; } RS_MATRIX4;

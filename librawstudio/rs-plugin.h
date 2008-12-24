@@ -17,16 +17,25 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-#ifndef RAWSTUDIO_H
-#define RAWSTUDIO_H
+#include <glib-object.h>
 
-#include "rs-types.h"
-#include "color.h"
+G_BEGIN_DECLS
 
-#include "rs-image.h"
-#include "rs-filter.h"
-#include "rs-plugin-manager.h"
-#include "rs-utils.h"
-#include "rs-settings.h"
+#define RS_TYPE_PLUGIN (rs_plugin_get_type ())
+#define RS_PLUGIN(o) (G_TYPE_CHECK_INSTANCE_CAST ((o), RS_TYPE_PLUGIN, RSPlugin))
+#define RS_PLUGIN_CLASS(k) (G_TYPE_CHECK_CLASS_CAST((k), RS_TYPE_PLUGIN, RSPluginClass))
+#define RS_IS_PLUGIN(o) (G_TYPE_CHECK_INSTANCE_TYPE ((o), RS_TYPE_PLUGIN))
+#define RS_IS_PLUGIN_CLASS(k) (G_TYPE_CHECK_CLASS_TYPE ((k), RS_TYPE_PLUGIN))
+#define RS_PLUGIN_GET_CLASS(o) (G_TYPE_INSTANCE_GET_CLASS ((o), RS_TYPE_PLUGIN, RSPluginClass))
 
-#endif /* RAWSTUDIO_H */
+typedef struct _RSPlugin RSPlugin;
+typedef struct _RSPluginClass RSPluginClass;
+
+GType rs_plugin_get_type(void) G_GNUC_CONST;
+
+RSPlugin *rs_plugin_new(const gchar *filename);
+
+void rs_plugin_load(RSPlugin *plugin);
+void rs_plugin_unload(RSPlugin *plugin);
+
+G_END_DECLS

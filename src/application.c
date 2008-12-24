@@ -573,6 +573,8 @@ main(int argc, char **argv)
 	rs = rs_new();
 	rs->queue->cms = rs->cms = rs_cms_init();
 
+	rs_plugin_manager_load_all_plugins();
+
 	if (do_test)
 		test();
 	else

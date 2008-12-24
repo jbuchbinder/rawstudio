@@ -17,16 +17,37 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-#ifndef RAWSTUDIO_H
-#define RAWSTUDIO_H
+#ifndef RS_PLUGIN_MANAGER_H
+#define RS_PLUGIN_MANAGER_H
 
-#include "rs-types.h"
-#include "color.h"
+typedef struct _RSPluginManager RSPluginManager;
+typedef struct _RSPluginManagerClass RSPluginManagerClass;
 
-#include "rs-image.h"
-#include "rs-filter.h"
-#include "rs-plugin-manager.h"
-#include "rs-utils.h"
-#include "rs-settings.h"
+struct _RSPluginmanager {
+	GObject  parent;
 
-#endif /* RAWSTUDIO_H */
+	gchar *plugin_path;
+	GList *plugins;
+};
+
+struct _RSPluginManagerClass {
+	GObjectClass  parent;
+};
+
+GType rs_plugin_manager_get_type(void) G_GNUC_CONST;
+
+typedef enum {
+	RS_MODULE_INVALID = 0,
+	RS_MODULE_LOADER,
+	RS_MODULE_FILTER,
+} RSModuleType;
+
+/**
+ * Load all installed Rawstudio plugins
+ */
+extern gint
+rs_plugin_manager_load_all_plugins();
+
+G_END_DECLS
+
+#endif /* RS_PLUGIN_MANAGER_H */
