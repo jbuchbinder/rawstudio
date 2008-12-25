@@ -1,5 +1,5 @@
 SUBDIRS = \
-	dcrawloader \
+	load-dcraw \
 	meta-ciff \
 	meta-mrw \
 	meta-raf \
