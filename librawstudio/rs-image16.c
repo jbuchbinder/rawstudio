@@ -1209,58 +1209,6 @@ rs_image16_copy_double_mmx(RS_IMAGE16 *in, RS_IMAGE16 *out)
 #endif /* defined (__i386__) || defined (__x86_64__) */
 #endif /* 0 */
 
-/**
- * Open an image using the GDK-engine
- * @param filename The filename to open
- * @param half_size Does nothing
- * @return The newly created RS_IMAGE16 or NULL on error
- */
-RS_IMAGE16 *
-rs_image16_open_gdk(const gchar *filename, gboolean half_size)
-{
-	RS_IMAGE16 *image = NULL;
-	GdkPixbuf *pixbuf;
-	guchar *pixels;
-	gint rowstride;
-	gint width, height;
-	gint row,col,n,res, src, dest;
-	gdouble nd;
-	gushort gammatable[256];
-	gint alpha=0;
-	if ((pixbuf = gdk_pixbuf_new_from_file(filename, NULL)))
-	{
-		for(n=0;n<256;n++)
-		{
-			nd = ((gdouble) n) / 255.0;
-			res = (gint) (pow(nd, GAMMA) * 65535.0);
-			_CLAMP65535(res);
-			gammatable[n] = res;
-		}
-		rowstride = gdk_pixbuf_get_rowstride(pixbuf);
-		pixels = gdk_pixbuf_get_pixels(pixbuf);
-		width = gdk_pixbuf_get_width(pixbuf);
-		height = gdk_pixbuf_get_height(pixbuf);
-		if (gdk_pixbuf_get_has_alpha(pixbuf))
-			alpha = 1;
-		image = rs_image16_new(width, height, 3, 4);
-		for(row=0;row<image->h;row++)
-		{
-			dest = row * image->rowstride;
-			src = row * rowstride;
-			for(col=0;col<image->w;col++)
-			{
-				image->pixels[dest++] = gammatable[pixels[src++]];
-				image->pixels[dest++] = gammatable[pixels[src++]];
-				image->pixels[dest++] = gammatable[pixels[src++]];
-				image->pixels[dest++] = gammatable[pixels[src-2]];
-				src+=alpha;
-			}
-		}
-		g_object_unref(pixbuf);
-	}
-	return(image);
-}
-
 /*
 The rest of this file is pretty much copied verbatim from dcraw/ufraw
 */

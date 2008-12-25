@@ -48,7 +48,6 @@
 
 static void photo_settings_changed(RS_PHOTO *photo, RSSettingsMask mask, RS_BLOB *rs);
 static void photo_spatial_changed(RS_PHOTO *photo, RS_BLOB *rs);
-static void rs_gdk_load_meta(const gchar *service, RAWFILE *rawfile, guint offset, RSMetadata *meta);
 
 RS_FILETYPE *filetypes;
 
@@ -87,26 +86,18 @@ rs_init_filetypes(void)
 	rs_filetype_register_meta_loader(extension, description, meta, 10); \
 } while(0)
 
-	/* GDK formats */
-	REGISTER_FILETYPE(".jpg", _("JPEG (Joint Photographic Experts Group)"), rs_image16_open_gdk, rs_gdk_load_meta);
-	REGISTER_FILETYPE(".png", _("PNG (Portable Network Graphics)"), rs_image16_open_gdk, rs_gdk_load_meta);
-
 #undef REGISTER_FILETYPE
-
-	/* TIFF is special - we need higher priority to try raw first */
-	rs_filetype_register_loader(".tif", _("8-bit TIFF (Tagged Image File Format)"), rs_image16_open_gdk, 20);
-	rs_filetype_register_meta_loader(".tif", _("8-bit TIFF (Tagged Image File Format)"), rs_gdk_load_meta, 20);
 
 	/* Old-style savers - FIXME: Port to RSFiletype */
 	filetypes = NULL;
 	rs_add_filetype("jpeg", FILETYPE_JPEG, ".jpg", _("JPEG (Joint Photographic Experts Group)"),
-		rs_image16_open_gdk, NULL, rs_photo_save);
+		NULL, NULL, rs_photo_save);
 	rs_add_filetype("png", FILETYPE_PNG, ".png", _("PNG (Portable Network Graphics)"),
-		rs_image16_open_gdk, NULL, rs_photo_save);
+		NULL, NULL, rs_photo_save);
 	rs_add_filetype("tiff8", FILETYPE_TIFF8, ".tif", _("8-bit TIFF (Tagged Image File Format)"),
-		rs_image16_open_gdk, NULL, rs_photo_save);
+		NULL, NULL, rs_photo_save);
 	rs_add_filetype("tiff16", FILETYPE_TIFF16, ".tif", _("16-bit TIFF (Tagged Image File Format)"),
-		rs_image16_open_gdk, NULL, rs_photo_save);
+		NULL, NULL, rs_photo_save);
 	return;
 }
 
@@ -329,12 +320,6 @@ rs_new(void)
 	for(c=0;c<3;c++)
 		rs->settings[c] = rs_settings_new();
 	return(rs);
-}
-
-static void
-rs_gdk_load_meta(const gchar *service, RAWFILE *rawfile, guint offset, RSMetadata *meta)
-{
-	meta->thumbnail = gdk_pixbuf_new_from_file_at_size(service, 128, 128, NULL);
 }
 
 void
