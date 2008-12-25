@@ -75,6 +75,7 @@ Makefile
 librawstudio/Makefile
 plugins/Makefile
 plugins/dcrawloader/Makefile
+plugins/meta-mrw/Makefile
 plugins/meta-tiff/Makefile
 src/Makefile
 po/Makefile.in

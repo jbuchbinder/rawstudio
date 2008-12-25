@@ -19,8 +19,6 @@
 
 #include <rawstudio.h>
 #include <gtk/gtk.h>
-#include "application.h"
-#include "mrw-meta.h"
 
 static void raw_mrw_walker(RAWFILE *rawfile, guint offset, RSMetadata *meta);
 
@@ -45,7 +43,7 @@ raw_mrw_walker(RAWFILE *rawfile, guint offset, RSMetadata *meta)
 		switch (tag)
 		{
 			case 0x00545457: /* TTW */
-				rs_filetype_meta_load(".tif", meta, rawfile, offset);
+				rs_filetype_meta_load(".tiff", meta, rawfile, offset);
 				raw_reset_base(rawfile);
 				break;
 			case 0x00574247: /* WBG */
@@ -66,18 +64,13 @@ raw_mrw_walker(RAWFILE *rawfile, guint offset, RSMetadata *meta)
 	return;
 }
 
-void
-rs_mrw_load_meta(const gchar *filename, RSMetadata *meta)
+static void
+mrw_load_meta(const gchar *service, RAWFILE *rawfile, guint offset, RSMetadata *meta)
 {
-	RAWFILE *rawfile;
 	GdkPixbuf *pixbuf=NULL, *pixbuf2=NULL;
 	guint start=0, length=0;
 
-	raw_init();
-	if (!(rawfile = raw_open_file(filename)))
-		return;
-
-	raw_mrw_walker(rawfile, 0, meta);
+	raw_mrw_walker(rawfile, offset, meta);
 
 	if ((meta->thumbnail_start>0) && (meta->thumbnail_length>0))
 	{
@@ -133,7 +126,11 @@ rs_mrw_load_meta(const gchar *filename, RSMetadata *meta)
 		meta->thumbnail = pixbuf;
 	}
 
-	raw_close_file(rawfile);
-
 	return;
+}
+
+G_MODULE_EXPORT void
+rs_plugin_load(RSPlugin *plugin)
+{
+	rs_filetype_register_meta_loader(".mrw", "Minolta raw", mrw_load_meta, 10);
 }
