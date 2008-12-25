@@ -24,7 +24,6 @@
 #include <glib.h>
 #include <lcms.h>
 #include <stdint.h>
-#include "dcraw_api.h"
 #include "rs-arch.h"
 #include "rs-cms.h"
 

@@ -39,15 +39,12 @@ rawstudio_SOURCES = \
 	rs-cache.c rs-cache.h \
 	rs-batch.c rs-batch.h \
 	toolbox.c toolbox.h \
-	mmap-hack.c mmap-hack.h \
 	tiff-meta.c tiff-meta.h \
 	ciff-meta.c ciff-meta.h \
 	mrw-meta.c mrw-meta.h \
 	x3f-meta.c x3f-meta.h \
 	raf-meta.c raf-meta.h \
 	rs-photo.c rs-photo.h \
-	dcraw_api.cc dcraw_api.h \
-	dcraw.cc dcraw.h \
 	rs-jpeg.c rs-jpeg.h \
 	rs-tiff.c rs-tiff.h \
 	gettext.h \
