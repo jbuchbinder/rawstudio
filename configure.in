@@ -77,6 +77,7 @@ plugins/Makefile
 plugins/dcrawloader/Makefile
 plugins/meta-ciff/Makefile
 plugins/meta-mrw/Makefile
+plugins/meta-raf/Makefile
 plugins/meta-tiff/Makefile
 plugins/meta-x3f/Makefile
 src/Makefile

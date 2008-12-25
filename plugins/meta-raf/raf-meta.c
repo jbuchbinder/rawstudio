@@ -20,8 +20,6 @@
 #include <rawstudio.h>
 #include <gtk/gtk.h>
 #include <math.h>
-#include "raf-meta.h"
-#include "application.h"
 
 void
 rs_raf_load_meta(const gchar *filename, RSMetadata *meta)
@@ -107,4 +105,9 @@ rs_raf_load_thumb(const gchar *src)
 	raw_close_file(rawfile);
 
 	return pixbuf;
+}
+
+G_MODULE_EXPORT void
+rs_plugin_load(RSPlugin *plugin)
+{
 }
