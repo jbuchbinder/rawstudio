@@ -1,4 +1,5 @@
 SUBDIRS = \
+	input-file \
 	load-dcraw \
 	load-gdk \
 	meta-ciff \
