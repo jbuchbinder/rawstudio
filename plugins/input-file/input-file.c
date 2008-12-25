@@ -60,9 +60,7 @@ G_MODULE_EXPORT void
 rs_plugin_load(RSPlugin *plugin)
 {
 	g_debug("rs_plugin_load(%p)", plugin);
-	g_debug("1");
 	rs_input_file_get_type(G_TYPE_MODULE(plugin));
-	g_debug("2");
 }
 
 static GType
