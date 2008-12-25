@@ -20,14 +20,11 @@
 #include <rawstudio.h>
 #include <gtk/gtk.h>
 #include <math.h>
-#include "application.h"
-#include "ciff-meta.h"
-#include "adobe-coeff.h"
-#include "rs-metadata.h"
+#include <string.h>
 
-gboolean raw_crw_walker(RAWFILE *rawfile, guint offset, guint length, RSMetadata *meta);
+static gboolean raw_crw_walker(RAWFILE *rawfile, guint offset, guint length, RSMetadata *meta);
 
-gboolean
+static gboolean
 raw_crw_walker(RAWFILE *rawfile, guint offset, guint length, RSMetadata *meta)
 {
 	guint valuedata=0;
@@ -176,25 +173,22 @@ raw_crw_walker(RAWFILE *rawfile, guint offset, guint length, RSMetadata *meta)
 	return(TRUE);
 }
 
-void
-rs_ciff_load_meta(const gchar *filename, RSMetadata *meta)
+static void
+ciff_load_meta(const gchar *service, RAWFILE *rawfile, guint offset, RSMetadata *meta)
 {
 	guint root=0;
 	GdkPixbuf *pixbuf = NULL, *pixbuf2 = NULL;
 	gdouble ratio;
 	guint start=0, length=0;//, root=0;
-	RAWFILE *rawfile;
 
-	rawfile = raw_open_file(filename);
-	if (!rawfile)
-		return;
-	raw_init_file_tiff(rawfile, 0);
+	raw_init_file_tiff(rawfile, offset);
 	if (!raw_strcmp(rawfile, 6, "HEAPCCDR", 8))
 		return;
 	raw_get_uint(rawfile, 2, &root);
 	raw_crw_walker(rawfile, root, raw_get_filesize(rawfile)-root, meta);
 
-	adobe_coeff_set(&meta->adobe_coeff, meta->model_ascii, meta->model_ascii);
+	/* FIXME: Port this somehow */
+//	adobe_coeff_set(&meta->adobe_coeff, meta->model_ascii, meta->model_ascii);
 
 	if ((meta->thumbnail_start>0) && (meta->thumbnail_length>0))
 	{
@@ -235,6 +229,10 @@ rs_ciff_load_meta(const gchar *filename, RSMetadata *meta)
 		}
 		meta->thumbnail = pixbuf;
 	}
-	raw_close_file(rawfile);
-	return;
+}
+
+G_MODULE_EXPORT void
+rs_plugin_load(RSPlugin *plugin)
+{
+	rs_filetype_register_meta_loader(".crw", "Canon raw", ciff_load_meta, 10);
 }

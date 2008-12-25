@@ -39,7 +39,6 @@ rawstudio_SOURCES = \
 	rs-cache.c rs-cache.h \
 	rs-batch.c rs-batch.h \
 	toolbox.c toolbox.h \
-	ciff-meta.c ciff-meta.h \
 	x3f-meta.c x3f-meta.h \
 	raf-meta.c raf-meta.h \
 	rs-photo.c rs-photo.h \
