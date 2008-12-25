@@ -53,7 +53,7 @@ rs_filter_new(const gchar *name, RSFilter *previous)
 	if (g_type_is_a (type, RS_TYPE_FILTER))
 		filter = g_object_new(type, NULL);
 
-	if (filter)
+	if (previous)
 		rs_filter_set_previous(filter, previous);
 
 	return filter;
@@ -77,13 +77,13 @@ rs_filter_set_previous(RSFilter *filter, RSFilter *previous)
 /**
  * Get the output image from a RSFilter
  * @param filter A RSFilter
- * @return A RSImage, this must be unref'ed
+ * @return A RS_IMAGE16, this must be unref'ed
  */
-RSImage *
+RS_IMAGE16 *
 rs_filter_get_image(RSFilter *filter)
 {
 	g_debug("rs_filter_get_image(%p)", filter);
-	RSImage *image;
+	RS_IMAGE16 *image;
 	g_assert(RS_IS_FILTER(filter));
 
 	if (RS_FILTER_GET_CLASS(filter)->get_image)
@@ -91,7 +91,7 @@ rs_filter_get_image(RSFilter *filter)
 	else
 		image = rs_filter_get_image(filter->previous);
 
-	g_assert(RS_IS_IMAGE(image));
+	g_assert(RS_IS_IMAGE16(image));
 
 	return image;
 }

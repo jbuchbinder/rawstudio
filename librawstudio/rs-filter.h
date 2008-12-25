@@ -43,7 +43,7 @@ struct _RSFilter {
 struct _RSFilterClass {
 	GObjectClass parent_class;
 	const gchar *name;
-	RSImage *(*get_image)(RSFilter *filter);
+	RS_IMAGE16 *(*get_image)(RSFilter *filter);
 	gint (*get_width)(RSFilter *filter);
 	gint (*get_height)(RSFilter *filter);
 };
@@ -68,9 +68,9 @@ extern void rs_filter_set_previous(RSFilter *filter, RSFilter *previous);
 /**
  * Get the output image from a RSFilter
  * @param filter A RSFilter
- * @return A RSImage, this must be unref'ed
+ * @return A RS_IMAGE16, this must be unref'ed
  */
-extern RSImage *rs_filter_get_image(RSFilter *filter);
+extern RS_IMAGE16 *rs_filter_get_image(RSFilter *filter);
 
 /**
  * Get the returned width of a RSFilter
