@@ -41,7 +41,6 @@ rawstudio_SOURCES = \
 	rs-photo.c rs-photo.h \
 	rs-jpeg.c rs-jpeg.h \
 	rs-tiff.c rs-tiff.h \
-	gettext.h \
 	rs-arch.h \
 	arch-generic.c \
 	arch-x86.c x86_cpu.h \
