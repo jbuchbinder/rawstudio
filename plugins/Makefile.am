@@ -1,4 +1,5 @@
 SUBDIRS = \
+	gtk-view \
 	input-file \
 	load-dcraw \
 	load-gdk \

@@ -74,6 +74,7 @@ AC_OUTPUT([
 Makefile
 librawstudio/Makefile
 plugins/Makefile
+plugins/gtk-view/Makefile
 plugins/input-file/Makefile
 plugins/load-dcraw/Makefile
 plugins/load-gdk/Makefile
