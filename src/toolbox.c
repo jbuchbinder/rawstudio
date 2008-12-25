@@ -27,8 +27,6 @@
 #include "toolbox.h"
 #include "conf_interface.h"
 #include "gettext.h"
-#include "rs-spline.h"
-#include "rs-curve.h"
 #include "rs-preview-widget.h"
 #include "rs-histogram.h"
 #include "rs-photo.h"

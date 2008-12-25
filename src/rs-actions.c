@@ -36,7 +36,6 @@
 #include "rs-cache.h"
 #include "rs-preview-widget.h"
 #include "rs-batch.h"
-#include "rs-metadata.h"
 
 static GtkActionGroup *core_action_group = NULL;
 GStaticMutex rs_actions_spinlock = G_STATIC_MUTEX_INIT;

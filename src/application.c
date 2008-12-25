@@ -37,14 +37,10 @@
 #include "rs-batch.h"
 #include "rs-cms.h"
 #include "rs-store.h"
-#include "rs-color-transform.h"
 #include "rs-preview-widget.h"
 #include "rs-histogram.h"
-#include "rs-curve.h"
 #include "rs-photo.h"
-#include "rs-math.h"
 #include "rs-exif.h"
-#include "rs-metadata.h"
 
 static void photo_settings_changed(RS_PHOTO *photo, RSSettingsMask mask, RS_BLOB *rs);
 static void photo_spatial_changed(RS_PHOTO *photo, RS_BLOB *rs);

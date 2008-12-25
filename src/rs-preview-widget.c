@@ -22,14 +22,12 @@
 #include "application.h"
 #include "gtk-interface.h"
 #include "gtk-helper.h"
-#include "rs-color-transform.h"
 #include "config.h"
 #include "conf_interface.h"
 #include "toolbox.h"
 #include "rs-photo.h"
 #include "rs-actions.h"
 #include "rs-job.h"
-#include "rs-metadata.h" /* FIXME: Remove this line and add rs_metadata_get_adobe_matrix() */
 #include <gettext.h>
 
 enum {

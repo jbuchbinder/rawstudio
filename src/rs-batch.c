@@ -31,9 +31,7 @@
 #include "gtk-helper.h"
 #include "filename.h"
 #include "rs-cache.h"
-#include "rs-color-transform.h"
 #include "rs-photo.h"
-#include "rs-metadata.h"
 
 extern GtkWindow *rawstudio_window;
 

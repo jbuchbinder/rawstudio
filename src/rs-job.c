@@ -17,10 +17,10 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
+#include <rawstudio.h>
 #include <glib.h>
 #include "rs-job.h"
 #include "application.h"
-#include "rs-color-transform.h"
 
 typedef enum {
 	JOB_DEMOSAIC,
