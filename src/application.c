@@ -28,7 +28,6 @@
 #include "gtk-interface.h"
 #include "gtk-helper.h"
 #include "rs-cache.h"
-#include "tiff-meta.h"
 #include "ciff-meta.h"
 #include "mrw-meta.h"
 #include "x3f-meta.h"

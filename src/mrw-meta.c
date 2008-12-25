@@ -21,8 +21,6 @@
 #include <gtk/gtk.h>
 #include "application.h"
 #include "mrw-meta.h"
-#include "tiff-meta.h"
-#include "rs-metadata.h"
 
 static void raw_mrw_walker(RAWFILE *rawfile, guint offset, RSMetadata *meta);
 
@@ -47,7 +45,7 @@ raw_mrw_walker(RAWFILE *rawfile, guint offset, RSMetadata *meta)
 		switch (tag)
 		{
 			case 0x00545457: /* TTW */
-				rs_tiff_load_meta_from_rawfile(rawfile, offset, meta);
+				rs_filetype_meta_load(".tif", meta, rawfile, offset);
 				raw_reset_base(rawfile);
 				break;
 			case 0x00574247: /* WBG */

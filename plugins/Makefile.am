@@ -1,3 +1,4 @@
 SUBDIRS = \
-	dcrawloader
+	dcrawloader \
+	meta-tiff
 

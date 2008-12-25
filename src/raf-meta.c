@@ -22,8 +22,6 @@
 #include <math.h>
 #include "raf-meta.h"
 #include "application.h"
-#include "tiff-meta.h"
-#include "rs-metadata.h"
 
 void
 rs_raf_load_meta(const gchar *filename, RSMetadata *meta)
@@ -71,7 +69,7 @@ rs_raf_load_meta(const gchar *filename, RSMetadata *meta)
 				offset = offset + 4 + length;
 			}
 		}
-		rs_tiff_load_meta_from_rawfile(rawfile, meta->thumbnail_start+12, meta);
+		rs_filetype_meta_load(".tif", meta, rawfile, meta->thumbnail_start+12);
 	}
 	raw_close_file(rawfile);
 }

@@ -20,11 +20,6 @@
 #include <rawstudio.h>
 #include <gtk/gtk.h>
 #include <math.h>
-#include "application.h"
-#include "tiff-meta.h"
-#include "adobe-coeff.h"
-#include "rs-color-transform.h"
-#include "rs-metadata.h"
 
 /* It is required having some arbitrary maximum exposure time to prevent borked
  * shutter speed values being interpreted from the tiff.
@@ -55,6 +50,7 @@ static gboolean makernote_olympus_camerasettings(RAWFILE *rawfile, guint base, g
 static gboolean makernote_olympus_imageprocessing(RAWFILE *rawfile, guint base, guint offset, RSMetadata *meta);
 static gboolean makernote_panasonic(RAWFILE *rawfile, guint offset, RSMetadata *meta);
 static gboolean makernote_pentax(RAWFILE *rawfile, guint offset, RSMetadata *meta);
+static gboolean exif_reader(RAWFILE *rawfile, guint offset, RSMetadata *meta);
 static gboolean ifd_reader(RAWFILE *rawfile, guint offset, RSMetadata *meta);
 
 typedef enum tiff_field_type
@@ -828,7 +824,7 @@ makernote_pentax(RAWFILE *rawfile, guint offset, RSMetadata *meta)
 	return TRUE;
 }
 
-gboolean
+static gboolean
 exif_reader(RAWFILE *rawfile, guint offset, RSMetadata *meta)
 {
 	gushort number_of_entries = 0;
@@ -1051,8 +1047,11 @@ ifd_reader(RAWFILE *rawfile, guint offset, RSMetadata *meta)
 	return TRUE;
 }
 
-void
-rs_tiff_load_meta_from_rawfile(RAWFILE *rawfile, guint offset, RSMetadata *meta)
+/**
+ * Generic TIFF reader
+ */
+static void
+tiff_load_meta(const gchar *service, RAWFILE *rawfile, guint offset, RSMetadata *meta)
 {
 	guint next = 0;
 	gushort ifd_num = 0;
@@ -1094,22 +1093,20 @@ rs_tiff_load_meta_from_rawfile(RAWFILE *rawfile, guint offset, RSMetadata *meta)
 	} while (next>0);
 
 	rs_metadata_normalize_wb(meta);
-	adobe_coeff_set(&meta->adobe_coeff, meta->make_ascii, meta->model_ascii);
+	/* FIXME: Port to librawstudio or something */
+//	adobe_coeff_set(&meta->adobe_coeff, meta->make_ascii, meta->model_ascii);
 }
 
-void
-rs_tiff_load_meta(const gchar *filename, RSMetadata *meta)
+/**
+ * .TIF reader
+ */
+static void
+tif_load_meta(const gchar *service, RAWFILE *rawfile, guint offset, RSMetadata *meta)
 {
 	GdkPixbuf *pixbuf=NULL, *pixbuf2=NULL;
 	guint start=0, length=0;
-	RAWFILE *rawfile;
 
-	raw_init();
-
-	if(!(rawfile = raw_open_file(filename)))
-		return;
-
-	rs_tiff_load_meta_from_rawfile(rawfile, 0, meta);
+	tiff_load_meta(service, rawfile, offset, meta);
 
 	if ((meta->thumbnail_start>0) && (meta->thumbnail_length>0))
 	{
@@ -1162,6 +1159,8 @@ rs_tiff_load_meta(const gchar *filename, RSMetadata *meta)
 			pixbuf = raw_get_pixbuf(rawfile, start, length);
 	}
 	/* Special case for Panasonic - most have no embedded thumbnail */
+	/* FIXME: Port RSColorTransform to librawstudio */
+#if 0
 	else if (meta->make == MAKE_PANASONIC)
 	{
 		RS_IMAGE16 *input;
@@ -1189,7 +1188,7 @@ rs_tiff_load_meta(const gchar *filename, RSMetadata *meta)
 			g_object_unref(rct);
 		}
 	}
-
+#endif
 	if (pixbuf)
 	{
 		gdouble ratio;
@@ -1229,6 +1228,26 @@ rs_tiff_load_meta(const gchar *filename, RSMetadata *meta)
 		}
 		meta->thumbnail = pixbuf;
 	}
+}
 
-	raw_close_file(rawfile);
+G_MODULE_EXPORT void
+rs_plugin_load(RSPlugin *plugin)
+{
+	rs_filetype_register_meta_loader(".cr2", "Canon CR2", tif_load_meta, 10);
+	rs_filetype_register_meta_loader(".nef", "Nikon NEF", tif_load_meta, 10);
+	rs_filetype_register_meta_loader(".tif", "Canon TIFF", tif_load_meta, 10);
+	rs_filetype_register_meta_loader(".arw", "Sony", tif_load_meta, 10);
+	rs_filetype_register_meta_loader(".sr2", "Sony", tif_load_meta, 10);
+	rs_filetype_register_meta_loader(".srf", "Sony", tif_load_meta, 10);
+	rs_filetype_register_meta_loader(".kdc", "Kodak", tif_load_meta, 10);
+	rs_filetype_register_meta_loader(".dcr", "Kodak", tif_load_meta, 10);
+	rs_filetype_register_meta_loader(".orf", "Olympus", tif_load_meta, 10);
+	rs_filetype_register_meta_loader(".raw", "Panasonic raw", tif_load_meta, 10);
+	rs_filetype_register_meta_loader(".pef", "Pentax raw", tif_load_meta, 10);
+	rs_filetype_register_meta_loader(".dng", "Adobe Digital negative", tif_load_meta, 10);
+	rs_filetype_register_meta_loader(".mef", "Mamiya", tif_load_meta, 10);
+	rs_filetype_register_meta_loader(".3fr", "Hasselblad", tif_load_meta, 10);
+	rs_filetype_register_meta_loader(".erf", "Epson", tif_load_meta, 10);
+
+	rs_filetype_register_meta_loader(".tiff", "Generic TIFF meta loader", tiff_load_meta, 10);
 }

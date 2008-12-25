@@ -46,8 +46,6 @@ extern void rs_filetype_register_loader(const gchar *extension, const gchar *des
  * @param meta_loader The loader function
  * @param priority A loader priority, lowest is served first.
  */
-extern void rs_filetype_register_meta_loader(const gchar *extension, const gchar *description, const RSFileMetaLoaderFunc meta_loader, const gint priority);
-
 extern void rs_filetype_register_meta_loader(const gchar *service, const gchar *description, const RSFileMetaLoaderFunc meta_loader, const gint priority);
 
 /**
