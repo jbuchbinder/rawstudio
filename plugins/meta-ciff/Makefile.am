@@ -12,10 +12,10 @@ INCLUDES = \
 	@PACKAGE_CFLAGS@ \
 	-I../../librawstudio/
 
-lib_LTLIBRARIES = ciff_meta.la
+lib_LTLIBRARIES = meta_ciff.la
 
 libdir = $(datadir)/rawstudio/plugins/
 
-ciff_meta_la_LIBADD = @PACKAGE_LIBS@
-ciff_meta_la_LDFLAGS = -module -avoid-version
-ciff_meta_la_SOURCES =  ciff-meta.c
+meta_ciff_la_LIBADD = @PACKAGE_LIBS@
+meta_ciff_la_LDFLAGS = -module -avoid-version
+meta_ciff_la_SOURCES =  ciff-meta.c

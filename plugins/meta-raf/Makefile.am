@@ -12,10 +12,10 @@ INCLUDES = \
 	@PACKAGE_CFLAGS@ \
 	-I../../librawstudio/
 
-lib_LTLIBRARIES = raf_meta.la
+lib_LTLIBRARIES = meta_raf.la
 
 libdir = $(datadir)/rawstudio/plugins/
 
-raf_meta_la_LIBADD = @PACKAGE_LIBS@
-raf_meta_la_LDFLAGS = -module -avoid-version
-raf_meta_la_SOURCES =  raf-meta.c
+meta_raf_la_LIBADD = @PACKAGE_LIBS@
+meta_raf_la_LDFLAGS = -module -avoid-version
+meta_raf_la_SOURCES =  raf-meta.c

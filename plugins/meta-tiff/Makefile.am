@@ -12,10 +12,10 @@ INCLUDES = \
 	@PACKAGE_CFLAGS@ \
 	-I../../librawstudio/
 
-lib_LTLIBRARIES = tiff_meta.la
+lib_LTLIBRARIES = meta_tiff.la
 
 libdir = $(datadir)/rawstudio/plugins/
 
-tiff_meta_la_LIBADD = @PACKAGE_LIBS@
-tiff_meta_la_LDFLAGS = -module -avoid-version
-tiff_meta_la_SOURCES =  tiff-meta.c
+meta_tiff_la_LIBADD = @PACKAGE_LIBS@
+meta_tiff_la_LDFLAGS = -module -avoid-version
+meta_tiff_la_SOURCES =  tiff-meta.c

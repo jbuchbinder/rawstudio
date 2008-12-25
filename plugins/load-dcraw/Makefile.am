@@ -16,10 +16,10 @@ INCLUDES = \
 	@PACKAGE_CFLAGS@ \
 	-I../../librawstudio/
 
-lib_LTLIBRARIES = dcrawloader.la
+lib_LTLIBRARIES = load_dcraw.la
 
 libdir = $(datadir)/rawstudio/plugins/
 
-dcrawloader_la_LIBADD = @PACKAGE_LIBS@
-dcrawloader_la_LDFLAGS = -module -avoid-version
-dcrawloader_la_SOURCES =  dcrawloader.c dcraw.cc dcraw.h dcraw_api.cc dcraw_api.h mmap-hack.c mmap-hack.h
+load_dcraw_la_LIBADD = @PACKAGE_LIBS@
+load_dcraw_la_LDFLAGS = -module -avoid-version
+load_dcraw_la_SOURCES =  dcrawloader.c dcraw.cc dcraw.h dcraw_api.cc dcraw_api.h mmap-hack.c mmap-hack.h

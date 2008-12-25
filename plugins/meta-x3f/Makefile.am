@@ -12,10 +12,10 @@ INCLUDES = \
 	@PACKAGE_CFLAGS@ \
 	-I../../librawstudio/
 
-lib_LTLIBRARIES = x3f_meta.la
+lib_LTLIBRARIES = meta_x3f.la
 
 libdir = $(datadir)/rawstudio/plugins/
 
-x3f_meta_la_LIBADD = @PACKAGE_LIBS@
-x3f_meta_la_LDFLAGS = -module -avoid-version
-x3f_meta_la_SOURCES =  x3f-meta.c
+meta_x3f_la_LIBADD = @PACKAGE_LIBS@
+meta_x3f_la_LDFLAGS = -module -avoid-version
+meta_x3f_la_SOURCES =  x3f-meta.c
