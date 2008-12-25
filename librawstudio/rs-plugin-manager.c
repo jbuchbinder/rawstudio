@@ -56,7 +56,8 @@ rs_plugin_manager_load_all_plugins()
 			g_free(path);
 
 			g_assert(g_type_module_use(G_TYPE_MODULE(plugin)));
-			g_type_module_unuse(G_TYPE_MODULE(plugin));
+			/* This doesn't work for some reason, GType's blow up */
+//			g_type_module_unuse(G_TYPE_MODULE(plugin));
 
 			plugins = g_list_prepend (plugins, plugin);
 
