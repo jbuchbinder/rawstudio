@@ -1159,12 +1159,10 @@ tif_load_meta(const gchar *service, RAWFILE *rawfile, guint offset, RSMetadata *
 			pixbuf = raw_get_pixbuf(rawfile, start, length);
 	}
 	/* Special case for Panasonic - most have no embedded thumbnail */
-	/* FIXME: Port RSColorTransform to librawstudio */
-#if 0
 	else if (meta->make == MAKE_PANASONIC)
 	{
 		RS_IMAGE16 *input;
-		if ((input = rs_filetype_load(filename, TRUE)))
+		if ((input = rs_filetype_load(service, TRUE)))
 		{
 			gint c;
 			gfloat pre_mul[4];
@@ -1188,7 +1186,7 @@ tif_load_meta(const gchar *service, RAWFILE *rawfile, guint offset, RSMetadata *
 			g_object_unref(rct);
 		}
 	}
-#endif
+
 	if (pixbuf)
 	{
 		gdouble ratio;
