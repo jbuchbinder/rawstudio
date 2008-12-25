@@ -19,9 +19,7 @@
 
 #include <rawstudio.h>
 #include <glib.h>
-#include "application.h"
-#include "x3f-meta.h"
-#include "rs-metadata.h"
+#include <stdlib.h> /* atoi() */
 
 /* http://www.x3f.info/technotes/FileDocs/X3F_Format.pdf */
 
@@ -110,11 +108,10 @@ typedef struct x3f_property {
 	guint value_offset; /* offset from start of CHARACTER data */
 } __attribute__ ((packed)) X3F_PROPERTY_ENTRY;
 
-void
-rs_x3f_load_meta(const gchar *filename, RSMetadata *meta)
+static void
+x3f_load_meta(const gchar *service, RAWFILE *rawfile, guint offset, RSMetadata *meta)
 {
 	gint i;
-	RAWFILE *rawfile;
 	X3F_FILE file;
 	X3F_DIRECTORY_SECTION directory;
 	X3F_DIRECTORY_ENTRY directory_entry;
@@ -122,8 +119,6 @@ rs_x3f_load_meta(const gchar *filename, RSMetadata *meta)
 	guint start=0, width=0, height=0, rowstride=0;
 	GdkPixbuf *pixbuf = NULL, *pixbuf2 = NULL;
 	gdouble ratio=1.0;
-
-	rawfile = raw_open_file(filename);
 
 	/* Check if this is infact a Sigma-file */
 	if (!raw_strcmp(rawfile, G_STRUCT_OFFSET(X3F_FILE, identifier), "FOVb", 4))
@@ -286,7 +281,10 @@ rs_x3f_load_meta(const gchar *filename, RSMetadata *meta)
 		g_object_unref(pixbuf);
 		meta->thumbnail = pixbuf2;
 	}
+}
 
-	raw_close_file(rawfile);
-	return;
+G_MODULE_EXPORT void
+rs_plugin_load(RSPlugin *plugin)
+{
+	rs_filetype_register_meta_loader(".x3f", "Sigma", x3f_load_meta, 10);
 }

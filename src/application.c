@@ -28,7 +28,6 @@
 #include "gtk-interface.h"
 #include "gtk-helper.h"
 #include "rs-cache.h"
-#include "x3f-meta.h"
 #include "gettext.h"
 #include "conf_interface.h"
 #include "filename.h"
