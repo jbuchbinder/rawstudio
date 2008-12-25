@@ -52,7 +52,7 @@
 
 static void photo_settings_changed(RS_PHOTO *photo, RSSettingsMask mask, RS_BLOB *rs);
 static void photo_spatial_changed(RS_PHOTO *photo, RS_BLOB *rs);
-static void rs_gdk_load_meta(const gchar *src, RSMetadata *metadata);
+static void rs_gdk_load_meta(const gchar *service, RAWFILE *rawfile, guint offset, RSMetadata *meta);
 
 RS_FILETYPE *filetypes;
 
@@ -104,13 +104,13 @@ rs_init_filetypes(void)
 	/* Old-style savers - FIXME: Port to RSFiletype */
 	filetypes = NULL;
 	rs_add_filetype("jpeg", FILETYPE_JPEG, ".jpg", _("JPEG (Joint Photographic Experts Group)"),
-		rs_image16_open_gdk, rs_gdk_load_meta, rs_photo_save);
+		rs_image16_open_gdk, NULL, rs_photo_save);
 	rs_add_filetype("png", FILETYPE_PNG, ".png", _("PNG (Portable Network Graphics)"),
-		rs_image16_open_gdk, rs_gdk_load_meta, rs_photo_save);
+		rs_image16_open_gdk, NULL, rs_photo_save);
 	rs_add_filetype("tiff8", FILETYPE_TIFF8, ".tif", _("8-bit TIFF (Tagged Image File Format)"),
-		rs_image16_open_gdk, rs_gdk_load_meta, rs_photo_save);
+		rs_image16_open_gdk, NULL, rs_photo_save);
 	rs_add_filetype("tiff16", FILETYPE_TIFF16, ".tif", _("16-bit TIFF (Tagged Image File Format)"),
-		rs_image16_open_gdk, rs_gdk_load_meta, rs_photo_save);
+		rs_image16_open_gdk, NULL, rs_photo_save);
 	return;
 }
 
@@ -335,10 +335,10 @@ rs_new(void)
 	return(rs);
 }
 
-void
-rs_gdk_load_meta(const gchar *src, RSMetadata *metadata)
+static void
+rs_gdk_load_meta(const gchar *service, RAWFILE *rawfile, guint offset, RSMetadata *meta)
 {
-	metadata->thumbnail = gdk_pixbuf_new_from_file_at_size(src, 128, 128, NULL);
+	meta->thumbnail = gdk_pixbuf_new_from_file_at_size(service, 128, 128, NULL);
 }
 
 void

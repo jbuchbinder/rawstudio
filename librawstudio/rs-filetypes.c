@@ -208,21 +208,23 @@ rs_filetype_load(const gchar *filename, const gboolean half_size)
 
 /**
  * Load metadata from a specified file
- * @param filename The file to load metadata from
+ * @param service The file to load metadata from OR a servicename (".exif" for example)
  * @param meta A RSMetadata structure to load everything into
+ * @param rawfile An open RAWFILE
+ * @param offset An offset in the open RAWFILE
  */
 void
-rs_filetype_meta_load(const gchar *filename, RSMetadata *meta)
+rs_filetype_meta_load(const gchar *service, RSMetadata *meta, RAWFILE *rawfile, guint offset)
 {
 	gint priority = 0;
 	RSFileMetaLoaderFunc loader;
 
 	g_assert(rs_filetype_is_initialized);
-	g_assert(filename != NULL);
+	g_assert(service != NULL);
 	g_assert(RS_IS_METADATA(meta));
 
-	while((loader = filetype_search(meta_loaders, filename, &priority)))
+	while((loader = filetype_search(meta_loaders, service, &priority)))
 	{
-		loader(filename, meta);
+		loader(service, rawfile, offset, meta);
 	}
 }

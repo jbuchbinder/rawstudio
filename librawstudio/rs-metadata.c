@@ -360,14 +360,17 @@ gboolean
 rs_metadata_load_from_file(RSMetadata *metadata, const gchar *filename)
 {
 	gboolean ret = FALSE;
+	RAWFILE *rawfile;
 
 	g_assert(filename != NULL);
 	g_assert(RS_IS_METADATA(metadata));
 
+	rawfile = raw_open_file(filename);
 	/* FIXME: Fix the damned return value from meta-loaders! */
 	ret = TRUE;
-	rs_filetype_meta_load(filename, metadata);
+	rs_filetype_meta_load(filename, metadata, rawfile, 0);
 
+	raw_close_file(rawfile);
 	return ret;
 }
 

@@ -22,7 +22,7 @@
 #include "rs-types.h"
 
 typedef RS_IMAGE16 *(*RSFileLoaderFunc)(const gchar *filename, const gboolean half_size);
-typedef void (*RSFileMetaLoaderFunc)(const gchar *filename, RSMetadata *meta);
+typedef void (*RSFileMetaLoaderFunc)(const gchar *service, RAWFILE *rawfile, guint offset, RSMetadata *meta);
 
 /**
  * Initialize the RSFiletype subsystem, this MUST be called before any other
@@ -48,6 +48,8 @@ extern void rs_filetype_register_loader(const gchar *extension, const gchar *des
  */
 extern void rs_filetype_register_meta_loader(const gchar *extension, const gchar *description, const RSFileMetaLoaderFunc meta_loader, const gint priority);
 
+extern void rs_filetype_register_meta_loader(const gchar *service, const gchar *description, const RSFileMetaLoaderFunc meta_loader, const gint priority);
+
 /**
  * Check if we support loading a given extension
  * @param filename A filename or extension to look-up
@@ -64,9 +66,11 @@ extern RS_IMAGE16 *rs_filetype_load(const gchar *filename, const gboolean half_s
 
 /**
  * Load metadata from a specified file
- * @param filename The file to load metadata from
+ * @param service The file to load metadata from OR a servicename (".exif" for example)
  * @param meta A RSMetadata structure to load everything into
+ * @param rawfile An open RAWFILE
+ * @param offset An offset in the open RAWFILE
  */
-extern void rs_filetype_meta_load(const gchar *filename, RSMetadata *meta);
+extern void rs_filetype_meta_load(const gchar *service, RSMetadata *meta, RAWFILE *rawfile, guint offset);
 
 #endif /* RS_FILETYPES_H */
