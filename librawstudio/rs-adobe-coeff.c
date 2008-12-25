@@ -17,8 +17,8 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-#include "rs-math.h"
-#include "adobe-coeff.h"
+#include <rs-types.h>
+#include <string.h> /* strlen() */
 
 /* invert(xyz_rgb) from dcraw */
 static const RS_MATRIX4 xyz_to_rgb = {{
@@ -414,7 +414,7 @@ static const RS_MATRIX4 xyz_to_rgb = {{
   };
 
 gboolean
-adobe_coeff_set(RS_MATRIX4 *matrix, gchar *make, gchar *model)
+rs_adobe_coeff_set(RS_MATRIX4 *matrix, gchar *make, gchar *model)
 {
 	gint i,n;
 	gchar *name;
@@ -451,7 +451,7 @@ adobe_coeff_set(RS_MATRIX4 *matrix, gchar *make, gchar *model)
 
 	/* If still not found, try without make */
 	if (!found && make)
-		found = adobe_coeff_set(matrix, NULL, model);
+		found = rs_adobe_coeff_set(matrix, NULL, model);
 
 	return found;
 }

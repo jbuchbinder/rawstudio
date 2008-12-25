@@ -187,8 +187,7 @@ ciff_load_meta(const gchar *service, RAWFILE *rawfile, guint offset, RSMetadata 
 	raw_get_uint(rawfile, 2, &root);
 	raw_crw_walker(rawfile, root, raw_get_filesize(rawfile)-root, meta);
 
-	/* FIXME: Port this somehow */
-//	adobe_coeff_set(&meta->adobe_coeff, meta->model_ascii, meta->model_ascii);
+	rs_adobe_coeff_set(&meta->adobe_coeff, meta->model_ascii, meta->model_ascii);
 
 	if ((meta->thumbnail_start>0) && (meta->thumbnail_length>0))
 	{

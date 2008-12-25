@@ -36,5 +36,6 @@
 #include "rs-plugin-manager.h"
 #include "rs-utils.h"
 #include "rs-settings.h"
+#include "rs-adobe-coeff.h"
 
 #endif /* RAWSTUDIO_H */

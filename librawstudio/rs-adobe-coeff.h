@@ -17,9 +17,13 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-#ifndef ADOBE_COEFF_H
-#define ADOBE_COEFF_H
-#include "application.h"
+#ifndef RS_ADOBE_COEFF_H
+#define RS_ADOBE_COEFF_H
 
-gboolean adobe_coeff_set(RS_MATRIX4 *matrix, gchar *make, gchar *model);
-#endif
+G_BEGIN_DECLS
+
+gboolean rs_adobe_coeff_set(RS_MATRIX4 *matrix, gchar *make, gchar *model);
+
+G_END_DECLS
+
+#endif /* RS_ADOBE_COEFF_H */

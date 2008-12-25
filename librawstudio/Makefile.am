@@ -19,6 +19,7 @@ library_include_HEADERS = rawstudio.h rs-types.h \
 	rs-utils.h \
 	rs-math.h \
 	rs-settings.h \
+	rs-adobe-coeff.h \
 	null.h
 
 lib_LTLIBRARIES = librawstudio-0.1.la
@@ -34,6 +35,7 @@ librawstudio_0_1_la_SOURCES = \
 	rs-utils.c rs-utils.h \
 	rs-math.c rs-math.h \
 	rs-settings.c rs-settings.h \
+	rs-adobe-coeff.c rs-adobe-coeff.h \
 	null.c null.h
 
 librawstudio_0_1_la_LIBADD = @PACKAGE_LIBS@ @LIBJPEG@ @LIBTIFF@ $(INTLLIBS)
