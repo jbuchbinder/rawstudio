@@ -38,6 +38,7 @@ typedef struct _RSFilterClass RSFilterClass;
 struct _RSFilter {
 	GObject parent;
 	RSFilter *previous;
+	GSList *next_filters;
 };
 
 struct _RSFilterClass {
@@ -46,6 +47,7 @@ struct _RSFilterClass {
 	RS_IMAGE16 *(*get_image)(RSFilter *filter);
 	gint (*get_width)(RSFilter *filter);
 	gint (*get_height)(RSFilter *filter);
+	void (*previous_changed)(RSFilter *filter, RSFilter *parent);
 };
 
 GType rs_filter_get_type() G_GNUC_CONST;
@@ -64,6 +66,13 @@ extern RSFilter *rs_filter_new(const gchar *name, RSFilter *previous);
  * @param previous A previous RSFilter or NULL
  */
 extern void rs_filter_set_previous(RSFilter *filter, RSFilter *previous);
+
+/**
+ * Signal that a filter has changed, filters depending on this will be invoked
+ * This should only be called from filters
+ * @param filter The changed filter
+ */
+extern void rs_filter_changed(RSFilter *filter);
 
 /**
  * Get the output image from a RSFilter

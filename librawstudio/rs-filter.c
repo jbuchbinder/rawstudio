@@ -26,12 +26,18 @@ static void
 rs_filter_class_init(RSFilterClass *klass)
 {
 	g_debug("rs_filter_class_init(%p)", klass);
+	klass->get_image = NULL;
+	klass->get_width = NULL;
+	klass->get_height = NULL;
+	klass->previous_changed = NULL;
 }
 
 static void
 rs_filter_init(RSFilter *self)
 {
 	g_debug("rs_filter_init(%p)", self);
+	self->previous = NULL;
+	self->next_filters = NULL;
 }
 
 /**
@@ -72,6 +78,34 @@ rs_filter_set_previous(RSFilter *filter, RSFilter *previous)
 	g_assert(RS_IS_FILTER(previous));
 
 	filter->previous = previous;
+	previous->next_filters = g_slist_append(previous->next_filters, filter);
+}
+
+/**
+ * Signal that a filter has changed, filters depending on this will be invoked
+ * This should only be called from filter code
+ * @param filter The changed filter
+ */
+void
+rs_filter_changed(RSFilter *filter)
+{
+	g_debug("rs_filter_changed(%p)", filter);
+	g_assert(RS_IS_FILTER(filter));
+
+	gint i, n_next = g_slist_length(filter->next_filters);
+
+	for(i=0; i<n_next; i++)
+	{
+		RSFilter *next = RS_FILTER(g_slist_nth_data(filter->next_filters, i));
+
+		g_assert(RS_IS_FILTER(next));
+
+		/* Notify "next" filter or try "next next" filter */
+		if (RS_FILTER_GET_CLASS(next)->previous_changed)
+			RS_FILTER_GET_CLASS(next)->previous_changed(next, filter);
+		else
+			rs_filter_changed(next);
+	}
 }
 
 /**
