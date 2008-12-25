@@ -17,7 +17,7 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-#include "rs-color-transform.h"
+#include <rawstudio.h>
 
 /* Default dsp function binder, defined for all archs so that a common C
  * implementation of every optimized function is shared among archs */

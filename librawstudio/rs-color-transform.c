@@ -17,9 +17,9 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-#include "application.h"
-#include "rs-color-transform.h"
-#include "rs-spline.h"
+#include <rawstudio.h>
+#include <string.h> /* memset() */
+#include <math.h> /* pow() */
 
 static void make_tables(RSColorTransform *rct);
 static gboolean select_render(RSColorTransform *rct);

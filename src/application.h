@@ -32,21 +32,10 @@
 #error GLib was not compiled with thread support, Rawstudio needs threads - sorry.
 #endif
 
-/* The problem with the align GNU extension, is that it doesn't work
- * reliably with local variables, depending on versions and targets.
- * So better use a tricky define to ensure alignment even in these
- * cases. */
-#define RS_DECLARE_ALIGNED(type, name, sizex, sizey, alignment) \
-	type name##_s[(sizex)*(sizey)+(alignment)-1];	\
-	type * name = (type *)(((uintptr_t)name##_s+(alignment - 1))&~((uintptr_t)(alignment)-1))
-
 typedef struct _RSStore RSStore;
 
 /* Opaque definition, declared in rs-batch.h */
 typedef struct _RS_QUEUE RS_QUEUE;
-
-/* Defined in rs-color-transform.c */
-typedef struct _RSColorTransform RSColorTransform;
 
 typedef struct _photo {
 	GObject parent;

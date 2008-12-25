@@ -37,5 +37,8 @@
 #include "rs-utils.h"
 #include "rs-settings.h"
 #include "rs-adobe-coeff.h"
+#include "rs-color-transform.h"
+#include "rs-spline.h"
+#include "rs-curve.h"
 
 #endif /* RAWSTUDIO_H */

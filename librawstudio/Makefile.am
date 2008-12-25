@@ -8,7 +8,7 @@ INCLUDES = \
 	@PACKAGE_CFLAGS@
 
 library_includedir=$(includedir)/@PACKAGE@-@VERSION@/
-library_include_HEADERS = rawstudio.h rs-types.h \
+library_include_HEADERS = rawstudio.h rs-types.h rs-macros.h \
 	rs-rawfile.h \
 	rs-image.h \
 	rs-image16.h \
@@ -20,6 +20,9 @@ library_include_HEADERS = rawstudio.h rs-types.h \
 	rs-math.h \
 	rs-settings.h \
 	rs-adobe-coeff.h \
+	rs-color-transform.h \
+	rs-spline.h \
+	rs-curve.h \
 	null.h
 
 lib_LTLIBRARIES = librawstudio-0.1.la
@@ -36,6 +39,9 @@ librawstudio_0_1_la_SOURCES = \
 	rs-math.c rs-math.h \
 	rs-settings.c rs-settings.h \
 	rs-adobe-coeff.c rs-adobe-coeff.h \
+	rs-color-transform.c rs-color-transform.h \
+	rs-spline.c rs-spline.h \
+	rs-curve.c rs-curve.h \
 	null.c null.h
 
 librawstudio_0_1_la_LIBADD = @PACKAGE_LIBS@ @LIBJPEG@ @LIBTIFF@ $(INTLLIBS)

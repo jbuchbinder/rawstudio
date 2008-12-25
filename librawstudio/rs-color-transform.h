@@ -21,7 +21,6 @@
 #define RS_COLOR_TRANSFORM_H
 
 #include <glib-object.h>
-#include "application.h"
 #include "rs-math.h"
 
 #define RS_TYPE_COLOR_TRANSFORM rs_color_transform_get_type()
@@ -55,7 +54,6 @@ void rs_color_transform_set_from_settings(RSColorTransform *rct, RSSettings *set
 extern gboolean rs_color_transform_set_curve(RSColorTransform *rct, gfloat *curve);
 extern void rs_color_transform_set_all(RSColorTransform *rct, gdouble gamma,
 	gdouble contrast, gfloat *premul, RS_MATRIX4 *matrix, gfloat *curve);
-extern void rs_color_transform_set_from_photo(RSColorTransform *rct, RS_PHOTO *photo, gint snapshot);
 extern gboolean rs_color_transform_set_output_format(RSColorTransform *rct, guint bits_per_color);
 extern void rs_color_transform_set_cms_transform(RSColorTransform *rct, void *transform);
 extern void rs_color_transform_set_adobe_matrix(RSColorTransform *rct, RS_MATRIX4 *matrix);

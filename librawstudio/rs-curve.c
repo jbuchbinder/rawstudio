@@ -23,10 +23,6 @@
 #include <libxml/encoding.h>
 #include <libxml/xmlwriter.h>
 #include <string.h> /* memset() */
-#include "rs-spline.h"
-#include "rs-curve.h"
-#include "rs-color-transform.h"
-#include "gtk-interface.h"
 
 struct _RSCurveWidget
 {

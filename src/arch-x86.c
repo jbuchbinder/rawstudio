@@ -19,7 +19,7 @@
 
 #if defined (__i386__) || defined (__x86_64__)
 
-#include "rs-color-transform.h"
+#include <rawstudio.h>
 
 #include "x86_cpu.h"
 

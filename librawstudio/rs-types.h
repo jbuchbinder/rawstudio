@@ -34,6 +34,9 @@ typedef struct _rs_image16 RS_IMAGE16;
 /* Defined in rs-metadata.h */
 typedef struct _RSMetadata RSMetadata;
 
+/* Defined in rs-color-transform.c */
+typedef struct _RSColorTransform RSColorTransform;
+
 typedef struct {double coeff[3][3]; } RS_MATRIX3;
 typedef struct {int coeff[3][3]; } RS_MATRIX3Int;
 typedef struct {double coeff[4][4]; } RS_MATRIX4;

@@ -46,13 +46,10 @@ rawstudio_SOURCES = \
 	arch-generic.c \
 	arch-x86.c x86_cpu.h \
 	filename.c filename.h \
-	rs-spline.c  rs-spline.h \
 	rs-store.c rs-store.h \
-	rs-color-transform.c rs-color-transform.h \
 	rs-preview-widget.c rs-preview-widget.h \
 	rs-histogram.c rs-histogram.h \
 	eog-pixbuf-cell-renderer.c eog-pixbuf-cell-renderer.h \
-	rs-curve.c rs-curve.h \
 	rs-pixbuf.c rs-pixbuf.h \
 	rs-external-editor.c rs-external-editor.h \
 	rs-dir-selector.c rs-dir-selector.h \

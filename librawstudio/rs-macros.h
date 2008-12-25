@@ -20,12 +20,28 @@
 #ifndef RS_MACROS_H
 #define RS_MACROS_H
 
+#include <stdint.h>
+
 #define ORIENTATION_RESET(orientation) orientation = 0
 #define ORIENTATION_90(orientation) orientation = (orientation&4) | ((orientation+1)&3)
 #define ORIENTATION_180(orientation) orientation = (orientation^2)
 #define ORIENTATION_270(orientation) orientation = (orientation&4) | ((orientation+3)&3)
 #define ORIENTATION_FLIP(orientation) orientation = (orientation^4)
 #define ORIENTATION_MIRROR(orientation) orientation = ((orientation&4)^4) | ((orientation+2)&3)
+
+/* The problem with the align GNU extension, is that it doesn't work
+ * reliably with local variables, depending on versions and targets.
+ * So better use a tricky define to ensure alignment even in these
+ * cases. */
+#define RS_DECLARE_ALIGNED(type, name, sizex, sizey, alignment) \
+	type name##_s[(sizex)*(sizey)+(alignment)-1];	\
+	type * name = (type *)(((uintptr_t)name##_s+(alignment - 1))&~((uintptr_t)(alignment)-1))
+
+#include <gdk/gdkx.h>
+#define GUI_CATCHUP() do { \
+  GdkDisplay *__gui_catchup_display = gdk_display_get_default (); \
+  XFlush (GDK_DISPLAY_XDISPLAY (__gui_catchup_display)); } while (0)
+#define GTK_CATCHUP() while (gtk_events_pending()) gtk_main_iteration()
 
 #if __GNUC__ >= 3
 #define likely(x) __builtin_expect (!!(x), 1)
