@@ -22,7 +22,6 @@
 #include <math.h>
 #include "raf-meta.h"
 #include "application.h"
-#include "rawfile.h"
 #include "tiff-meta.h"
 #include "rs-metadata.h"
 

@@ -20,7 +20,6 @@
 #include <rawstudio.h>
 #include <glib.h>
 #include "application.h"
-#include "rawfile.h"
 #include "x3f-meta.h"
 #include "rs-metadata.h"
 

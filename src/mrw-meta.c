@@ -17,9 +17,9 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
+#include <rawstudio.h>
 #include <gtk/gtk.h>
 #include "application.h"
-#include "rawfile.h"
 #include "mrw-meta.h"
 #include "tiff-meta.h"
 #include "rs-metadata.h"

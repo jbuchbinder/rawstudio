@@ -22,6 +22,9 @@
 
 #include <gtk/gtk.h>
 
+/* Defined in rawfile.c */
+typedef struct _RAWFILE RAWFILE;
+
 /* Defined in rs-image.c */
 typedef struct _RSImage RSImage;
 

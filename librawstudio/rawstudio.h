@@ -25,6 +25,7 @@
 
 #include "rs-macros.h"
 
+#include "rs-rawfile.h"
 #include "rs-settings.h"
 #include "rs-image.h"
 #include "rs-image16.h"

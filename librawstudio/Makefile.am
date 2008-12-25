@@ -9,6 +9,7 @@ INCLUDES = \
 
 library_includedir=$(includedir)/@PACKAGE@-@VERSION@/
 library_include_HEADERS = rawstudio.h rs-types.h \
+	rs-rawfile.h \
 	rs-image.h \
 	rs-image16.h \
 	rs-metadata.h \
@@ -23,6 +24,7 @@ library_include_HEADERS = rawstudio.h rs-types.h \
 lib_LTLIBRARIES = librawstudio-0.1.la
 librawstudio_0_1_la_SOURCES = \
 	rs-plugin.c rs-plugin.h \
+	rs-rawfile.c rs-rawfile.h \
 	rs-image.c rs-image.h \
 	rs-image16.c rs-image16.h \
 	rs-metadata.c rs-metadata.h \

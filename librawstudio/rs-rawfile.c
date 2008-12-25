@@ -29,7 +29,7 @@
  #include <sys/mman.h>
 #endif
 #include <string.h>
-#include "rawfile.h"
+#include "rs-rawfile.h"
 
 struct _RAWFILE {
 #ifdef G_OS_WIN32

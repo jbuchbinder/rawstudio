@@ -21,7 +21,6 @@
 #include <gtk/gtk.h>
 #include <math.h>
 #include "application.h"
-#include "rawfile.h"
 #include "tiff-meta.h"
 #include "adobe-coeff.h"
 #include "rs-color-transform.h"
