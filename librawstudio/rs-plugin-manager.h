@@ -20,6 +20,8 @@
 #ifndef RS_PLUGIN_MANAGER_H
 #define RS_PLUGIN_MANAGER_H
 
+G_BEGIN_DECLS
+
 typedef struct _RSPluginManager RSPluginManager;
 typedef struct _RSPluginManagerClass RSPluginManagerClass;
 
