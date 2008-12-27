@@ -56,14 +56,12 @@ static RSFilterClass *rs_input_file_parent_class = NULL;
 G_MODULE_EXPORT void
 rs_plugin_load(RSPlugin *plugin)
 {
-	g_debug("rs_plugin_load(%p)", plugin);
 	rs_input_file_get_type(G_TYPE_MODULE(plugin));
 }
 
 static void
 rs_input_file_class_init (RSInputFileClass *klass)
 {
-	g_debug("rs_input_file_class_init(%p)", klass);
 	RSFilterClass *filter_class = RS_FILTER_CLASS (klass);
 	GObjectClass *object_class = G_OBJECT_CLASS(klass);
 
@@ -90,8 +88,6 @@ rs_input_file_class_init (RSInputFileClass *klass)
 static void
 rs_input_file_init (RSInputFile *filter)
 {
-	g_debug("rs_input_file_init(%p)", filter);
-
 	filter->filename = NULL;
 	filter->image = NULL;
 }
@@ -116,7 +112,6 @@ set_property (GObject *object, guint property_id, const GValue *value, GParamSpe
 	switch (property_id)
 	{
 		case PROP_FILENAME:
-			g_debug("set filename = \"%s\"", g_value_dup_string (value));
 			g_free (input->filename);
 			input->filename = g_value_dup_string (value);
 			if (input->image)
