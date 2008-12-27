@@ -25,6 +25,42 @@
 
 G_BEGIN_DECLS
 
+/**
+ * Convenience macro to define generic filter
+ */
+#define RS_DEFINE_FILTER(type_name, TypeName) \
+static GType type_name##_get_type (GTypeModule *module); \
+static void type_name##_class_init(RSInputFileClass *klass); \
+static void type_name##_init(RSInputFile *filter); \
+static GType type_name##_type = 0; \
+static GType \
+type_name##_get_type(GTypeModule *module) \
+{ \
+	if (!type_name##_type) \
+	{ \
+		static const GTypeInfo filter_info = \
+		{ \
+			sizeof (TypeName##Class), \
+			(GBaseInitFunc) NULL, \
+			(GBaseFinalizeFunc) NULL, \
+			(GClassInitFunc) type_name##_class_init, \
+			NULL, \
+			NULL, \
+			sizeof (TypeName), \
+			0, \
+			(GInstanceInitFunc) type_name##_init \
+		}; \
+ \
+		type_name##_type = g_type_module_register_type( \
+			module, \
+			RS_TYPE_FILTER, \
+			#TypeName, \
+			&filter_info, \
+			0); \
+	} \
+	return type_name##_type; \
+}
+
 #define RS_TYPE_FILTER rs_filter_get_type()
 #define RS_FILTER(obj) (G_TYPE_CHECK_INSTANCE_CAST ((obj), RS_TYPE_FILTER, RSFilter))
 #define RS_FILTER_CLASS(klass) (G_TYPE_CHECK_CLASS_CAST ((klass), RS_TYPE_FILTER, RSFilterClass))
