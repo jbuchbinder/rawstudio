@@ -41,20 +41,17 @@ struct _RSGtkViewClass {
 	RSFilterClass parent_class;
 };
 
+RS_DEFINE_FILTER(rs_gtk_view, RSGtkView)
+
 enum {
 	PROP_0,
 	PROP_CHANGEME
 };
 
-static GType rs_gtk_view_get_type (GTypeModule *module);
-static void rs_gtk_view_class_init(RSGtkViewClass *klass);
-static void rs_gtk_view_init(RSGtkView *filter);
 static void get_property(GObject *object, guint property_id, GValue *value, GParamSpec *pspec);
 static void set_property(GObject *object, guint property_id, const GValue *value, GParamSpec *pspec);
 static void previous_changed(RSFilter *filter, RSFilter *parent);
 static gboolean expose(GtkWidget *widget, GdkEventExpose *event, gpointer user_data);
-
-static GType rs_gtk_view_type = 0;
 
 static RSFilterClass *rs_gtk_view_parent_class = NULL;
 
@@ -63,35 +60,6 @@ rs_plugin_load(RSPlugin *plugin)
 {
 	/* Let the GType system register our type */
 	rs_gtk_view_get_type(G_TYPE_MODULE(plugin));
-}
-
-static GType
-rs_gtk_view_get_type (GTypeModule *module)
-{
-	if (!rs_gtk_view_type)
-	{
-		static const GTypeInfo filter_info =
-		{
-			sizeof (RSGtkViewClass),
-			(GBaseInitFunc) NULL,
-			(GBaseFinalizeFunc) NULL,
-			(GClassInitFunc) rs_gtk_view_class_init,
-			NULL,           /* class_finalize */
-			NULL,           /* class_data     */
-			sizeof (RSGtkView),
-			0,              /* n_preallocs    */
-			(GInstanceInitFunc) rs_gtk_view_init
-		};
-
-		rs_gtk_view_type = g_type_module_register_type(
-			module,
-			RS_TYPE_FILTER,
-			"RSGtkView",
-			&filter_info,
-			0);
-	}
-
-	return rs_gtk_view_type;
 }
 
 static void

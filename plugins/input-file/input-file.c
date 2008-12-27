@@ -38,21 +38,18 @@ struct _RSInputFileClass {
 	RSFilterClass parent_class;
 };
 
+RS_DEFINE_FILTER(rs_input_file, RSInputFile)
+
 enum {
 	PROP_0,
 	PROP_FILENAME
 };
 
-static GType rs_input_file_get_type (GTypeModule *module);
-static void rs_input_file_class_init(RSInputFileClass *klass);
-static void rs_input_file_init(RSInputFile *filter);
 static void get_property (GObject *object, guint property_id, GValue *value, GParamSpec *pspec);
 static void set_property (GObject *object, guint property_id, const GValue *value, GParamSpec *pspec);
 static RS_IMAGE16 *get_image(RSFilter *filter);
 static gint get_width(RSFilter *filter);
 static gint get_height(RSFilter *filter);
-
-static GType rs_input_file_type = 0;
 
 static RSFilterClass *rs_input_file_parent_class = NULL;
 
@@ -61,36 +58,6 @@ rs_plugin_load(RSPlugin *plugin)
 {
 	g_debug("rs_plugin_load(%p)", plugin);
 	rs_input_file_get_type(G_TYPE_MODULE(plugin));
-}
-
-static GType
-rs_input_file_get_type (GTypeModule *module)
-{
-	g_debug("rs_input_file_get_type(%p)", module);
-	if (!rs_input_file_type)
-	{
-		static const GTypeInfo filter_info =
-		{
-			sizeof (RSInputFileClass),
-			(GBaseInitFunc) NULL,
-			(GBaseFinalizeFunc) NULL,
-			(GClassInitFunc) rs_input_file_class_init,
-			NULL,           /* class_finalize */
-			NULL,           /* class_data     */
-			sizeof (RSInputFile),
-			0,              /* n_preallocs    */
-			(GInstanceInitFunc) rs_input_file_init
-		};
-
-		rs_input_file_type = g_type_module_register_type(
-			module,
-			RS_TYPE_FILTER,
-			"RSInputFile",
-			&filter_info,
-			0);
-	}
-	g_debug("rs_input_file_type = %d", (int) rs_input_file_type);
-	return rs_input_file_type;
 }
 
 static void
