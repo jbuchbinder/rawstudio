@@ -77,7 +77,7 @@ rs_plugin_manager_load_all_plugins()
 	{
 		RSFilterClass *klass;
 		klass = g_type_class_ref(filters[i]);
-		g_debug("- %s", klass->name);
+		g_debug("* %s: %s", g_type_name(filters[i]), klass->name);
 		g_type_class_unref(klass);
 	}
 	g_free(filters);
