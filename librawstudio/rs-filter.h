@@ -30,8 +30,8 @@ G_BEGIN_DECLS
  */
 #define RS_DEFINE_FILTER(type_name, TypeName) \
 static GType type_name##_get_type (GTypeModule *module); \
-static void type_name##_class_init(RSInputFileClass *klass); \
-static void type_name##_init(RSInputFile *filter); \
+static void type_name##_class_init(TypeName##Class *klass); \
+static void type_name##_init(TypeName *filter); \
 static GType type_name##_type = 0; \
 static GType \
 type_name##_get_type(GTypeModule *module) \
