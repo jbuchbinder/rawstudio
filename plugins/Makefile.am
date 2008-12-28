@@ -3,6 +3,7 @@ SUBDIRS = \
 	input-file \
 	load-dcraw \
 	load-gdk \
+	matrix-multiplier \
 	meta-ciff \
 	meta-mrw \
 	meta-raf \

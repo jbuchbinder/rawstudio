@@ -78,6 +78,7 @@ plugins/gtk-view/Makefile
 plugins/input-file/Makefile
 plugins/load-dcraw/Makefile
 plugins/load-gdk/Makefile
+plugins/matrix-multiplier/Makefile
 plugins/meta-ciff/Makefile
 plugins/meta-mrw/Makefile
 plugins/meta-raf/Makefile
