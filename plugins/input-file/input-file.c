@@ -129,7 +129,7 @@ get_image(RSFilter *filter)
 {
 	RSInputFile *input = RS_INPUT_FILE(filter);
 
-	return input->image;
+	return g_object_ref(input->image);
 }
 
 static gint
