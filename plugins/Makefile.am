@@ -1,4 +1,5 @@
 SUBDIRS = \
+	crop \
 	gtk-view \
 	input-file \
 	load-dcraw \
