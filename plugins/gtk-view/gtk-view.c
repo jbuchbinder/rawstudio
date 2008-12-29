@@ -34,6 +34,7 @@ struct _RSGtkView {
 
 	GdkPixbuf *pixbuf;
 	gchar *changeme;
+	GtkWidget *window;
 	GtkWidget *drawing_area;
 };
 
@@ -90,7 +91,7 @@ rs_gtk_view_class_init (RSGtkViewClass *klass)
 static void
 rs_gtk_view_init (RSGtkView *gtk_view)
 {
-	GtkWidget *window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
+	gtk_view->window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
 	gtk_view->drawing_area = gtk_drawing_area_new();
 	GtkWidget *viewport = gtk_viewport_new(NULL, NULL);
 	GtkWidget *scrolled = gtk_scrolled_window_new(NULL, NULL);
@@ -101,8 +102,8 @@ rs_gtk_view_init (RSGtkView *gtk_view)
 //	g_debug("prev = %p", prev);
 	gtk_container_add(GTK_CONTAINER(viewport), gtk_view->drawing_area);
 	gtk_container_add(GTK_CONTAINER(scrolled), viewport);
-	gtk_container_add(GTK_CONTAINER(window), scrolled);
-	gtk_widget_show_all(window);
+	gtk_container_add(GTK_CONTAINER(gtk_view->window), scrolled);
+	gtk_widget_show_all(gtk_view->window);
 	gtk_view->pixbuf = NULL;
 	gtk_view->changeme = NULL;
 }
@@ -143,12 +144,15 @@ previous_changed(RSFilter *filter, RSFilter *parent)
 	gint height = rs_filter_get_height(parent);
 	RSColorTransform *rct = rs_color_transform_new();
 	RS_IMAGE16 *image = rs_filter_get_image(parent);
-	gfloat pre_mul[4] = {2.2, 1.5, 1.9, 1.5};
+	gfloat pre_mul[4] = {2.0, 2.0, 2.0, 2.0};
 
 	if (gtk_view->pixbuf)
 		g_object_unref(gtk_view->pixbuf);
 	gtk_view->pixbuf = gdk_pixbuf_new(GDK_COLORSPACE_RGB, FALSE, 8, width, height);
 
+	gchar *str = g_strdup_printf("Got %d x %d", width, height);
+	gtk_window_set_title(GTK_WINDOW(gtk_view->window), str);
+	g_free(str);
 
 	GdkWindow *window = gtk_view->drawing_area->window;
 
@@ -173,8 +177,10 @@ expose(GtkWidget *widget, GdkEventExpose *event, gpointer user_data)
 	GdkRectangle area = event->area;
 	GdkWindow *window = gtk_view->drawing_area->window;
 
-	if (gtk_view->pixbuf)
-		gdk_draw_pixbuf(window, NULL, gtk_view->pixbuf, area.x, area.y, area.x, area.y, area.width, area.height, GDK_RGB_DITHER_NONE, 0, 0);
+	GdkRectangle source = {0, 0, gdk_pixbuf_get_width(gtk_view->pixbuf), gdk_pixbuf_get_height(gtk_view->pixbuf)};
+
+	if (gtk_view->pixbuf && gdk_rectangle_intersect(&area, &source, &source))
+		gdk_draw_pixbuf(window, NULL, gtk_view->pixbuf, source.x, source.y, source.x, source.y, source.width, source.height, GDK_RGB_DITHER_NONE, 0, 0);
 
 	return TRUE;
 }
