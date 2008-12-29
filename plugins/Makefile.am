@@ -9,5 +9,5 @@ SUBDIRS = \
 	meta-mrw \
 	meta-raf \
 	meta-tiff \
-	meta-x3f
-
+	meta-x3f \
+	transform

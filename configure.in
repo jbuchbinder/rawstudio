@@ -85,6 +85,7 @@ plugins/meta-mrw/Makefile
 plugins/meta-raf/Makefile
 plugins/meta-tiff/Makefile
 plugins/meta-x3f/Makefile
+plugins/transform/Makefile
 src/Makefile
 po/Makefile.in
 pixmaps/Makefile
