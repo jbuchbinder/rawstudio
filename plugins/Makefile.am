@@ -2,6 +2,7 @@ SUBDIRS = \
 	crop \
 	gtk-view \
 	input-file \
+	input-image16 \
 	load-dcraw \
 	load-gdk \
 	matrix-multiplier \
