@@ -216,19 +216,28 @@ set_property (GObject *object, guint property_id, const GValue *value, GParamSpe
 	switch (property_id)
 	{
 		case PROP_KEEP_ASPECT:
-			transform->keep_aspect = g_value_get_boolean(value);
-			recompute(transform);
-			rs_filter_changed(RS_FILTER(transform));
+			if (transform->keep_aspect != g_value_get_boolean(value))
+			{
+				transform->keep_aspect = g_value_get_boolean(value);
+				recompute(transform);
+				rs_filter_changed(RS_FILTER(transform));
+			}
 			break;
 		case PROP_WIDTH:
-			transform->width = g_value_get_int(value);
-			recompute(transform);
-			rs_filter_changed(RS_FILTER(transform));
+			if (transform->width != g_value_get_int(value))
+			{
+				transform->width = g_value_get_int(value);
+				recompute(transform);
+				rs_filter_changed(RS_FILTER(transform));
+			}
 			break;
 		case PROP_HEIGHT:
-			transform->height = g_value_get_int(value);
-			recompute(transform);
-			rs_filter_changed(RS_FILTER(transform));
+			if (transform->height != g_value_get_int(value))
+			{
+				transform->height = g_value_get_int(value);
+				recompute(transform);
+				rs_filter_changed(RS_FILTER(transform));
+			}
 			break;
 		case PROP_CROP:
 			new_crop = (RS_RECT *) g_value_get_pointer(value);
@@ -243,19 +252,29 @@ set_property (GObject *object, guint property_id, const GValue *value, GParamSpe
 			rs_filter_changed(RS_FILTER(transform));
 			break;
 		case PROP_SCALE:
-			transform->scale = g_value_get_float(value);
-			recompute(transform);
-			rs_filter_changed(RS_FILTER(transform));
+			if (transform->scale != g_value_get_float(value))
+			{
+				
+				transform->scale = g_value_get_float(value);
+				recompute(transform);
+				rs_filter_changed(RS_FILTER(transform));
+			}
 			break;
 		case PROP_ANGLE:
-			transform->angle = g_value_get_float(value);
-			recompute(transform);
-			rs_filter_changed(RS_FILTER(transform));
+			if (transform->angle != g_value_get_float(value))
+			{
+				transform->angle = g_value_get_float(value);
+				recompute(transform);
+				rs_filter_changed(RS_FILTER(transform));
+			}
 			break;
 		case PROP_ORIENTATION:
-			transform->orientation = g_value_get_uint(value);
-			recompute(transform);
-			rs_filter_changed(RS_FILTER(transform));
+			if (transform->orientation != g_value_get_uint(value))
+			{
+				transform->orientation = g_value_get_uint(value);
+				recompute(transform);
+				rs_filter_changed(RS_FILTER(transform));
+			}
 			break;
 		default:
 			G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
