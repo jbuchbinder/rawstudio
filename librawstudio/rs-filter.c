@@ -49,7 +49,7 @@ rs_filter_init(RSFilter *self)
 RSFilter *
 rs_filter_new(const gchar *name, RSFilter *previous)
 {
-	g_debug("rs_filter_new(%s, %p)", name, previous);
+	g_debug("rs_filter_new(%s, %s [%p])", name, RS_FILTER_NAME(previous), previous);
 	g_assert(name != NULL);
 	g_assert((previous == NULL) || RS_IS_FILTER(previous));
 
@@ -58,6 +58,9 @@ rs_filter_new(const gchar *name, RSFilter *previous)
 
 	if (g_type_is_a (type, RS_TYPE_FILTER))
 		filter = g_object_new(type, NULL);
+
+	if (!RS_IS_FILTER(filter))
+		g_warning("Could not instantiate filter of type \"%s\"", name);
 
 	if (previous)
 		rs_filter_set_previous(filter, previous);
@@ -89,7 +92,7 @@ rs_filter_set_previous(RSFilter *filter, RSFilter *previous)
 void
 rs_filter_changed(RSFilter *filter)
 {
-	g_debug("rs_filter_changed(%p)", filter);
+	g_debug("rs_filter_changed(%s [%p])", RS_FILTER_NAME(filter), filter);
 	g_assert(RS_IS_FILTER(filter));
 
 	gint i, n_next = g_slist_length(filter->next_filters);
@@ -116,7 +119,7 @@ rs_filter_changed(RSFilter *filter)
 RS_IMAGE16 *
 rs_filter_get_image(RSFilter *filter)
 {
-	g_debug("rs_filter_get_image(%p)", filter);
+	g_debug("rs_filter_get_image(%s [%p])", RS_FILTER_NAME(filter), filter);
 	RS_IMAGE16 *image;
 	g_assert(RS_IS_FILTER(filter));
 
@@ -125,7 +128,7 @@ rs_filter_get_image(RSFilter *filter)
 	else
 		image = rs_filter_get_image(filter->previous);
 
-	g_assert(RS_IS_IMAGE16(image));
+	g_assert(RS_IS_IMAGE16(image) || (image == NULL));
 
 	return image;
 }

@@ -68,6 +68,8 @@ type_name##_get_type(GTypeModule *module) \
 #define RS_IS_FILTER_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE ((klass), RS_TYPE_FILTER))
 #define RS_FILTER_GET_CLASS(obj) (G_TYPE_INSTANCE_GET_CLASS ((obj), RS_TYPE_FILTER, RSFilterClass))
 
+#define RS_FILTER_NAME(filter) (((filter)) ? g_type_name(G_TYPE_FROM_CLASS(RS_FILTER_GET_CLASS ((filter)))) : "(nil)")
+
 typedef struct _RSFilter RSFilter;
 typedef struct _RSFilterClass RSFilterClass;
 
