@@ -1,4 +1,5 @@
 SUBDIRS = \
+	cache \
 	crop \
 	gtk-view \
 	input-file \
