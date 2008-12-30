@@ -131,7 +131,7 @@ rs_transform_class_init (RSTransformClass *klass)
 	g_object_class_install_property(object_class,
 		PROP_SCALE, g_param_spec_float (
 			"scale", "scale", "Scale",
-			0.001, 100.0, 1.0,
+			-2.0, 100.0, 1.0,
 			G_PARAM_READWRITE)
 	);
 	g_object_class_install_property(object_class,
