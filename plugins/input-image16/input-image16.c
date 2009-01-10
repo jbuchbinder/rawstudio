@@ -33,6 +33,7 @@ struct _RSInputImage16 {
 	RSFilter parent;
 
 	RS_IMAGE16 *image;
+	gulong signal;
 };
 
 struct _RSInputImage16Class {
@@ -51,6 +52,7 @@ static void set_property (GObject *object, guint property_id, const GValue *valu
 static RS_IMAGE16 *get_image(RSFilter *filter);
 static gint get_width(RSFilter *filter);
 static gint get_height(RSFilter *filter);
+static void image_changed(RS_IMAGE16 *image, RSInputImage16 *input_image16);
 
 static RSFilterClass *rs_input_image16_parent_class = NULL;
 
@@ -91,6 +93,7 @@ static void
 rs_input_image16_init (RSInputImage16 *input_image16)
 {
 	input_image16->image = NULL;
+	input_image16->signal = 0;
 }
 
 static void
@@ -114,9 +117,12 @@ set_property (GObject *object, guint property_id, const GValue *value, GParamSpe
 	switch (property_id)
 	{
 		case PROP_IMAGE:
+			if (input_image16->signal)
+				g_signal_handler_disconnect(input_image16->image, input_image16->signal);
 			if (input_image16->image)
 				g_object_unref(input_image16->image);
 			input_image16->image = g_object_ref(g_value_get_object(value));
+			input_image16->signal = g_signal_connect(G_OBJECT(input_image16->image), "pixeldata-changed", G_CALLBACK(image_changed), input_image16);
 			rs_filter_changed(RS_FILTER(input_image16));
 			break;
 		default:
@@ -157,3 +163,8 @@ get_height(RSFilter *filter)
 	return input_image16->image->h;
 }
 
+static void
+image_changed(RS_IMAGE16 *image, RSInputImage16 *input_image16)
+{
+	rs_filter_changed(RS_FILTER(input_image16));
+}
