@@ -42,6 +42,7 @@ struct _RSTransform {
 	gint height;
 	RS_RECT *crop;
 	gfloat scale;
+	gfloat actual_scale;
 	gfloat angle;
 	gint orientation;
 };
@@ -61,6 +62,7 @@ enum {
 	PROP_HEIGHT,
 	PROP_CROP,
 	PROP_SCALE,
+	PROP_ACTUAL_SCALE,
 	PROP_ANGLE,
 	PROP_ORIENTATION
 };
@@ -135,6 +137,12 @@ rs_transform_class_init (RSTransformClass *klass)
 			G_PARAM_READWRITE)
 	);
 	g_object_class_install_property(object_class,
+		PROP_ACTUAL_SCALE, g_param_spec_float (
+			"actual_scale", "actual_scale", "The computed scale factor",
+			-2.0, 100.0, 1.0,
+			G_PARAM_READABLE)
+	);
+	g_object_class_install_property(object_class,
 		PROP_ANGLE, g_param_spec_float (
 			"angle", "angle", "Rotation angle in degrees",
 			0.0, 100.0, 1.0,
@@ -166,6 +174,7 @@ rs_transform_init (RSTransform *transform)
 	transform->height = -1;
 	transform->crop = NULL;
 	transform->scale = 1.0;
+	transform->actual_scale = 1.0;
 	transform->angle = 0.0;
 	ORIENTATION_RESET(transform->orientation);
 }
@@ -196,6 +205,9 @@ get_property (GObject *object, guint property_id, GValue *value, GParamSpec *psp
 			break;
 		case PROP_SCALE:
 			g_value_set_float(value, transform->scale);
+			break;
+		case PROP_ACTUAL_SCALE:
+			g_value_set_float(value, transform->actual_scale);
 			break;
 		case PROP_ANGLE:
 			g_value_set_float(value, transform->angle);
@@ -485,9 +497,7 @@ recompute(RSTransform *transform)
 	/* scale */
 	matrix3_affine_scale(&transform->forward_affine, xscale, yscale);
 
-	/* Write back the actual scaling if requested */
-//	if (actual_scale)
-//		*actual_scale = (xscale+yscale)/2.0;
+	transform->actual_scale = (xscale+yscale)/2.0;
 
 	/* apply scaling to our previously calculated width and height */
 	w *= xscale;
