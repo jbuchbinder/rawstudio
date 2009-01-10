@@ -145,7 +145,7 @@ rs_transform_class_init (RSTransformClass *klass)
 	g_object_class_install_property(object_class,
 		PROP_ANGLE, g_param_spec_float (
 			"angle", "angle", "Rotation angle in degrees",
-			0.0, 100.0, 1.0,
+			-G_MAXFLOAT, G_MAXFLOAT, 1.0,
 			G_PARAM_READWRITE)
 	);
 	g_object_class_install_property(object_class,
