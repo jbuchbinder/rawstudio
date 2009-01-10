@@ -106,7 +106,6 @@ extern RS_IMAGE16 *rs_image16_transform(RS_IMAGE16 *in, RS_IMAGE16 *out, RS_MATR
 	RS_RECT *crop, gint width, gint height, gboolean keep_aspect, gdouble scale, gdouble angle, gint orientation, gdouble *actual_scale);
 extern RS_IMAGE16 *rs_image16_scale_double(RS_IMAGE16 *in, RS_IMAGE16 *out, gdouble scale);
 extern RS_IMAGE16 *rs_image16_copy(RS_IMAGE16 *rsi, gboolean copy_pixels);
-extern RS_IMAGE16 *rs_image16_convolve(RS_IMAGE16 *input, RS_IMAGE16 *output, RS_MATRIX3 *matrix, gfloat scaler, gboolean *abort);
 
 /**
  * Returns a single pixel from a RS_IMAGE16
@@ -118,7 +117,6 @@ extern RS_IMAGE16 *rs_image16_convolve(RS_IMAGE16 *input, RS_IMAGE16 *output, RS
 extern inline gushort *rs_image16_get_pixel(RS_IMAGE16 *image, gint x, gint y, gboolean extend_edges);
 
 extern size_t rs_image16_get_footprint(RS_IMAGE16 *image);
-extern RS_IMAGE16 *rs_image16_sharpen(RS_IMAGE16 *in, RS_IMAGE16 *out, gdouble amount, gboolean *abort);
 
 /**
  * Copies an RS_IMAGE16, making it double size in the process
