@@ -203,7 +203,6 @@ rs_photo_save(RS_PHOTO *photo, const gchar *filename, gint filetype, gint width,
 {
 	GdkPixbuf *pixbuf;
 	RS_IMAGE16 *rsi;
-	RS_IMAGE16 *sharpened;
 	RS_IMAGE16 *image16;
 	gint quality = 100;
 	gboolean uncompressed_tiff = FALSE;
@@ -216,14 +215,22 @@ rs_photo_save(RS_PHOTO *photo, const gchar *filename, gint filetype, gint width,
 
 	rs_image16_demosaic(photo->input, RS_DEMOSAIC_PPG);
 
-	sharpened = rs_image16_sharpen(photo->input, NULL, photo->settings[snapshot]->sharpen, NULL);
+	RSFilter *finput = rs_filter_new("RSInputImage16", NULL);
+	RSFilter *fsharpen = rs_filter_new("RSSharpen", finput);
+	RSFilter *ftransform = rs_filter_new("RSTransform", fsharpen);
 
-	/* transform and crop */
-	rsi = rs_image16_transform(sharpened, NULL,
-			NULL, NULL, photo->crop, width, height, keep_aspect, scale,
-			photo->angle, photo->orientation, NULL);
-
-	rs_image16_unref(sharpened);
+	g_object_set(finput, "image", photo->input, NULL);
+	g_object_set(fsharpen, "amount", photo->settings[snapshot]->sharpen, NULL);
+	g_object_set(ftransform,
+		"crop", photo->crop,
+		"width", width,
+		"height", height,
+		"aspect", TRUE,
+		"scale", scale,
+		"angle", photo->angle,
+		"orientation", photo->orientation,
+		NULL);
+	rsi = rs_filter_get_image(ftransform);
 
 	if (cms)
 		transform = rs_cms_get_transform(cms, TRANSFORM_EXPORT);
@@ -298,6 +305,10 @@ rs_photo_save(RS_PHOTO *photo, const gchar *filename, gint filetype, gint width,
 			rs_exif_free(exif);
 		}
 	}
+
+	g_object_unref(finput);
+	g_object_unref(fsharpen);
+	g_object_unref(ftransform);
 
 	return(TRUE);
 }

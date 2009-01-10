@@ -24,7 +24,6 @@
 
 typedef enum {
 	JOB_DEMOSAIC,
-	JOB_SHARPEN,
 	JOB_RENDER,
 } JOB_TYPE;
 
@@ -59,10 +58,6 @@ job_end(RS_JOB *job)
 		case JOB_DEMOSAIC:
 			g_object_unref(G_OBJECT(job->arg1));
 			break;
-		case JOB_SHARPEN:
-			g_object_unref(G_OBJECT(job->arg1));
-			g_object_unref(G_OBJECT(job->arg2));
-			break;
 		case JOB_RENDER:
 			g_object_unref(G_OBJECT(job->arg1));
 			g_object_unref(G_OBJECT(job->arg2));
@@ -92,9 +87,6 @@ job_consumer(gpointer unused)
 		{
 			case JOB_DEMOSAIC:
 				rs_image16_demosaic(RS_IMAGE16(job->arg1), RS_DEMOSAIC_PPG);
-				break;
-			case JOB_SHARPEN:
-				rs_image16_sharpen(RS_IMAGE16(job->arg1), RS_IMAGE16(job->arg2), job->dou1, &job->abort);
 				break;
 			case JOB_RENDER:
 			{
@@ -214,33 +206,6 @@ rs_job_add_demosaic(RS_IMAGE16 *image)
 
 	job->type = JOB_DEMOSAIC;
 	job->arg1 = image;
-
-	rs_job_add(job);
-
-	return job;
-}
-
-/**
- * Adds a new sharpen job
- * @param in An RS_IMAGE16 to sharpen
- * @param out An RS_IMAGE16 for output after sharpen
- * @return A new RS_JOB, this should NOT be freed by caller
- */
-RS_JOB *
-rs_job_add_sharpen(RS_IMAGE16 *in, RS_IMAGE16 *out, gdouble amount)
-{
-	RS_JOB *job = g_new0(RS_JOB, 1);
-
-	g_assert(RS_IS_IMAGE16(in));
-	g_assert(RS_IS_IMAGE16(out));
-
-	g_object_ref(in);
-	g_object_ref(out);
-
-	job->type = JOB_SHARPEN;
-	job->arg1 = in;
-	job->arg2 = out;
-	job->dou1 = amount;
 
 	rs_job_add(job);
 
