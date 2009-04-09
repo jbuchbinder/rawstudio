@@ -32,8 +32,19 @@
 static GStaticMutex lock = G_STATIC_MUTEX_INIT;
 
 #ifdef WITH_GCONF
- #include <gconf/gconf-client.h>
+ #include <gconf/gconf.h>
  #define GCONF_PATH "/apps/rawstudio/"
+static GConfEngine *
+get_gconf_engine(void)
+{
+	/* Initialize *engine first time we're called. Otherwise just return the one we've got. */
+	g_static_mutex_lock(&lock);
+	static GConfEngine *engine = NULL;
+	if (!engine)
+		engine = gconf_engine_get_default();
+	g_static_mutex_unlock(&lock);
+	return engine;
+}
 #else
  #ifdef G_OS_WIN32
   #include <windows.h>
@@ -48,13 +59,13 @@ rs_conf_get_boolean(const gchar *name, gboolean *boolean_value)
 	gboolean ret = FALSE;
 #ifdef WITH_GCONF
 	GConfValue *gvalue;
-	GConfClient *client = gconf_client_get_default();
+	GConfEngine *engine = get_gconf_engine();
 	GString *fullname = g_string_new(GCONF_PATH);
 	g_string_append(fullname, name);
-	if (client)
+	if (engine)
 	{
 		g_static_mutex_lock(&lock);
-		gvalue = gconf_client_get(client, fullname->str, NULL);
+		gvalue = gconf_engine_get(engine, fullname->str, NULL);
 		g_static_mutex_unlock(&lock);
 		if (gvalue)
 		{
@@ -66,7 +77,6 @@ rs_conf_get_boolean(const gchar *name, gboolean *boolean_value)
 			}
 			gconf_value_free(gvalue);
 		}
-		g_object_unref(client);
 	}
 	g_string_free(fullname, TRUE);
 #endif
@@ -84,13 +94,13 @@ rs_conf_get_boolean_with_default(const gchar *name, gboolean *boolean_value, gbo
 		*boolean_value = default_value;
 #ifdef WITH_GCONF
 	GConfValue *gvalue;
-	GConfClient *client = gconf_client_get_default();
+	GConfEngine *engine = get_gconf_engine();
 	GString *fullname = g_string_new(GCONF_PATH);
 	g_string_append(fullname, name);
-	if (client)
+	if (engine)
 	{
 		g_static_mutex_lock(&lock);
-		gvalue = gconf_client_get(client, fullname->str, NULL);
+		gvalue = gconf_engine_get(engine, fullname->str, NULL);
 		g_static_mutex_unlock(&lock);
 		if (gvalue)
 		{
@@ -102,7 +112,6 @@ rs_conf_get_boolean_with_default(const gchar *name, gboolean *boolean_value, gbo
 			}
 			gconf_value_free(gvalue);
 		}
-		g_object_unref(client);
 	}
 	g_string_free(fullname, TRUE);
 #endif
@@ -117,15 +126,12 @@ rs_conf_set_boolean(const gchar *name, gboolean bool_value)
 {
 	gboolean ret = FALSE;
 #ifdef WITH_GCONF
-	GConfClient *client = gconf_client_get_default();
+	GConfEngine *engine = get_gconf_engine();
 	GString *fullname = g_string_new(GCONF_PATH);
 	g_string_append(fullname, name);
 	g_static_mutex_lock(&lock);
-	if (client)
-	{
-		ret = gconf_client_set_bool(client, fullname->str, bool_value, NULL);
-		g_object_unref(client);
-	}
+	if (engine)
+		ret = gconf_engine_set_bool(engine, fullname->str, bool_value, NULL);
 	g_static_mutex_unlock(&lock);
 	g_string_free(fullname, TRUE);
 #endif
@@ -141,13 +147,13 @@ rs_conf_get_string(const gchar *name)
 	gchar *ret=NULL;
 #ifdef WITH_GCONF
 	GConfValue *gvalue;
-	GConfClient *client = gconf_client_get_default();
+	GConfEngine *engine = get_gconf_engine();
 	GString *fullname = g_string_new(GCONF_PATH);
 	g_string_append(fullname, name);
-	if (client)
+	if (engine)
 	{
 		g_static_mutex_lock(&lock);
-		gvalue = gconf_client_get(client, fullname->str, NULL);
+		gvalue = gconf_engine_get(engine, fullname->str, NULL);
 		g_static_mutex_unlock(&lock);
 		if (gvalue)
 		{
@@ -155,7 +161,6 @@ rs_conf_get_string(const gchar *name)
 				ret = g_strdup(gconf_value_get_string(gvalue));
 			gconf_value_free(gvalue);
 		}
-		g_object_unref(client);
 	}
 	g_string_free(fullname, TRUE);
 #endif
@@ -188,15 +193,18 @@ rs_conf_set_string(const gchar *name, const gchar *string_value)
 {
 	gboolean ret = FALSE;
 #ifdef WITH_GCONF
-	GConfClient *client = gconf_client_get_default();
+	GConfValue *gvalue;
+	GConfEngine *engine = get_gconf_engine();
 	GString *fullname = g_string_new(GCONF_PATH);
 	g_string_append(fullname, name);
-	if (client)
+	if (engine)
 	{
 		g_static_mutex_lock(&lock);
-		ret = gconf_client_set_string(client, fullname->str, string_value, NULL);
+		gvalue = gconf_value_new(GCONF_VALUE_STRING);
+		gconf_value_set_string(gvalue, string_value);
+		ret = gconf_engine_set(engine, fullname->str, gvalue, NULL);
+		gconf_value_free(gvalue);
 		g_static_mutex_unlock(&lock);
-		g_object_unref(client);
 	}
 	g_string_free(fullname, TRUE);
 #endif
@@ -210,7 +218,7 @@ rs_conf_set_string(const gchar *name, const gchar *string_value)
 	}
     RegCloseKey(hKey);
 #endif
-	return ret;
+	return(ret);
 }
 
 gboolean
@@ -219,13 +227,13 @@ rs_conf_get_integer(const gchar *name, gint *integer_value)
 	gboolean ret=FALSE;
 #ifdef WITH_GCONF
 	GConfValue *gvalue;
-	GConfClient *client = gconf_client_get_default();
+	GConfEngine *engine = get_gconf_engine();
 	GString *fullname = g_string_new(GCONF_PATH);
 	g_string_append(fullname, name);
-	if (client)
+	if (engine)
 	{
 		g_static_mutex_lock(&lock);
-		gvalue = gconf_client_get(client, fullname->str, NULL);
+		gvalue = gconf_engine_get(engine, fullname->str, NULL);
 		g_static_mutex_unlock(&lock);
 		if (gvalue)
 		{
@@ -236,7 +244,6 @@ rs_conf_get_integer(const gchar *name, gint *integer_value)
 			}
 			gconf_value_free(gvalue);
 		}
-		g_object_unref(client);
 	}
 	g_string_free(fullname, TRUE);
 #endif
@@ -270,15 +277,12 @@ rs_conf_set_integer(const gchar *name, const gint integer_value)
 {
 	gboolean ret = FALSE;
 #ifdef WITH_GCONF
-	GConfClient *client = gconf_client_get_default();
+	GConfEngine *engine = get_gconf_engine();
 	GString *fullname = g_string_new(GCONF_PATH);
 	g_string_append(fullname, name);
 	g_static_mutex_lock(&lock);
-	if (client)
-	{
-		ret = gconf_client_set_int(client, fullname->str, integer_value, NULL);
-		g_object_unref(client);
-	}
+	if (engine)
+		ret = gconf_engine_set_int(engine, fullname->str, integer_value, NULL);
 	g_static_mutex_unlock(&lock);
 	g_string_free(fullname, TRUE);
 #endif
@@ -459,13 +463,13 @@ rs_conf_get_double(const gchar *name, gdouble *float_value)
 	gboolean ret=FALSE;
 #ifdef WITH_GCONF
 	GConfValue *gvalue;
-	GConfClient *client = gconf_client_get_default();
+	GConfEngine *engine = get_gconf_engine();
 	GString *fullname = g_string_new(GCONF_PATH);
 	g_string_append(fullname, name);
-	if (client)
+	if (engine)
 	{
 		g_static_mutex_lock(&lock);
-		gvalue = gconf_client_get(client, fullname->str, NULL);
+		gvalue = gconf_engine_get(engine, fullname->str, NULL);
 		g_static_mutex_unlock(&lock);
 		if (gvalue)
 		{
@@ -476,7 +480,6 @@ rs_conf_get_double(const gchar *name, gdouble *float_value)
 			}
 			gconf_value_free(gvalue);
 		}
-		g_object_unref(client);
 	}
 	g_string_free(fullname, TRUE);
 #endif
@@ -510,15 +513,12 @@ rs_conf_set_double(const gchar *name, const gdouble float_value)
 {
 	gboolean ret = FALSE;
 #ifdef WITH_GCONF
-	GConfClient *client = gconf_client_get_default();
+	GConfEngine *engine = get_gconf_engine();
 	GString *fullname = g_string_new(GCONF_PATH);
 	g_string_append(fullname, name);
 	g_static_mutex_lock(&lock);
-	if (client)
-	{
-		ret = gconf_client_set_float(client, fullname->str, float_value, NULL);
-		g_object_unref(client);
-	}
+	if (engine)
+		ret = gconf_engine_set_float(engine, fullname->str, float_value, NULL);
 	g_static_mutex_unlock(&lock);
 	g_string_free(fullname, TRUE);
 #endif
@@ -540,16 +540,13 @@ rs_conf_get_list_string(const gchar *name)
 {
 	GSList *list = NULL;
 #ifdef WITH_GCONF
-	GConfClient *client = gconf_client_get_default();
+	GConfEngine *engine = get_gconf_engine();
 	GString *fullname = g_string_new(GCONF_PATH);
 
 	g_string_append(fullname, name);
 	g_static_mutex_lock(&lock);
-	if (client)
-	{
-		list = gconf_client_get_list(client, fullname->str, GCONF_VALUE_STRING, NULL);
-		g_object_unref(client);
-	}
+	if (engine)
+		list = gconf_engine_get_list(engine, fullname->str, GCONF_VALUE_STRING, NULL);
 	g_static_mutex_unlock(&lock);
 	g_string_free(fullname, TRUE);
 #else
@@ -563,16 +560,13 @@ rs_conf_set_list_string(const gchar *name, GSList *list)
 {
 	gboolean ret = FALSE;
 #ifdef WITH_GCONF
-	GConfClient *client = gconf_client_get_default();
+	GConfEngine *engine = get_gconf_engine();
 	GString *fullname = g_string_new(GCONF_PATH);
 
 	g_string_append(fullname, name);
 	g_static_mutex_lock(&lock);
-	if (client)
-	{
-		ret = gconf_client_set_list(client, fullname->str, GCONF_VALUE_STRING, list, NULL);
-		g_object_unref(client);
-	}
+	if (engine)
+		ret = gconf_engine_set_list(engine, fullname->str, GCONF_VALUE_STRING, list, NULL);
 	g_static_mutex_unlock(&lock);
 	g_string_free(fullname, TRUE);
 #else

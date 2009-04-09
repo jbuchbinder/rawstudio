@@ -1221,7 +1221,7 @@ rs_image16_open_dcraw(const gchar *filename, gboolean half_size)
 	{
 		dcraw_load_raw(raw);
 
-		if (half_size || (raw->filters == 0))
+		if (half_size)
 		{
 			image = rs_image16_new(raw->raw.width, raw->raw.height, raw->raw.colors, 4);
 			rs_image16_open_dcraw_apply_black_and_shift_half_size(raw, image);
@@ -1253,15 +1253,7 @@ rs_image16_open_dcraw_apply_black_and_shift_half_size(dcraw_data *raw, RS_IMAGE1
 {
 	gushort *dst, *src;
 	gint row, col;
-	gint rawsize = raw->raw.width * raw->raw.height * 3;
-	gint max = raw->rgbMax;
-
-	/* dcraw calculates 'wrong' rgbMax for Sigma's, let's calculate our own */
-	if (raw->raw.colors == 3)
-		for(row=0;row<rawsize;row++)
-			max = MAX(((gushort *)raw->raw.image)[row], max);
-
-	gint64 shift = (gint64) (16.0-log((gdouble) max)/log(2.0)+0.5);
+	gint64 shift = (gint64) (16.0-log((gdouble) raw->rgbMax)/log(2.0)+0.5);
 
 	for(row=0;row<(raw->raw.height);row++)
 	{

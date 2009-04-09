@@ -91,14 +91,12 @@ rs_bind_optimized_functions()
  * Function definitions
  *****************************************************************************/
 
-#define cpuid(cmd, eax, edx) \
+#define cpuid(cmd, eax, ebx, ecx, edx) \
   do { \
-     eax = edx = 0;	\
+     eax = ebx = ecx = edx = 0;	\
      asm ( \
-       "push %%"REG_b"\n\t"\
-       "cpuid\n\t" \
-       "pop %%"REG_b"\n\t" \
-       : "=a" (eax), "=d" (edx) \
+       "cpuid" \
+       : "=a" (eax), "=b" (ebx), "=c" (ecx), "=d" (edx) \
        : "0" (cmd) \
      ); \
 } while(0)
@@ -107,12 +105,13 @@ static guint
 rs_detect_cpu_features()
 {
 	guint eax;
+	guint ebx;
+	guint ecx;
 	guint edx;
 	guint cpuflags = 0;
 
 	/* Test cpuid presence comparing eflags */
 	asm (
-		"push %%"REG_b"\n\t"
 		"pushf\n\t"
 		"pop %%"REG_a"\n\t"
 		"mov %%"REG_a", %%"REG_b"\n\t"
@@ -125,10 +124,9 @@ rs_detect_cpu_features()
 		"je notfound\n\t"
 		"mov $1, %0\n\t"
 		"notfound:\n\t"
-		"pop %%"REG_b"\n\t"
 		: "=r" (eax)
 		:
-		: REG_a
+		: REG_a, REG_b
 
 		);
 
@@ -138,12 +136,12 @@ rs_detect_cpu_features()
 		guint ext_dsc;
 
 		/* Get the standard level */
-		cpuid(0x00000000, std_dsc, edx);
+		cpuid(0x00000000, std_dsc, ebx, ecx, edx);
 
 		if (std_dsc)
 		{
 			/* Request for standard features */
-			cpuid(0x00000001, std_dsc, edx);
+			cpuid(0x00000001, std_dsc, ebx, ecx, edx);
 
 			if (edx & 0x00800000)
 				cpuflags |= _MMX;
@@ -154,12 +152,12 @@ rs_detect_cpu_features()
 		}
 
 		/* Is there extensions */
-		cpuid(0x80000000, ext_dsc, edx);
+		cpuid(0x80000000, ext_dsc, ebx, ecx, edx);
 
 		if (ext_dsc)
 		{
 			/* Request for extensions */
-			cpuid(0x80000001, eax, edx);
+			cpuid(0x80000001, eax, ebx, ecx, edx);
 
 			if (edx & 0x80000000)
 				cpuflags |= _3DNOW;

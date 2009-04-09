@@ -485,7 +485,7 @@ gui_make_preference_window(RS_BLOB *rs)
 	histsize_hbox = gtk_hbox_new(FALSE, 0);
 	histsize_label = gtk_label_new(_("Histogram height:"));
 	gtk_misc_set_alignment(GTK_MISC(histsize_label), 0.0, 0.5);
-	histsize_adj = gtk_adjustment_new(histogram_height, 15.0, 500.0, 1.0, 10.0, 0.0);
+	histsize_adj = gtk_adjustment_new(histogram_height, 15.0, 500.0, 1.0, 10.0, 10.0);
 	g_signal_connect(histsize_adj, "value_changed",
 		G_CALLBACK(gui_histogram_height_changed), rs);
 	histsize = gtk_spin_button_new(GTK_ADJUSTMENT(histsize_adj), 1, 0);
@@ -1040,9 +1040,6 @@ gui_init(int argc, char **argv, RS_BLOB *rs)
 		lwd = rs_conf_get_string(CONF_LWD);
 		if (!lwd)
 			lwd = g_get_current_dir();
-
-		/* rs_store_load_directory() MUST have the GDK lock! */
-		gdk_threads_enter();
 		if (rs_store_load_directory(rs->store, lwd))
 		{
 			gint last_priority_page = 0;
@@ -1054,7 +1051,6 @@ gui_init(int argc, char **argv, RS_BLOB *rs)
 		}
 		else
 			rs_conf_set_integer(CONF_LAST_PRIORITY_PAGE, 0);
-		gdk_threads_leave();
 		rs_dir_selector_expand_path(RS_DIR_SELECTOR(dir_selector), lwd);
 		g_free(lwd);
 	}

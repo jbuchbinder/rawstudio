@@ -36,6 +36,7 @@
 
 extern GtkWindow *rawstudio_window;
 
+static gboolean batch_exists_in_queue(RS_QUEUE *queue, const gchar *filename, gint setting_id);
 static GtkWidget *make_batchview(RS_QUEUE *queue);
 static void size_update_infolabel(RS_QUEUE *queue);
 static gchar *batch_queue_filename = NULL;
@@ -201,7 +202,7 @@ gboolean
 rs_batch_add_to_queue(RS_QUEUE *queue, const gchar *filename, const gint setting_id)
 {
 	gboolean ret = FALSE;
-	if (!rs_batch_exists_in_queue(queue, filename, setting_id))
+	if (!batch_exists_in_queue(queue, filename, setting_id))
 	{
 		gchar *filename_short, *setting_id_abc;
 		RS_FILETYPE *filetype;
@@ -260,7 +261,7 @@ rs_batch_add_to_queue(RS_QUEUE *queue, const gchar *filename, const gint setting
 			}
 			g_object_unref(missing_thumb);
 
-			if (!rs_batch_exists_in_queue(queue, filename, setting_id))
+			if (!batch_exists_in_queue(queue, filename, setting_id))
 			{
 				GtkTreeIter iter;
 
@@ -315,10 +316,6 @@ rs_batch_remove_from_queue(RS_QUEUE *queue, const gchar *filename, gint setting_
 				}
 			}
 			g_free(filename_temp);
-
-			/* Break out of the loop if we got a hit */
-			if (ret)
-				break;
 		} while (gtk_tree_model_iter_next(queue->list, &iter));
 	}
 
@@ -329,8 +326,8 @@ rs_batch_remove_from_queue(RS_QUEUE *queue, const gchar *filename, gint setting_
 	return ret;
 }
 
-gboolean
-rs_batch_exists_in_queue(RS_QUEUE *queue, const gchar *filename, gint setting_id)
+static gboolean
+batch_exists_in_queue(RS_QUEUE *queue, const gchar *filename, gint setting_id)
 {
 	gboolean ret = FALSE;
 	GtkTreeIter iter;

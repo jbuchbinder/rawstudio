@@ -333,7 +333,7 @@ rs_cache_load(RS_PHOTO *photo)
 
 	xmlFreeDoc(doc);
 	g_free(cachename);
-	return mask;
+	return(TRUE);
 }
 
 void
