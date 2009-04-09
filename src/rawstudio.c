@@ -50,19 +50,20 @@
 #include "rs-photo.h"
 #include "rs-math.h"
 #include "rs-exif.h"
+#include "rs-metadata.h"
+#include "rs-filetypes.h"
+#include "rs-utils.h"
 
-static void photo_settings_changed(RS_PHOTO *photo, gint mask, RS_BLOB *rs);
+static void photo_settings_changed(RS_PHOTO *photo, RSSettingsMask mask, RS_BLOB *rs);
 static void photo_spatial_changed(RS_PHOTO *photo, RS_BLOB *rs);
-static RS_SETTINGS *rs_settings_new();
-static GdkPixbuf *rs_thumb_gdk(const gchar *src);
+static void rs_gdk_load_meta(const gchar *src, RSMetadata *metadata);
 
 RS_FILETYPE *filetypes;
 
 static void
 rs_add_filetype(gchar *id, gint filetype, const gchar *ext, gchar *description,
 	RS_IMAGE16 *(*load)(const gchar *, gboolean),
-	GdkPixbuf *(*thumb)(const gchar *),
-	void (*load_meta)(const gchar *, RS_METADATA *),
+	void (*load_meta)(const gchar *, RSMetadata *),
 	gboolean (*save)(RS_PHOTO *photo, const gchar *filename, gint filetype, gint width, gint height, gboolean keep_aspect, gdouble scale, gint snapshot, RS_CMS *cms))
 {
 	RS_FILETYPE *cur = filetypes;
@@ -78,9 +79,6 @@ rs_add_filetype(gchar *id, gint filetype, const gchar *ext, gchar *description,
 	cur->filetype = filetype;
 	cur->ext = ext;
 	cur->description = description;
-	cur->load = load;
-	cur->thumb = thumb;
-	cur->load_meta = load_meta;
 	cur->save = save;
 	cur->next = NULL;
 	return;
@@ -89,58 +87,54 @@ rs_add_filetype(gchar *id, gint filetype, const gchar *ext, gchar *description,
 static void
 rs_init_filetypes(void)
 {
-	filetypes = NULL;
-	rs_add_filetype("cr2", FILETYPE_RAW, ".cr2", _("Canon CR2"),
-		rs_image16_open_dcraw, rs_tiff_load_thumb, rs_tiff_load_meta, NULL);
-	rs_add_filetype("crw", FILETYPE_RAW, ".crw", _("Canon CIFF"),
-		rs_image16_open_dcraw, rs_ciff_load_thumb, rs_ciff_load_meta, NULL);
-	rs_add_filetype("nef", FILETYPE_RAW, ".nef", _("Nikon NEF"),
-		rs_image16_open_dcraw, rs_tiff_load_thumb, rs_tiff_load_meta, NULL);
-	rs_add_filetype("mrw", FILETYPE_RAW, ".mrw", _("Minolta raw"),
-		rs_image16_open_dcraw, rs_mrw_load_thumb, rs_mrw_load_meta, NULL);
-	rs_add_filetype("cr-tiff", FILETYPE_RAW, ".tif", _("Canon TIFF"),
-		rs_image16_open_dcraw, rs_tiff_load_thumb, rs_tiff_load_meta, NULL);
-	rs_add_filetype("arw", FILETYPE_RAW, ".arw", _("Sony"),
-		rs_image16_open_dcraw, rs_tiff_load_thumb, rs_tiff_load_meta, NULL);
-	rs_add_filetype("sr2", FILETYPE_RAW, ".sr2", _("Sony"),
-		rs_image16_open_dcraw, rs_tiff_load_thumb, rs_tiff_load_meta, NULL);
-	rs_add_filetype("sr2", FILETYPE_RAW, ".srf", _("Sony"),
-		rs_image16_open_dcraw, rs_tiff_load_thumb, rs_tiff_load_meta, NULL);
-	rs_add_filetype("kdc", FILETYPE_RAW, ".kdc", _("Kodak"),
-		rs_image16_open_dcraw, rs_tiff_load_thumb, rs_tiff_load_meta, NULL);
-	rs_add_filetype("kdc", FILETYPE_RAW, ".dcr", _("Kodak"),
-		rs_image16_open_dcraw, rs_tiff_load_thumb, rs_tiff_load_meta, NULL);
-	rs_add_filetype("x3f", FILETYPE_RAW, ".x3f", _("Sigma"),
-		rs_image16_open_dcraw, rs_x3f_load_thumb, rs_x3f_load_meta, NULL);
-	rs_add_filetype("orf", FILETYPE_RAW, ".orf", "",
-		rs_image16_open_dcraw, rs_tiff_load_thumb, rs_tiff_load_meta, NULL);
-	rs_add_filetype("raw", FILETYPE_RAW, ".raw", _("Panasonic raw"),
-		rs_image16_open_dcraw, rs_tiff_load_thumb, rs_tiff_load_meta, NULL);
-	rs_add_filetype("pef", FILETYPE_RAW, ".pef", _("Pentax raw"),
-		rs_image16_open_dcraw, rs_tiff_load_thumb, rs_tiff_load_meta, NULL);
-	rs_add_filetype("dng", FILETYPE_RAW, "dng", _("Adobe Digital negative"),
-		rs_image16_open_dcraw, rs_tiff_load_thumb, rs_tiff_load_meta, NULL);
-	rs_add_filetype("mef", FILETYPE_RAW, "mef", _("Mamiya"),
-		rs_image16_open_dcraw, rs_tiff_load_thumb, rs_tiff_load_meta, NULL);
-	rs_add_filetype("3fr", FILETYPE_RAW, "3fr", _("Hasselblad"),
-		rs_image16_open_dcraw, rs_tiff_load_thumb, rs_tiff_load_meta, NULL);
-	rs_add_filetype("jpeg", FILETYPE_JPEG, ".jpg", _("JPEG (Joint Photographic Experts Group)"),
-		rs_image16_open_gdk, rs_thumb_gdk, NULL, rs_photo_save);
-	rs_add_filetype("png", FILETYPE_PNG, ".png", _("PNG (Portable Network Graphics)"),
-		rs_image16_open_gdk, rs_thumb_gdk, NULL, rs_photo_save);
-	rs_add_filetype("tiff8", FILETYPE_TIFF8, ".tif", _("8-bit TIFF (Tagged Image File Format)"),
-		rs_image16_open_gdk, rs_thumb_gdk, NULL, rs_photo_save);
-	rs_add_filetype("tiff16", FILETYPE_TIFF16, ".tif", _("16-bit TIFF (Tagged Image File Format)"),
-		rs_image16_open_gdk, rs_thumb_gdk, NULL, rs_photo_save);
-	return;
-}
 
-void
-rs_reset(RS_BLOB *rs)
-{
-	gint c;
-	for(c=0;c<3;c++)
-		rs_settings_reset(rs->settings[c], MASK_ALL);
+	rs_filetype_init();
+
+#define REGISTER_FILETYPE(extension, description, load, meta) do { \
+	rs_filetype_register_loader(extension, description, load, 10); \
+	rs_filetype_register_meta_loader(extension, description, meta, 10); \
+} while(0)
+
+	/* Raw file formats */
+	REGISTER_FILETYPE(".cr2", _("Canon CR2"), rs_image16_open_dcraw,  rs_tiff_load_meta);
+	REGISTER_FILETYPE(".crw", _("Canon CIFF"), rs_image16_open_dcraw, rs_ciff_load_meta);
+	REGISTER_FILETYPE(".nef", _("Nikon NEF"), rs_image16_open_dcraw, rs_tiff_load_meta);
+	REGISTER_FILETYPE(".mrw", _("Minolta raw"), rs_image16_open_dcraw, rs_mrw_load_meta);
+	REGISTER_FILETYPE(".tif", _("Canon TIFF"), rs_image16_open_dcraw, rs_tiff_load_meta);
+	REGISTER_FILETYPE(".arw", _("Sony"), rs_image16_open_dcraw, rs_tiff_load_meta);
+	REGISTER_FILETYPE(".sr2", _("Sony"), rs_image16_open_dcraw, rs_tiff_load_meta);
+	REGISTER_FILETYPE(".srf", _("Sony"), rs_image16_open_dcraw, rs_tiff_load_meta);
+	REGISTER_FILETYPE(".kdc", _("Kodak"), rs_image16_open_dcraw, rs_tiff_load_meta);
+	REGISTER_FILETYPE(".dcr", _("Kodak"), rs_image16_open_dcraw, rs_tiff_load_meta);
+	REGISTER_FILETYPE(".x3f", _("Sigma"), rs_image16_open_dcraw, rs_x3f_load_meta);
+	REGISTER_FILETYPE(".orf", _("Olympus"), rs_image16_open_dcraw, rs_tiff_load_meta);
+	REGISTER_FILETYPE(".raw", _("Panasonic raw"), rs_image16_open_dcraw, rs_tiff_load_meta);
+	REGISTER_FILETYPE(".pef", _("Pentax raw"), rs_image16_open_dcraw, rs_tiff_load_meta);
+	REGISTER_FILETYPE(".dng", _("Adobe Digital negative"), rs_image16_open_dcraw, rs_tiff_load_meta);
+	REGISTER_FILETYPE(".mef", _("Mamiya"), rs_image16_open_dcraw, rs_tiff_load_meta);
+	REGISTER_FILETYPE(".3fr", _("Hasselblad"), rs_image16_open_dcraw, rs_tiff_load_meta);
+	REGISTER_FILETYPE(".erf", _("Epson"), rs_image16_open_dcraw, rs_tiff_load_meta);
+
+	/* GDK formats */
+	REGISTER_FILETYPE(".jpg", _("JPEG (Joint Photographic Experts Group)"), rs_image16_open_gdk, rs_gdk_load_meta);
+	REGISTER_FILETYPE(".png", _("PNG (Portable Network Graphics)"), rs_image16_open_gdk, rs_gdk_load_meta);
+
+#undef REGISTER_FILETYPE
+
+	/* TIFF is special - we need higher priority to try raw first */
+	rs_filetype_register_loader(".tif", _("8-bit TIFF (Tagged Image File Format)"), rs_image16_open_gdk, 20);
+	rs_filetype_register_meta_loader(".tif", _("8-bit TIFF (Tagged Image File Format)"), rs_gdk_load_meta, 20);
+
+	/* Old-style savers - FIXME: Port to RSFiletype */
+	filetypes = NULL;
+	rs_add_filetype("jpeg", FILETYPE_JPEG, ".jpg", _("JPEG (Joint Photographic Experts Group)"),
+		rs_image16_open_gdk, rs_gdk_load_meta, rs_photo_save);
+	rs_add_filetype("png", FILETYPE_PNG, ".png", _("PNG (Portable Network Graphics)"),
+		rs_image16_open_gdk, rs_gdk_load_meta, rs_photo_save);
+	rs_add_filetype("tiff8", FILETYPE_TIFF8, ".tif", _("8-bit TIFF (Tagged Image File Format)"),
+		rs_image16_open_gdk, rs_gdk_load_meta, rs_photo_save);
+	rs_add_filetype("tiff16", FILETYPE_TIFF16, ".tif", _("16-bit TIFF (Tagged Image File Format)"),
+		rs_image16_open_gdk, rs_gdk_load_meta, rs_photo_save);
 	return;
 }
 
@@ -152,7 +146,7 @@ rs_free(RS_BLOB *rs)
 }
 
 static void
-photo_settings_changed(RS_PHOTO *photo, gint mask, RS_BLOB *rs)
+photo_settings_changed(RS_PHOTO *photo, RSSettingsMask mask, RS_BLOB *rs)
 {
 	const gint snapshot = mask>>24;
 	mask &= 0x00ffffff;
@@ -164,21 +158,12 @@ photo_settings_changed(RS_PHOTO *photo, gint mask, RS_BLOB *rs)
 	if (photo == rs->photo)
 	{
 		/* Update histogram */
-		rs_color_transform_set_from_settings(rs->histogram_transform, rs->photo->settings[rs->current_setting], mask);
-		rs_histogram_set_color_transform(RS_HISTOGRAM_WIDGET(rs->histogram), rs->histogram_transform);
+		rs_histogram_set_settings(RS_HISTOGRAM_WIDGET(rs->histogram), rs->photo->settings[rs->current_setting]);
 
 		/* Update histogram in curve */
-		rs_curve_draw_histogram(RS_CURVE_WIDGET(rs->settings[rs->current_setting]->curve),
+		rs_curve_draw_histogram(RS_CURVE_WIDGET(rs->curve[rs->current_setting]),
 			rs->histogram_dataset,
 			rs->photo->settings[rs->current_setting]);
-
-		/* Update local settings according to photo */
-		rs->mute_signals_to_photo = TRUE;
-		/* FIXME: This 'if' is just a workaround for a bug in rs_photo_apply_settings() */
-		if (mask)
-			rs_settings_double_to_rs_settings(rs->photo->settings[rs->current_setting],
-				rs->settings[rs->current_setting], mask);
-		rs->mute_signals_to_photo = FALSE;
 	}
 }
 
@@ -197,6 +182,7 @@ photo_spatial_changed(RS_PHOTO *photo, RS_BLOB *rs)
 
 		rs_histogram_set_image(RS_HISTOGRAM_WIDGET(rs->histogram), rs->histogram_dataset);
 
+		/* Force update of histograms */
 		photo_settings_changed(photo, MASK_ALL, rs);
 	}
 }
@@ -211,12 +197,15 @@ rs_set_photo(RS_BLOB *rs, RS_PHOTO *photo)
 		g_object_unref(rs->photo);
 	rs->photo = NULL;
 
-	rs_reset(rs);
-
 	/* Apply settings from photo */
-	rs_settings_double_to_rs_settings(photo->settings[0], rs->settings[0], MASK_ALL);
-	rs_settings_double_to_rs_settings(photo->settings[1], rs->settings[1], MASK_ALL);
-	rs_settings_double_to_rs_settings(photo->settings[2], rs->settings[2], MASK_ALL);
+	rs_settings_copy(photo->settings[0], MASK_ALL, rs->settings[0]);
+	rs_settings_copy(photo->settings[1], MASK_ALL, rs->settings[1]);
+	rs_settings_copy(photo->settings[2], MASK_ALL, rs->settings[2]);
+
+	/* make sure we're synchronized */
+	rs_settings_link(rs->settings[0], photo->settings[0]);
+	rs_settings_link(rs->settings[1], photo->settings[1]);
+	rs_settings_link(rs->settings[2], photo->settings[2]);
 
 	/* Set photo in preview-widget */
 	rs_preview_widget_set_photo(RS_PREVIEW_WIDGET(rs->preview), photo);
@@ -248,288 +237,6 @@ rs_set_snapshot(RS_BLOB *rs, gint snapshot)
 	/* Force an update */
 	if (rs->photo)
 		photo_settings_changed(rs->photo, MASK_ALL|(snapshot<<24), rs);
-}
-
-void
-rs_settings_to_rs_settings_double(RS_SETTINGS *rs_settings, RS_SETTINGS_DOUBLE *rs_settings_double)
-{
-	if (rs_settings==NULL)
-		return;
-	if (rs_settings_double==NULL)
-		return;
-	rs_settings_double->exposure = GETVAL(rs_settings->exposure);
-	rs_settings_double->saturation = GETVAL(rs_settings->saturation);
-	rs_settings_double->hue = GETVAL(rs_settings->hue);
-	rs_settings_double->contrast = GETVAL(rs_settings->contrast);
-	rs_settings_double->warmth = GETVAL(rs_settings->warmth);
-	rs_settings_double->tint = GETVAL(rs_settings->tint);
-	rs_settings_double->sharpen = GETVAL(rs_settings->sharpen);
-	rs_curve_widget_get_knots(RS_CURVE_WIDGET(rs_settings->curve), &rs_settings_double->curve_knots, &rs_settings_double->curve_nknots);
-	return;
-}
-
-void
-rs_settings_double_to_rs_settings(RS_SETTINGS_DOUBLE *rs_settings_double, RS_SETTINGS *rs_settings, gint mask)
-{
-	if (rs_settings_double==NULL)
-		return;
-	if (rs_settings==NULL)
-		return;
-
-	if (mask == 0)
-		return;
-	if (mask & MASK_EXPOSURE)
-		SETVAL(rs_settings->exposure, rs_settings_double->exposure);
-	if (mask & MASK_SATURATION)
-	SETVAL(rs_settings->saturation, rs_settings_double->saturation);
-	if (mask & MASK_HUE)
-		SETVAL(rs_settings->hue, rs_settings_double->hue);
-	if (mask & MASK_CONTRAST)
-		SETVAL(rs_settings->contrast, rs_settings_double->contrast);
-	if (mask & MASK_WARMTH)
-		SETVAL(rs_settings->warmth, rs_settings_double->warmth);
-	if (mask & MASK_TINT)
-		SETVAL(rs_settings->tint, rs_settings_double->tint);
-	if (mask & MASK_SHARPEN)
-		SETVAL(rs_settings->sharpen, rs_settings_double->sharpen);
-	if (mask & MASK_CURVE)
-	{
-		gulong handler = g_signal_handler_find(rs_settings->curve, G_SIGNAL_MATCH_FUNC, 0, 0, NULL, update_preview_callback, NULL);
-		g_signal_handler_block(rs_settings->curve, handler);
-		rs_curve_widget_reset(RS_CURVE_WIDGET(rs_settings->curve));
-		if (rs_settings_double->curve_nknots>0)
-		{
-			gint i;
-			for(i=0;i<rs_settings_double->curve_nknots;i++)
-				rs_curve_widget_add_knot(RS_CURVE_WIDGET(rs_settings->curve), rs_settings_double->curve_knots[i*2+0],
-					rs_settings_double->curve_knots[i*2+1]);
-		}
-		else
-		{
-			rs_curve_widget_add_knot(RS_CURVE_WIDGET(rs_settings->curve), 0.0f, 0.0f);
-			rs_curve_widget_add_knot(RS_CURVE_WIDGET(rs_settings->curve), 1.0f, 1.0f);
-		}
-		g_signal_handler_unblock(rs_settings->curve, handler);
-	}
-	return;
-}
-
-void
-rs_settings_reset(RS_SETTINGS *rss, guint mask)
-{
-	if (mask & MASK_EXPOSURE)
-		gtk_adjustment_set_value((GtkAdjustment *) rss->exposure, 0.0);
-	if (mask & MASK_SATURATION)
-		gtk_adjustment_set_value((GtkAdjustment *) rss->saturation, 1.0);
-	if (mask & MASK_HUE)
-		gtk_adjustment_set_value((GtkAdjustment *) rss->hue, 0.0);
-	if (mask & MASK_CONTRAST)
-		gtk_adjustment_set_value((GtkAdjustment *) rss->contrast, 1.0);
-	if (mask & MASK_WARMTH)
-		gtk_adjustment_set_value((GtkAdjustment *) rss->warmth, 0.0);
-	if (mask & MASK_TINT)
-		gtk_adjustment_set_value((GtkAdjustment *) rss->tint, 0.0);
-	if (mask & MASK_SHARPEN)
-		gtk_adjustment_set_value((GtkAdjustment *) rss->sharpen, 0.0);
-	if (mask & MASK_CURVE)
-	{
-		rs_curve_widget_reset(RS_CURVE_WIDGET(rss->curve));
-		rs_curve_widget_add_knot(RS_CURVE_WIDGET(rss->curve), 0.0f, 0.0f);
-		rs_curve_widget_add_knot(RS_CURVE_WIDGET(rss->curve), 1.0f, 1.0f);
-	}
-	return;
-}
-
-static RS_SETTINGS *
-rs_settings_new(void)
-{
-	RS_SETTINGS *rss;
-	rss = g_malloc(sizeof(RS_SETTINGS));
-	rss->exposure = gtk_adjustment_new(0.0, -3.0, 3.0, 0.1, 0.5, 0.0);
-	rss->saturation = gtk_adjustment_new(1.0, 0.0, 3.0, 0.1, 0.5, 0.0);
-	rss->hue = gtk_adjustment_new(0.0, -180.0, 180.0, 0.1, 30.0, 0.0);
-	rss->contrast = gtk_adjustment_new(1.0, 0.0, 3.0, 0.1, 0.5, 0.0);
-	rss->warmth = gtk_adjustment_new(0.0, -2.0, 2.0, 0.1, 0.5, 0.0);
-	rss->tint = gtk_adjustment_new(0.0, -2.0, 2.0, 0.1, 0.5, 0.0);
-	rss->sharpen = gtk_adjustment_new(0.0, 0.0, 10.0, 0.1, 0.5, 0.0);
-	rss->curve = rs_curve_widget_new();
-	return(rss);
-}
-
-RS_SETTINGS_DOUBLE *
-rs_settings_double_new(void)
-{
-	RS_SETTINGS_DOUBLE *rssd;
-	rssd = g_malloc(sizeof(RS_SETTINGS_DOUBLE));
-	rssd->exposure = 0.0;
-	rssd->saturation = 1.0;
-	rssd->hue = 0.0;
-	rssd->contrast = 1.0;
-	rssd->warmth = 0.0;
-	rssd->tint = 0.0;
-	rssd->sharpen = 0.0;
-
-	/* Initialize curve with some sane values */
-	rssd->curve_nknots = 2;
-	rssd->curve_knots = g_new(gfloat, 4);
-	rssd->curve_knots[0] = 0.0;
-	rssd->curve_knots[1] = 0.0;
-	rssd->curve_knots[2] = 1.0;
-	rssd->curve_knots[3] = 1.0;
-	return rssd;
-}
-
-void
-rs_settings_double_copy(const RS_SETTINGS_DOUBLE *in, RS_SETTINGS_DOUBLE *out, gint mask)
-{
-	g_assert(in);
-	g_assert(out);
-	if (mask & MASK_EXPOSURE)
-		out->exposure = in->exposure;
-	if (mask & MASK_SATURATION)
-		out->saturation = in->saturation;
-	if (mask & MASK_HUE)
-		out->hue = in->hue;
-	if (mask & MASK_CONTRAST)
-		out->contrast = in->contrast;
-	if (mask & MASK_WARMTH)
-		out->warmth = in->warmth;
-	if (mask & MASK_TINT)
-		out->tint = in->tint;
-	if (mask & MASK_SHARPEN)
-		out->sharpen = in->sharpen;
-	if (mask & MASK_CURVE)
-	{
-
-		if (in->curve_nknots>1)
-		{
-			gint i;
-
-			out->curve_nknots = in->curve_nknots;
-			if (out->curve_knots)
-				g_free(out->curve_knots);
-			out->curve_knots = g_new(gfloat, out->curve_nknots*2);
-			
-			for(i=0;i<in->curve_nknots*2;i++)
-				out->curve_knots[i] = in->curve_knots[i];
-		}
-	}
-	return;
-}
-
-void
-rs_settings_double_free(RS_SETTINGS_DOUBLE *rssd)
-{
-	g_free(rssd);
-	return;
-}
-
-RS_METADATA *
-rs_metadata_new(void)
-{
-	RS_METADATA *metadata;
-	gint i;
-	metadata = g_malloc(sizeof(RS_METADATA));
-	metadata->make = MAKE_UNKNOWN;
-	metadata->make_ascii = NULL;
-	metadata->model_ascii = NULL;
-	metadata->time_ascii = NULL;
-	metadata->timestamp = -1;
-	metadata->orientation = 0;
-	metadata->aperture = -1.0;
-	metadata->iso = 0;
-	metadata->shutterspeed = -1.0;
-	metadata->thumbnail_start = 0;
-	metadata->thumbnail_length = 0;
-	metadata->preview_start = 0;
-	metadata->preview_length = 0;
-	metadata->preview_planar_config = 0;
-	metadata->preview_width = 0;
-	metadata->preview_height = 0;
-	metadata->cam_mul[0] = -1.0;
-	metadata->contrast = -1.0;
-	metadata->saturation = -1.0;
-	metadata->sharpness = -1.0;
-	metadata->color_tone = -1.0;
-	metadata->focallength = -1;
-	for(i=0;i<4;i++)
-		metadata->cam_mul[i] = 1.0f;
-	matrix4_identity(&metadata->adobe_coeff);
-	return(metadata);
-}
-
-void
-rs_metadata_free(RS_METADATA *metadata)
-{
-	if (metadata->make_ascii)
-		g_free(metadata->make_ascii);
-	if (metadata->model_ascii)
-		g_free(metadata->model_ascii);
-	if (metadata->time_ascii)
-		g_free(metadata->time_ascii);
-	g_free(metadata);
-	return;
-}
-
-/**
- * Load metadata from file
- */
-gboolean
-rs_metadata_load(const gchar *filename, RS_METADATA *metadata)
-{
-	gboolean ret = FALSE;
-	RS_FILETYPE *filetype;
-
-	g_assert(filename != NULL);
-
-	filetype = rs_filetype_get(filename, TRUE);
-
-	if (filetype && filetype->load_meta)
-	{
-		filetype->load_meta(filename, metadata);
-		ret = TRUE;
-	}
-
-	return ret;
-}
-
-gchar *
-rs_metadata_get_short_description(RS_METADATA *metadata)
-{
-	GString *label = g_string_new("");
-	gchar *ret = NULL;
-
-	if (metadata->focallength>0)
-		g_string_append_printf(label, _("%dmm "), metadata->focallength);
-	if (metadata->shutterspeed > 0.0 && metadata->shutterspeed < 4) 
-		g_string_append_printf(label, _("%.1fs "), 1/metadata->shutterspeed);
-	else if (metadata->shutterspeed >= 4)
-		g_string_append_printf(label, _("1/%.0fs "), metadata->shutterspeed);
-	if (metadata->aperture!=0.0)
-		g_string_append_printf(label, _("F/%.1f "), metadata->aperture);
-	if (metadata->iso!=0)
-		g_string_append_printf(label, _("ISO%d"), metadata->iso);
-
-	ret = label->str;
-
-	g_string_free(label, FALSE);
-
-	return ret;
-}
-
-void
-rs_metadata_normalize_wb(RS_METADATA *meta)
-{
-	gdouble div;
-	if ((meta->cam_mul[1]+meta->cam_mul[3])!=0.0)
-	{
-		div = 2/(meta->cam_mul[1]+meta->cam_mul[3]);
-		meta->cam_mul[0] *= div;
-		meta->cam_mul[1] = 1.0;
-		meta->cam_mul[2] *= div;
-		meta->cam_mul[3] = 1.0;
-	}
-	return;
 }
 
 gboolean
@@ -643,9 +350,7 @@ rs_new(void)
 	guint c;
 	rs = g_malloc(sizeof(RS_BLOB));
 	rs->histogram_dataset = NULL;
-	rs->histogram_transform = rs_color_transform_new();
 	rs->settings_buffer = NULL;
-	rs->mute_signals_to_photo = FALSE;
 	rs->photo = NULL;
 	rs->queue = rs_batch_new_queue();
 	rs->current_setting = 0;
@@ -654,150 +359,10 @@ rs_new(void)
 	return(rs);
 }
 
-RS_FILETYPE *
-rs_filetype_get(const gchar *filename, gboolean load)
+void
+rs_gdk_load_meta(const gchar *src, RSMetadata *metadata)
 {
-	RS_FILETYPE *filetype = filetypes;
-	RS_FILETYPE *ret = NULL;
-	gchar *iname;
-	gint n;
-	gboolean load_gdk = FALSE;
-	rs_conf_get_boolean(CONF_LOAD_GDK, &load_gdk);
-	iname = g_ascii_strdown(filename,-1);
-	n = 0;
-	while(filetype)
-	{
-		if (g_str_has_suffix(iname, filetype->ext))
-		{
-			if ((!load) || (filetype->load))
-			{
-				if (filetype->filetype == FILETYPE_RAW)
-					ret = filetype;
-				else if ((filetype->filetype != FILETYPE_RAW) && (load_gdk))
-					ret = filetype;
-				break;
-			}
-		}
-		filetype = filetype->next;
-	}
-	g_free(iname);
-	return ret;
-}
-
-gchar *
-rs_confdir_get()
-{
-	static gchar *dir = NULL;
-
-	if (!dir)
-	{
-		GString *gs = g_string_new(g_get_home_dir());
-		g_string_append(gs, G_DIR_SEPARATOR_S);
-		g_string_append(gs, ".rawstudio/");
-		dir = gs->str;
-		g_string_free(gs, FALSE);
-	}
-
-	g_mkdir_with_parents(dir, 00755);
-
-	return dir;
-}
-
-gchar *
-rs_dotdir_get(const gchar *filename)
-{
-	gchar *ret;
-	gchar *directory;
-	GString *dotdir;
-	gboolean dotdir_is_local = FALSE;
-	rs_conf_get_boolean(CONF_CACHEDIR_IS_LOCAL, &dotdir_is_local);
-
-	directory = g_path_get_dirname(filename);
-	if (dotdir_is_local)
-	{
-		dotdir = g_string_new(g_get_home_dir());
-		dotdir = g_string_append(dotdir, G_DIR_SEPARATOR_S);
-		dotdir = g_string_append(dotdir, DOTDIR);
-		dotdir = g_string_append(dotdir, G_DIR_SEPARATOR_S);
-		dotdir = g_string_append(dotdir, directory);
-	}
-	else
-	{
-		dotdir = g_string_new(directory);
-		dotdir = g_string_append(dotdir, G_DIR_SEPARATOR_S);
-		dotdir = g_string_append(dotdir, DOTDIR);
-	}
-
-	if (!g_file_test(dotdir->str, (G_FILE_TEST_EXISTS | G_FILE_TEST_IS_DIR)))
-	{
-		if (g_mkdir_with_parents(dotdir->str, 0700) != 0)
-			ret = NULL;
-		else
-			ret = dotdir->str;
-	}
-	else
-		ret = dotdir->str;
-	g_free(directory);
-	g_string_free(dotdir, FALSE);
-	return (ret);
-}
-
-gchar *
-rs_thumb_get_name(const gchar *src)
-{
-	gchar *ret=NULL;
-	gchar *dotdir, *filename;
-	GString *out;
-	dotdir = rs_dotdir_get(src);
-	filename = g_path_get_basename(src);
-	if (dotdir)
-	{
-		out = g_string_new(dotdir);
-		out = g_string_append(out, G_DIR_SEPARATOR_S);
-		out = g_string_append(out, filename);
-		out = g_string_append(out, ".thumb.png");
-		ret = out->str;
-		g_string_free(out, FALSE);
-		g_free(dotdir);
-	}
-	g_free(filename);
-	return(ret);
-}
-
-static GdkPixbuf *
-rs_thumb_gdk(const gchar *src)
-{
-	GdkPixbuf *pixbuf=NULL;
-
-	pixbuf = gdk_pixbuf_new_from_file_at_size(src, 128, 128, NULL);
-
-	return(pixbuf);
-}
-
-GdkPixbuf *
-rs_load_thumb(RS_FILETYPE *filetype, const gchar *src)
-{
-	GdkPixbuf * pixbuf = NULL;
-	gchar *thumbname = rs_thumb_get_name(src);
-
-	if (thumbname)
-	{
-		pixbuf = gdk_pixbuf_new_from_file(thumbname, NULL);
-
-		if (!pixbuf && filetype->thumb)
-		{
-			pixbuf = filetype->thumb(src);
-
-			if (pixbuf)
-				gdk_pixbuf_save(pixbuf, thumbname, "png", NULL, NULL);
-		}
-
-		g_free(thumbname);
-	}
-	else if (filetype->thumb)
-		pixbuf = filetype->thumb(src);
-
-	return pixbuf;
+	metadata->thumbnail = gdk_pixbuf_new_from_file_at_size(src, 128, 128, NULL);
 }
 
 void
@@ -838,263 +403,9 @@ rs_white_black_point(RS_BLOB *rs)
 		}
 		whitepoint = (gdouble) i / (gdouble) 255;
 
-		rs_curve_widget_move_knot(RS_CURVE_WIDGET(rs->settings[rs->current_setting]->curve),0,blackpoint,0.0);
-		rs_curve_widget_move_knot(RS_CURVE_WIDGET(rs->settings[rs->current_setting]->curve),-1,whitepoint,1.0);
+		rs_curve_widget_move_knot(RS_CURVE_WIDGET(rs->curve[rs->current_setting]),0,blackpoint,0.0);
+		rs_curve_widget_move_knot(RS_CURVE_WIDGET(rs->curve[rs->current_setting]),-1,whitepoint,1.0);
 	}
-}
-
-void
-rs_apply_settings_from_double(RS_SETTINGS *rss, RS_SETTINGS_DOUBLE *rsd, gint mask)
-{
-	if (mask & MASK_EXPOSURE)
-		SETVAL(rss->exposure,rsd->exposure);
-	if (mask & MASK_SATURATION)
-		SETVAL(rss->saturation,rsd->saturation);
-	if (mask & MASK_HUE)
-		SETVAL(rss->hue,rsd->hue);
-	if (mask & MASK_CONTRAST)
-		SETVAL(rss->contrast,rsd->contrast);
-	if (mask & MASK_WARMTH)
-		SETVAL(rss->warmth,rsd->warmth);
-	if (mask & MASK_TINT)
-		SETVAL(rss->tint,rsd->tint);
-	if (mask & MASK_CURVE) {
-		rs_curve_widget_reset(RS_CURVE_WIDGET(rss->curve));
-
-		if (rsd->curve_nknots>1)
-		{
-			gint i;
-			for(i=0;i<rsd->curve_nknots;i++)
-				rs_curve_widget_add_knot(RS_CURVE_WIDGET(rss->curve), 
-										rsd->curve_knots[i*2+0],
-										rsd->curve_knots[i*2+1]
-										);
-		}
-		else
-		{
-			rs_curve_widget_add_knot(RS_CURVE_WIDGET(rss->curve), 0.0f, 0.0f);
-			rs_curve_widget_add_knot(RS_CURVE_WIDGET(rss->curve), 1.0f, 1.0f);
-		}
-	}
-	return;
-}
-
-void
-rs_rect_normalize(RS_RECT *in, RS_RECT *out)
-{
-	gint n;
-	gint x1,y1;
-	gint x2,y2;
-
-	x1 = in->x2;
-	x2 = in->x1;
-	y1 = in->y1;
-	y2 = in->y2;
-
-	if (x1>x2)
-	{
-		n = x1;
-		x1 = x2;
-		x2 = n;
-	}
-	if (y1>y2)
-	{
-		n = y1;
-		y1 = y2;
-		y2 = n;
-	}
-
-	out->x1 = x1;
-	out->x2 = x2;
-	out->y1 = y1;
-	out->y2 = y2;
-}
-
-void
-rs_rect_flip(RS_RECT *in, RS_RECT *out, gint w, gint h)
-{
-	gint x1,y1;
-	gint x2,y2;
-
-	x1 = in->x1;
-	x2 = in->x2;
-	y1 = h - in->y2 - 1;
-	y2 = h - in->y1 - 1;
-
-	out->x1 = x1;
-	out->x2 = x2;
-	out->y1 = y1;
-	out->y2 = y2;
-	rs_rect_normalize(out, out);
-
-	return;
-}
-
-void
-rs_rect_mirror(RS_RECT *in, RS_RECT *out, gint w, gint h)
-{
-	gint x1,y1;
-	gint x2,y2;
-
-	x1 = w - in->x2 - 1;
-	x2 = w - in->x1 - 1;
-	y1 = in->y1;
-	y2 = in->y2;
-
-	out->x1 = x1;
-	out->x2 = x2;
-	out->y1 = y1;
-	out->y2 = y2;
-	rs_rect_normalize(out, out);
-
-	return;
-}
-
-void
-rs_rect_rotate(RS_RECT *in, RS_RECT *out, gint w, gint h, gint quarterturns)
-{
-	gint x1,y1;
-	gint x2,y2;
-
-	x1 = in->x2;
-	x2 = in->x1;
-	y1 = in->y1;
-	y2 = in->y2;
-
-	switch(quarterturns)
-	{
-		case 1:
-			x1 = h - in->y1-1;
-			x2 = h - in->y2-1;
-			y1 = in->x1;
-			y2 = in->x2;
-			break;
-		case 2:
-			x1 = w - in->x1 - 1;
-			x2 = w - in->x2 - 1;
-			y1 = h - in->y1 - 1;
-			y2 = h - in->y2 - 1;
-			break;
-		case 3:
-			x1 = in->y1;
-			x2 = in->y2;
-			y1 = w - in->x1 - 1;
-			y2 = w - in->x2 - 1;
-			break;
-	}
-
-	out->x1 = x1;
-	out->x2 = x2;
-	out->y1 = y1;
-	out->y2 = y2;
-	rs_rect_normalize(out, out);
-
-	return;
-}
-
-inline void
-rs_rect_from_gdkrectangle(GdkRectangle *in, RS_RECT *out)
-{
-	out->x1 = in->x;
-	out->y1 = in->y;
-	out->x2 = in->x+in->width;
-	out->y2 = in->y+in->height;
-}
-
-void
-check_install()
-{
-#define TEST_FILE_ACCESS(path) do { if (g_access(path, R_OK)!=0) g_debug("Cannot access %s\n", path);} while (0)
-	TEST_FILE_ACCESS(PACKAGE_DATA_DIR "/icons/" PACKAGE ".png");
-	TEST_FILE_ACCESS(PACKAGE_DATA_DIR "/pixmaps/" PACKAGE "/overlay_priority1.png");
-	TEST_FILE_ACCESS(PACKAGE_DATA_DIR "/pixmaps/" PACKAGE "/overlay_priority2.png");
-	TEST_FILE_ACCESS(PACKAGE_DATA_DIR "/pixmaps/" PACKAGE "/overlay_priority3.png");
-	TEST_FILE_ACCESS(PACKAGE_DATA_DIR "/pixmaps/" PACKAGE "/overlay_deleted.png");
-	TEST_FILE_ACCESS(PACKAGE_DATA_DIR "/pixmaps/" PACKAGE "/overlay_exported.png");
-	TEST_FILE_ACCESS(PACKAGE_DATA_DIR "/pixmaps/" PACKAGE "/transform_flip.png");
-	TEST_FILE_ACCESS(PACKAGE_DATA_DIR "/pixmaps/" PACKAGE "/transform_mirror.png");
-	TEST_FILE_ACCESS(PACKAGE_DATA_DIR "/pixmaps/" PACKAGE "/transform_90.png");
-	TEST_FILE_ACCESS(PACKAGE_DATA_DIR "/pixmaps/" PACKAGE "/transform_180.png");
-	TEST_FILE_ACCESS(PACKAGE_DATA_DIR "/pixmaps/" PACKAGE "/transform_270.png");
-	TEST_FILE_ACCESS(PACKAGE_DATA_DIR "/" PACKAGE "/ui.xml");
-	TEST_FILE_ACCESS(PACKAGE_DATA_DIR "/" PACKAGE "/rawstudio.gtkrc");
-#undef TEST_FILE_ACCESS
-}
-
-gboolean
-rs_has_gimp(gint major, gint minor, gint micro) {
-	FILE *fp;
-	char line[128];
-	int _major, _minor, _micro;
-	gboolean retval = FALSE;
-
-	fp = popen("gimp -v","r");
-	fgets( line, sizeof line, fp);
-	pclose(fp);
-
-#if GLIB_CHECK_VERSION(2,14,0)
-	GRegex *regex;
-	gchar **tokens;
-	
-	regex = g_regex_new(".*([0-9])\x2E([0-9]+)\x2E([0-9]+).*", 0, 0, NULL);
-	tokens = g_regex_split(regex, line, 0);
-	g_regex_unref(regex);
-
-	if (tokens[1])
-		_major = atoi(tokens[1]);
-	else
-	{
-		g_strfreev(tokens);
-		return FALSE;
-	}
-
-	if (_major > major) {
-		retval = TRUE;
-	} else if (_major == major) {
-
-		if (tokens[2])
-			_minor = atoi(tokens[2]);
-		else
-		{
-			g_strfreev(tokens);
-			return FALSE;
-		}
-
-		if (_minor > minor) {
-			retval = TRUE;
-		} else if (_minor == minor) {
-	
-			if (tokens[3])
-				_micro = atoi(tokens[3]);
-			else
-			{
-				g_strfreev(tokens);
-				return FALSE;
-			}
-
-			if (_micro >= micro) {
-				retval = TRUE;
-			}
-		}
-	}
-	g_strfreev(tokens);
-#else
-	sscanf(line,"GNU Image Manipulation Program version %d.%d.%d", &_major, &_minor, &_micro);
-
-	if (_major > major) {
-		retval = TRUE;
-	} else if (_major == major) {
-		if (_minor > minor) {
-			retval = TRUE;
-		} else if (_minor == minor) {
-			if (_micro >= micro) {
-				retval = TRUE;
-			}
-		}
-	}
-#endif
-
-	return retval;
 }
 
 /**
@@ -1127,53 +438,48 @@ test()
 		gboolean wb_ok = FALSE;
 		gboolean focallength_ok = FALSE;
 
-		RS_METADATA *metadata = rs_metadata_new();
-
 		g_strstrip(filename);
-		RS_FILETYPE *filetype = rs_filetype_get(filename, TRUE);
 
-		if (filetype)
+		if (rs_filetype_can_load(filename))
 		{
+			RS_PHOTO *photo = NULL;
 			filetype_ok = TRUE;
-			if (filetype->load)
+			photo = rs_photo_load_from_file(filename, TRUE);
+			if (photo)
 			{
-				RS_PHOTO *photo = NULL;
-				photo = rs_photo_load_from_file(filename, TRUE);
-				if (photo)
-				{
-					load_ok = TRUE;
-					g_object_unref(photo);
-				}
+				load_ok = TRUE;
+				g_object_unref(photo);
 			}
 
-			pixbuf = rs_load_thumb(filetype, filename);
+			RSMetadata *metadata = rs_metadata_new_from_file(filename);
+
+			load_meta_ok = TRUE;
+
+			if (metadata->make != MAKE_UNKNOWN)
+				make_ok = TRUE;
+			if (metadata->make_ascii != NULL)
+				make_ascii_ok = TRUE;
+			if (metadata->model_ascii != NULL)
+				model_ascii_ok = TRUE;
+			if (metadata->aperture > 0.0)
+				aperture_ok = TRUE;
+			if (metadata->iso > 0)
+				iso_ok = TRUE;
+			if (metadata->shutterspeed > 1.0)
+				shutterspeed_ok = TRUE;
+			if (metadata->cam_mul[0] > 0.1 && metadata->cam_mul[0] != 1.0)
+				wb_ok = TRUE;
+			if (metadata->focallength > 0.0)
+				focallength_ok = TRUE;
+
+			/* FIXME: Port to RSFiletype */
+			pixbuf = rs_metadata_get_thumbnail(metadata);
 			if (pixbuf)
 			{
 				thumbnail_ok = TRUE;
 				g_object_unref(pixbuf);
 			}
-
-			if (filetype->load_meta)
-			{
-				load_meta_ok = TRUE;
-				filetype->load_meta(filename, metadata);
-				if (metadata->make != MAKE_UNKNOWN)
-					make_ok = TRUE;
-				if (metadata->make_ascii != NULL)
-					make_ascii_ok = TRUE;
-				if (metadata->model_ascii != NULL)
-					model_ascii_ok = TRUE;
-				if (metadata->aperture > 0.0)
-					aperture_ok = TRUE;
-				if (metadata->iso > 0)
-					iso_ok = TRUE;
-				if (metadata->shutterspeed > 1.0)
-					shutterspeed_ok = TRUE;
-				if (metadata->cam_mul[0] > 0.1 && metadata->cam_mul[0] != 1.0)
-					wb_ok = TRUE;
-				if (metadata->focallength > 0.0)
-					focallength_ok = TRUE;
-			}
+			g_object_unref(metadata);
 
 		}
 
@@ -1212,7 +518,6 @@ test()
 		g_free(basename);
 
 		g_free(filename);
-		rs_metadata_free(metadata);
 	}
 	printf("Passed: %d Failed: %d (%d%%)\n", good, bad, (good*100)/(good+bad));
 	g_io_channel_shutdown(io, TRUE, NULL);
@@ -1276,117 +581,3 @@ main(int argc, char **argv)
 	/* This is so fucking evil, but Rawstudio will deadlock in some GTK atexit() function from time to time :-/ */
 	_exit(0);
 }
-
-gboolean
-rs_shutdown(GtkWidget *dummy1, GdkEvent *dummy2, RS_BLOB *rs)
-{
-	rs_photo_close(rs->photo);
-	rs_conf_set_integer(CONF_LAST_PRIORITY_PAGE, rs_store_get_current_page(rs->store));
-	gtk_main_quit();
-	return(TRUE);
-}
-
-#if !GLIB_CHECK_VERSION(2,8,0)
-
-/* Include our own g_mkdir_with_parents() in case of old glib.
-Copied almost verbatim from glib-2.10.0/glib/gfileutils.c */
-int
-g_mkdir_with_parents (const gchar *pathname,
-		      int          mode)
-{
-  gchar *fn, *p;
-
-  if (pathname == NULL || *pathname == '\0')
-    {
-      return -1;
-    }
-
-  fn = g_strdup (pathname);
-
-  if (g_path_is_absolute (fn))
-    p = (gchar *) g_path_skip_root (fn);
-  else
-    p = fn;
-
-  do
-    {
-      while (*p && !G_IS_DIR_SEPARATOR (*p))
-	p++;
-      
-      if (!*p)
-	p = NULL;
-      else
-	*p = '\0';
-      
-      if (!g_file_test (fn, G_FILE_TEST_EXISTS))
-	{
-	  if (g_mkdir (fn, mode) == -1)
-	    {
-	      g_free (fn);
-	      return -1;
-	    }
-	}
-      else if (!g_file_test (fn, G_FILE_TEST_IS_DIR))
-	{
-	  g_free (fn);
-	  return -1;
-	}
-      if (p)
-	{
-	  *p++ = G_DIR_SEPARATOR;
-	  while (*p && G_IS_DIR_SEPARATOR (*p))
-	    p++;
-	}
-    }
-  while (p);
-
-  g_free (fn);
-
-  return 0;
-}
-
-/* Include our own g_access() in case of old glib.
-Copied almost verbatim from glib-2.12.13/glib/gstdio.h */
-int
-g_access (const gchar *filename,
-	  int          mode)
-{
-#ifdef G_OS_WIN32
-  if (G_WIN32_HAVE_WIDECHAR_API ())
-    {
-      wchar_t *wfilename = g_utf8_to_utf16 (filename, -1, NULL, NULL, NULL);
-      int retval;
-      
-      if (wfilename == NULL)
-	{
-	  return -1;
-	}
-
-      retval = _waccess (wfilename, mode);
-
-      g_free (wfilename);
-
-      return retval;
-    }
-  else
-    {    
-      gchar *cp_filename = g_locale_from_utf8 (filename, -1, NULL, NULL, NULL);
-      int retval;
-
-      if (cp_filename == NULL)
-	{
-	  return -1;
-	}
-
-      retval = access (cp_filename, mode);
-
-      g_free (cp_filename);
-
-      return retval;
-    }
-#else
-  return access (filename, mode);
-#endif
-}
-
-#endif

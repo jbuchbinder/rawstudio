@@ -37,6 +37,7 @@
 #include "rs-cache.h"
 #include "rs-preview-widget.h"
 #include "rs-batch.h"
+#include "rs-metadata.h"
 
 static GtkActionGroup *core_action_group = NULL;
 GStaticMutex rs_actions_spinlock = G_STATIC_MUTEX_INIT;
@@ -116,8 +117,8 @@ ACTION(batch_menu)
 
 	photos_selected = (RS_IS_PHOTO(rs->photo) || (num_selected > 0));
 
-	rs_core_action_group_set_sensivity("AddToBatch", photos_selected);
-	rs_core_action_group_set_sensivity("RemoveFromBatch", photos_selected);
+	rs_core_action_group_set_sensivity("AddToBatch", photos_selected && !rs_batch_exists_in_queue(rs->queue, rs->photo->filename, rs->current_setting));
+	rs_core_action_group_set_sensivity("RemoveFromBatch", photos_selected && rs->photo && rs_batch_exists_in_queue(rs->queue, rs->photo->filename, rs->current_setting));
 	rs_core_action_group_set_sensivity("ProcessBatch", (rs_batch_num_entries(rs->queue)>0));
 	g_list_free(selected);
 }
@@ -251,7 +252,7 @@ ACTION(reload)
 
 ACTION(delete_flagged)
 {
-	gchar *thumb, *cache;
+	gchar *cache;
 	GtkWidget *dialog;
 	GList *photos_d = NULL;
 	gint items = 0, i;
@@ -284,11 +285,7 @@ ACTION(delete_flagged)
 
 		if(0 == g_unlink(fullname))
 		{
-			if ((thumb = rs_thumb_get_name(fullname)))
-			{
-				g_unlink(thumb);
-				g_free(thumb);
-			}
+			rs_metadata_delete_cache(fullname);
 			if ((cache = rs_cache_get_name(fullname)))
 			{
 				g_unlink(cache);
@@ -321,7 +318,10 @@ ACTION(delete_flagged)
 
 ACTION(quit)
 {
-	rs_shutdown(NULL, NULL, rs);
+	if (rs->photo)
+		rs_photo_close(rs->photo);
+	rs_conf_set_integer(CONF_LAST_PRIORITY_PAGE, rs_store_get_current_page(rs->store));
+	gtk_main_quit();
 }
 
 ACTION(revert_settings)
@@ -333,15 +333,15 @@ ACTION(revert_settings)
 ACTION(copy_settings)
 {
 	if (!rs->settings_buffer)
-		rs->settings_buffer = g_new(RS_SETTINGS_DOUBLE, 1);
-	rs_settings_to_rs_settings_double(rs->settings[rs->current_setting], rs->settings_buffer);
+		rs->settings_buffer = rs_settings_new();
+	rs_settings_copy(rs->settings[rs->current_setting], MASK_ALL, rs->settings_buffer);
 	gui_status_notify(_("Copied settings"));
 }
 
 ACTION(paste_settings)
 {
-	gint mask = 0xffffff;
-	
+	gint mask = 0xffffff; /* Should be RSSettingsMask, is gint to satisfy rs_conf_get_integer() */
+
 	GtkWidget *dialog, *cb_box;
 	GtkWidget *cb_exposure, *cb_saturation, *cb_hue, *cb_contrast, *cb_whitebalance, *cb_curve, *cb_sharpen;
 
@@ -415,7 +415,6 @@ ACTION(paste_settings)
 		if(mask > 0)
 		{
 			RS_PHOTO *photo;
-			RS_FILETYPE *filetype;
 			gint cur;
 			GList *selected = NULL;
 			gint num_selected;
@@ -429,30 +428,15 @@ ACTION(paste_settings)
 				/* This is nothing but a hack around rs_cache_*() */
 				photo = rs_photo_new();
 				photo->filename = g_strdup(g_list_nth_data(selected, cur));
-				if ((filetype = rs_filetype_get(photo->filename, TRUE)))
-				{
-					if (rs_metadata_load(photo->filename, photo->metadata))
-					{
-						switch (photo->metadata->orientation)
-						{
-							case 90: ORIENTATION_90(photo->orientation);
-								break;
-							case 180: ORIENTATION_180(photo->orientation);
-								break;
-							case 270: ORIENTATION_270(photo->orientation);
-								break;
-						}
-					}
-					new_mask = rs_cache_load(photo);
-					rs_settings_double_copy(rs->settings_buffer, photo->settings[rs->current_setting], mask);
-					rs_cache_save(photo, new_mask | mask);
-				}
+				new_mask = rs_cache_load(photo);
+				rs_settings_copy(rs->settings_buffer, mask, photo->settings[rs->current_setting]);
+				rs_cache_save(photo, new_mask | mask);
 				g_object_unref(photo);
 			}
 			g_list_free(selected);
 
 			/* Apply to current photo */
-			rs_photo_apply_settings_double(rs->photo, rs->current_setting, rs->settings_buffer, mask);
+			rs_settings_copy(rs->settings_buffer, mask, rs->settings[rs->current_setting]); 
 
 			gui_status_notify(_("Pasted settings"));
 		}
@@ -475,6 +459,7 @@ ACTION(preferences)
 {
 	gui_make_preference_window(rs);
 }
+
 ACTION(flag_for_deletion)
 {
 	gui_setprio(rs, PRIO_D);
@@ -781,6 +766,11 @@ RADIOACTION(right_popup)
 	rs_preview_widget_set_snapshot(RS_PREVIEW_WIDGET(rs->preview), 1, gtk_radio_action_get_current_value(radioaction));
 }
 
+RADIOACTION(sort_by_popup)
+{
+	rs_store_set_sort_method(rs->store, gtk_radio_action_get_current_value(radioaction));
+}
+
 #ifndef GTK_STOCK_FULLSCREEN
  #define GTK_STOCK_FULLSCREEN NULL
 #endif
@@ -800,6 +790,7 @@ rs_get_core_action_group(RS_BLOB *rs)
 	{ "PriorityMenu", NULL, _("_Set Priority") },
 	{ "WhiteBalanceMenu", "NULL", _("_White Balance") },
 	{ "ViewMenu", NULL, _("_View") },
+	{ "SortByMenu", NULL, _("_Sort by") },
 	{ "BatchMenu", NULL, _("_Batch"), NULL, NULL, ACTION_CB(batch_menu) },
 	{ "HelpMenu", NULL, _("_Help") },
 	{ "PreviewPopup", NULL, NULL, NULL, NULL, ACTION_CB(preview_popup) },
@@ -846,7 +837,7 @@ rs_get_core_action_group(RS_BLOB *rs)
 	{ "AddToBatch", GTK_STOCK_ADD, _("_Add to batch queue"), "<control>B", NULL, ACTION_CB(add_to_batch) },
 	{ "AddViewToBatch", NULL, _("_Add current view to queue"), NULL, NULL, ACTION_CB(add_view_to_batch) },
 	{ "RemoveFromBatch", GTK_STOCK_REMOVE, _("_Remove from batch queue"), "<control><alt>B", NULL, ACTION_CB(remove_from_batch) },
-	{ "ProcessBatch", GTK_STOCK_CONVERT, _("_Start"), NULL, NULL, ACTION_CB(ProcessBatch) },
+	{ "ProcessBatch", GTK_STOCK_EXECUTE, _("_Start"), NULL, NULL, ACTION_CB(ProcessBatch) },
 
 	/* help menu */
 	{ "About", GTK_STOCK_ABOUT, _("_About"), NULL, NULL, ACTION_CB(about) },
@@ -862,6 +853,16 @@ rs_get_core_action_group(RS_BLOB *rs)
 	};
 	static guint n_toggleentries = G_N_ELEMENTS (toggleentries);
 
+	GtkRadioActionEntry sort_by_popup[] = {
+	{ "SortByName", NULL, _("Name"), NULL, NULL, RS_STORE_SORT_BY_NAME },
+	{ "SortByTimestamp", NULL, _("Timestamp"), NULL, NULL, RS_STORE_SORT_BY_TIMESTAMP },
+	{ "SortByISO", NULL, _("ISO"), NULL, NULL, RS_STORE_SORT_BY_ISO },
+	{ "SortByAperture", NULL, _("Aperture"), NULL, NULL, RS_STORE_SORT_BY_APERTURE },
+	{ "SortByFocallength", NULL, _("Focallength"), NULL, NULL, RS_STORE_SORT_BY_FOCALLENGTH },
+	{ "SortByShutterspeed", NULL, _("Shutterspeed"), NULL, NULL, RS_STORE_SORT_BY_SHUTTERSPEED },
+	};
+	static guint n_sort_by_popup = G_N_ELEMENTS (sort_by_popup);
+
 	GtkRadioActionEntry right_popup[] = {
 	{ "RightA", NULL, _(" A "), NULL, NULL, 0 },
 	{ "RightB", NULL, _(" B "), NULL, NULL, 1 },
@@ -876,6 +877,7 @@ rs_get_core_action_group(RS_BLOB *rs)
 		/* FIXME: gtk_action_group_set_translation_domain */
 		gtk_action_group_add_actions (core_action_group, actionentries, n_actionentries, rs);
 		gtk_action_group_add_toggle_actions(core_action_group, toggleentries, n_toggleentries, rs);
+		gtk_action_group_add_radio_actions(core_action_group, sort_by_popup, n_sort_by_popup, rs_store_get_sort_method(rs->store), ACTION_CB(sort_by_popup), rs);
 		gtk_action_group_add_radio_actions(core_action_group, right_popup, n_right_popup, 1, ACTION_CB(right_popup), rs);
 	}
 	g_static_mutex_unlock(&rs_actions_spinlock);

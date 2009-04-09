@@ -18,8 +18,14 @@
  */
 
 #define _XOPEN_SOURCE /* strptime() */
+#include <config.h>
 #include <glib.h>
+#include <glib/gstdio.h>
 #include <time.h>
+#include "conf_interface.h"
+#include "rs-utils.h"
+
+#define DOTDIR ".rawstudio"
 
 /**
  * A version of atof() that isn't locale specific
@@ -162,4 +168,229 @@ rs_get_number_of_processor_cores()
 	g_static_mutex_unlock (&lock);
 
 	return num;
+}
+
+/**
+ * Return a path to the current config directory for Rawstudio - this is the
+ * .rawstudio direcotry in home
+ * @return A path to an existing directory
+ */
+const gchar *
+rs_confdir_get()
+{
+	static gchar *dir = NULL;
+	static GStaticMutex lock = G_STATIC_MUTEX_INIT;
+
+	g_static_mutex_lock(&lock);
+	if (!dir)
+	{
+		const gchar *home = g_get_home_dir();
+		dir = g_build_filename(home, ".rawstudio", NULL);
+	}
+
+	g_mkdir_with_parents(dir, 00755);
+	g_static_mutex_unlock(&lock);
+
+	return dir;
+}
+
+/**
+ * Return a cache directory for filename
+ * @param filename A complete path to a photo
+ * @return A directory to hold the cache. This is guarenteed to exist
+ */
+gchar *
+rs_dotdir_get(const gchar *filename)
+{
+	gchar *ret;
+	gchar *directory;
+	GString *dotdir;
+	gboolean dotdir_is_local = FALSE;
+	rs_conf_get_boolean(CONF_CACHEDIR_IS_LOCAL, &dotdir_is_local);
+
+	directory = g_path_get_dirname(filename);
+	if (dotdir_is_local)
+	{
+		dotdir = g_string_new(g_get_home_dir());
+		dotdir = g_string_append(dotdir, G_DIR_SEPARATOR_S);
+		dotdir = g_string_append(dotdir, DOTDIR);
+		dotdir = g_string_append(dotdir, G_DIR_SEPARATOR_S);
+		dotdir = g_string_append(dotdir, directory);
+	}
+	else
+	{
+		dotdir = g_string_new(directory);
+		dotdir = g_string_append(dotdir, G_DIR_SEPARATOR_S);
+		dotdir = g_string_append(dotdir, DOTDIR);
+	}
+
+	if (!g_file_test(dotdir->str, (G_FILE_TEST_EXISTS | G_FILE_TEST_IS_DIR)))
+	{
+		if (g_mkdir_with_parents(dotdir->str, 0700) != 0)
+			ret = NULL;
+		else
+			ret = dotdir->str;
+	}
+	else
+		ret = dotdir->str;
+	g_free(directory);
+	g_string_free(dotdir, FALSE);
+	return (ret);
+}
+
+/**
+ * Normalize a RS_RECT, ie makes sure that x1 < x2 and y1<y2
+ * @param in A RS_RECT to read values from
+ * @param out A RS_RECT to write the values to (can be the same as in)
+ */
+void
+rs_rect_normalize(RS_RECT *in, RS_RECT *out)
+{
+	gint n;
+	gint x1,y1;
+	gint x2,y2;
+
+	x1 = in->x2;
+	x2 = in->x1;
+	y1 = in->y1;
+	y2 = in->y2;
+
+	if (x1>x2)
+	{
+		n = x1;
+		x1 = x2;
+		x2 = n;
+	}
+	if (y1>y2)
+	{
+		n = y1;
+		y1 = y2;
+		y2 = n;
+	}
+
+	out->x1 = x1;
+	out->x2 = x2;
+	out->y1 = y1;
+	out->y2 = y2;
+}
+
+/**
+ * Flip a RS_RECT
+ * @param in A RS_RECT to read values from
+ * @param out A RS_RECT to write the values to (can be the same as in)
+ * @param w The width of the data OUTSIDE the RS_RECT
+ * @param h The height of the data OUTSIDE the RS_RECT
+ */
+void
+rs_rect_flip(RS_RECT *in, RS_RECT *out, gint w, gint h)
+{
+	gint x1,y1;
+	gint x2,y2;
+
+	x1 = in->x1;
+	x2 = in->x2;
+	y1 = h - in->y2 - 1;
+	y2 = h - in->y1 - 1;
+
+	out->x1 = x1;
+	out->x2 = x2;
+	out->y1 = y1;
+	out->y2 = y2;
+	rs_rect_normalize(out, out);
+}
+
+/**
+ * Mirrors a RS_RECT
+ * @param in A RS_RECT to read values from
+ * @param out A RS_RECT to write the values to (can be the same as in)
+ * @param w The width of the data OUTSIDE the RS_RECT
+ * @param h The height of the data OUTSIDE the RS_RECT
+ */
+void
+rs_rect_mirror(RS_RECT *in, RS_RECT *out, gint w, gint h)
+{
+	gint x1,y1;
+	gint x2,y2;
+
+	x1 = w - in->x2 - 1;
+	x2 = w - in->x1 - 1;
+	y1 = in->y1;
+	y2 = in->y2;
+
+	out->x1 = x1;
+	out->x2 = x2;
+	out->y1 = y1;
+	out->y2 = y2;
+	rs_rect_normalize(out, out);
+}
+
+/**
+ * Rotate a RS_RECT in 90 degrees steps
+ * @param in A RS_RECT to read values from
+ * @param out A RS_RECT to write the values to (can be the same as in)
+ * @param w The width of the data OUTSIDE the RS_RECT
+ * @param h The height of the data OUTSIDE the RS_RECT
+ * @param quarterturns How many times to turn the rect clockwise
+ */
+void
+rs_rect_rotate(RS_RECT *in, RS_RECT *out, gint w, gint h, gint quarterturns)
+{
+	gint x1,y1;
+	gint x2,y2;
+
+	x1 = in->x2;
+	x2 = in->x1;
+	y1 = in->y1;
+	y2 = in->y2;
+
+	switch(quarterturns)
+	{
+		case 1:
+			x1 = h - in->y1-1;
+			x2 = h - in->y2-1;
+			y1 = in->x1;
+			y2 = in->x2;
+			break;
+		case 2:
+			x1 = w - in->x1 - 1;
+			x2 = w - in->x2 - 1;
+			y1 = h - in->y1 - 1;
+			y2 = h - in->y2 - 1;
+			break;
+		case 3:
+			x1 = in->y1;
+			x2 = in->y2;
+			y1 = w - in->x1 - 1;
+			y2 = w - in->x2 - 1;
+			break;
+	}
+
+	out->x1 = x1;
+	out->x2 = x2;
+	out->y1 = y1;
+	out->y2 = y2;
+	rs_rect_normalize(out, out);
+}
+
+/**
+ * Check (and complain if needed) the Rawstudio install
+ */
+void
+check_install()
+{
+#define TEST_FILE_ACCESS(path) do { if (g_access(path, R_OK)!=0) g_debug("Cannot access %s\n", path);} while (0)
+	TEST_FILE_ACCESS(PACKAGE_DATA_DIR "/icons/" PACKAGE ".png");
+	TEST_FILE_ACCESS(PACKAGE_DATA_DIR "/pixmaps/" PACKAGE "/overlay_priority1.png");
+	TEST_FILE_ACCESS(PACKAGE_DATA_DIR "/pixmaps/" PACKAGE "/overlay_priority2.png");
+	TEST_FILE_ACCESS(PACKAGE_DATA_DIR "/pixmaps/" PACKAGE "/overlay_priority3.png");
+	TEST_FILE_ACCESS(PACKAGE_DATA_DIR "/pixmaps/" PACKAGE "/overlay_deleted.png");
+	TEST_FILE_ACCESS(PACKAGE_DATA_DIR "/pixmaps/" PACKAGE "/overlay_exported.png");
+	TEST_FILE_ACCESS(PACKAGE_DATA_DIR "/pixmaps/" PACKAGE "/transform_flip.png");
+	TEST_FILE_ACCESS(PACKAGE_DATA_DIR "/pixmaps/" PACKAGE "/transform_mirror.png");
+	TEST_FILE_ACCESS(PACKAGE_DATA_DIR "/pixmaps/" PACKAGE "/transform_90.png");
+	TEST_FILE_ACCESS(PACKAGE_DATA_DIR "/pixmaps/" PACKAGE "/transform_180.png");
+	TEST_FILE_ACCESS(PACKAGE_DATA_DIR "/pixmaps/" PACKAGE "/transform_270.png");
+	TEST_FILE_ACCESS(PACKAGE_DATA_DIR "/" PACKAGE "/ui.xml");
+	TEST_FILE_ACCESS(PACKAGE_DATA_DIR "/" PACKAGE "/rawstudio.gtkrc");
+#undef TEST_FILE_ACCESS
 }

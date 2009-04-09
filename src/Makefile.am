@@ -25,6 +25,8 @@ EXTRA_DIST = \
 
 rawstudio_SOURCES = \
 	rawstudio.c rawstudio.h \
+	rs-filetypes.c rs-filetypes.h \
+	rs-settings.c rs-settings.h \
 	rs-utils.c rs-utils.h \
 	rs-job.c rs-job.h \
 	rs-actions.c rs-actions.h \
@@ -69,6 +71,7 @@ rawstudio_SOURCES = \
 	rs-pixbuf.c rs-pixbuf.h \
 	rs-external-editor.c rs-external-editor.h \
 	rs-dir-selector.c rs-dir-selector.h \
+	rs-metadata.c rs-metadata.h \
 	rs-exif.cc rs-exif.h
 
 rawstudio_LDADD = @PACKAGE_LIBS@ @LIBJPEG@ @LIBTIFF@ $(INTLLIBS)

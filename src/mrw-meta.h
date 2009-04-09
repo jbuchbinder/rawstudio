@@ -20,7 +20,6 @@
 #ifndef MRW_META_H
 #define MRW_META_H
 
-extern void rs_mrw_load_meta(const gchar *filename, RS_METADATA *meta);
-extern GdkPixbuf *rs_mrw_load_thumb(const gchar *src);
+extern void rs_mrw_load_meta(const gchar *filename, RSMetadata *meta);
 
 #endif

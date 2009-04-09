@@ -22,6 +22,11 @@
 
 #include <glib.h>
 
+#define GETVAL(adjustment) \
+	gtk_adjustment_get_value((GtkAdjustment *) adjustment)
+#define SETVAL(adjustment, value) \
+	gtk_adjustment_set_value((GtkAdjustment *) adjustment, value)
+
 /**
  * A version of atof() that isn't locale specific
  * @note This doesn't do any error checking!
@@ -65,5 +70,67 @@ rs_constrain_to_bounding_box(gint target_width, gint target_height, gint *width,
  */
 extern gint
 rs_get_number_of_processor_cores();
+
+/**
+ * Return a path to the current config directory for Rawstudio - this is the
+ * .rawstudio direcotry in home
+ * @return A path to an existing directory
+ */
+extern const gchar *
+rs_confdir_get();
+
+/**
+ * Return a cache directory for filename
+ * @param filename A complete path to a photo
+ * @return A directory to hold the cache. This is guarenteed to exist
+ */
+extern gchar *
+rs_dotdir_get(const gchar *filename);
+
+/**
+ * Normalize a RS_RECT, ie makes sure that x1 < x2 and y1<y2
+ * @param in A RS_RECT to read values from
+ * @param out A RS_RECT to write the values to (can be the same as in)
+ */
+extern void
+rs_rect_normalize(RS_RECT *in, RS_RECT *out);
+
+/**
+ * Flip a RS_RECT
+ * @param in A RS_RECT to read values from
+ * @param out A RS_RECT to write the values to (can be the same as in)
+ * @param w The width of the data OUTSIDE the RS_RECT
+ * @param h The height of the data OUTSIDE the RS_RECT
+ */
+extern void
+rs_rect_flip(RS_RECT *in, RS_RECT *out, gint w, gint h);
+
+/**
+ * Mirrors a RS_RECT
+ * @param in A RS_RECT to read values from
+ * @param out A RS_RECT to write the values to (can be the same as in)
+ * @param w The width of the data OUTSIDE the RS_RECT
+ * @param h The height of the data OUTSIDE the RS_RECT
+ */
+extern void
+rs_rect_mirror(RS_RECT *in, RS_RECT *out, gint w, gint h);
+
+/**
+ * Rotate a RS_RECT in 90 degrees steps
+ * @param in A RS_RECT to read values from
+ * @param out A RS_RECT to write the values to (can be the same as in)
+ * @param w The width of the data OUTSIDE the RS_RECT
+ * @param h The height of the data OUTSIDE the RS_RECT
+ * @param quarterturns How many times to turn the rect clockwise
+ */
+extern void
+rs_rect_rotate(RS_RECT *in, RS_RECT *out, gint w, gint h, gint quarterturns);
+
+
+/**
+ * Check (and complain if needed) the Rawstudio install
+ */
+extern void
+check_install();
 
 #endif /* RS_UTILS_H */

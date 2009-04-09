@@ -92,6 +92,62 @@ extern void rs_photo_set_angle(RS_PHOTO *photo, gdouble angle, gboolean relative
 extern gdouble rs_photo_get_angle(RS_PHOTO *photo);
 
 /**
+ * Get the exposure of a RS_PHOTO
+ * @param photo A RS_PHOTO
+ * @param snapshot A snapshot
+ * @return The current value
+ */
+extern gdouble rs_photo_get_exposure(RS_PHOTO *photo, const gint snapshot);
+
+/**
+ * Get the saturation of a RS_PHOTO
+ * @param photo A RS_PHOTO
+ * @param snapshot A snapshot
+ * @return The current value
+ */
+extern gdouble rs_photo_get_saturation(RS_PHOTO *photo, const gint snapshot);
+
+/**
+ * Get the hue of a RS_PHOTO
+ * @param photo A RS_PHOTO
+ * @param snapshot A snapshot
+ * @return The current value
+ */
+extern gdouble rs_photo_get_hue(RS_PHOTO *photo, const gint snapshot);
+
+/**
+ * Get the contrast of a RS_PHOTO
+ * @param photo A RS_PHOTO
+ * @param snapshot A snapshot
+ * @return The current value
+ */
+extern gdouble rs_photo_get_contrast(RS_PHOTO *photo, const gint snapshot);
+
+/**
+ * Get the warmth of a RS_PHOTO
+ * @param photo A RS_PHOTO
+ * @param snapshot A snapshot
+ * @return The current value
+ */
+extern gdouble rs_photo_get_warmth(RS_PHOTO *photo, const gint snapshot);
+
+/**
+ * Get the tint of a RS_PHOTO
+ * @param photo A RS_PHOTO
+ * @param snapshot A snapshot
+ * @return The current value
+ */
+extern gdouble rs_photo_get_tint(RS_PHOTO *photo, const gint snapshot);
+
+/**
+ * Get the sharpen of a RS_PHOTO
+ * @param photo A RS_PHOTO
+ * @param snapshot A snapshot
+ * @return The current value
+ */
+extern gdouble rs_photo_get_sharpen(RS_PHOTO *photo, const gint snapshot);
+
+/**
  * Set the exposure of a RS_PHOTO
  * @param photo A RS_PHOTO
  * @param snapshot Which snapshot to affect
@@ -148,22 +204,13 @@ extern void rs_photo_set_tint(RS_PHOTO *photo, const gint snapshot, const gdoubl
 extern void rs_photo_set_sharpen(RS_PHOTO *photo, const gint snapshot, const gdouble value);
 
 /**
- * Apply settings to a RS_PHOTO from a RS_SETTINGS
+ * Apply settings to a RS_PHOTO from a RSSettings
  * @param photo A RS_PHOTO
  * @param snapshot Which snapshot to affect
  * @param rs_settings The settings to apply
  * @param mask A mask for defining which settings to apply
  */
-extern void rs_photo_apply_settings(RS_PHOTO *photo, const gint snapshot, const RS_SETTINGS *rs_settings, const gint mask);
-
-/**
- * Apply settings to a RS_PHOTO from a RS_SETTINGS_DOUBLE
- * @param photo A RS_PHOTO
- * @param snapshot Which snapshot to affect
- * @param rs_settings_double The settings to apply
- * @param mask A mask for defining which settings to apply
- */
-extern void rs_photo_apply_settings_double(RS_PHOTO *photo, const gint snapshot, const RS_SETTINGS_DOUBLE *rs_settings_double, const gint mask);
+extern void rs_photo_apply_settings(RS_PHOTO *photo, const gint snapshot, RSSettings *settings, RSSettingsMask mask);
 
 /**
  * Flips a RS_PHOTO

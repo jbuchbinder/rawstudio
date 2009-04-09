@@ -23,6 +23,9 @@
 #include "rs-cache.h"
 #include "rs-curve.h"
 #include "rs-preload.h"
+#include "rs-metadata.h"
+#include "rs-filetypes.h"
+#include "rs-utils.h"
 
 static void rs_photo_class_init (RS_PHOTOClass *klass);
 
@@ -38,6 +41,7 @@ static guint signals[LAST_SIGNAL] = { 0 };
 
 static GObjectClass *parent_class = NULL;
 
+static void photo_settings_changed_cb(RSSettings *settings, RSSettingsMask mask, gpointer user_data);
 static void
 rs_photo_dispose (GObject *obj)
 {
@@ -60,13 +64,16 @@ rs_photo_finalize (GObject *obj)
 		g_free(photo->filename);
 
 	if (photo->metadata)
-		rs_metadata_free(photo->metadata);
+		g_object_unref(photo->metadata);
 
 	if (photo->input)
 		g_object_unref(photo->input);
 
 	for(c=0;c<3;c++)
-		rs_settings_double_free(photo->settings[c]);
+	{
+		g_signal_handler_disconnect(photo->settings[c], photo->settings_signal[c]);
+		g_object_unref(photo->settings[c]);
+	}
 	if (photo->crop)
 		g_free(photo->crop);
 
@@ -113,10 +120,29 @@ rs_photo_init (RS_PHOTO *photo)
 	photo->priority = PRIO_U;
 	photo->metadata = rs_metadata_new();
 	for(c=0;c<3;c++)
-		photo->settings[c] = rs_settings_double_new();
+	{
+		photo->settings[c] = rs_settings_new();
+		photo->settings_signal[c] = g_signal_connect(photo->settings[c], "settings-changed", G_CALLBACK(photo_settings_changed_cb), photo);
+	}
 	photo->crop = NULL;
 	photo->angle = 0.0;
 	photo->exported = FALSE;
+}
+
+static void
+photo_settings_changed_cb(RSSettings *settings, RSSettingsMask mask, gpointer user_data)
+{
+	gint i;
+	RS_PHOTO *photo = RS_PHOTO(user_data);
+
+	if (mask)
+		/* Find changed snapshot */
+		for(i=0;i<3;i++)
+			if (settings == photo->settings[i])
+			{
+				g_signal_emit(photo, signals[SETTINGS_CHANGED], 0, mask|(i<<24));
+				break;
+			}
 }
 
 /**
@@ -227,140 +253,65 @@ rs_photo_get_angle(RS_PHOTO *photo)
 	return photo->angle;
 }
 
+/* Macro to create functions for getting single parameters */
+#define RS_PHOTO_GET_GDOUBLE_VALUE(setting) \
+gdouble \
+rs_photo_get_##setting(RS_PHOTO *photo, const gint snapshot) \
+{ \
+	g_assert (RS_IS_PHOTO(photo)); \
+	g_assert ((snapshot>=0) && (snapshot<=2)); \
+	return photo->settings[snapshot]->setting; \
+}
+
+RS_PHOTO_GET_GDOUBLE_VALUE(exposure)
+RS_PHOTO_GET_GDOUBLE_VALUE(saturation)
+RS_PHOTO_GET_GDOUBLE_VALUE(hue)
+RS_PHOTO_GET_GDOUBLE_VALUE(contrast)
+RS_PHOTO_GET_GDOUBLE_VALUE(warmth)
+RS_PHOTO_GET_GDOUBLE_VALUE(tint)
+RS_PHOTO_GET_GDOUBLE_VALUE(sharpen)
+
+#undef RS_PHOTO_GET_GDOUBLE_VALUE
+
 /* Macro to create functions for changing single parameters */
-#define RS_PHOTO_SET_GDOUBLE_VALUE(setting) \
+#define RS_PHOTO_SET_GDOUBLE_VALUE(setting, uppersetting) \
 void \
 rs_photo_set_##setting(RS_PHOTO *photo, const gint snapshot, const gdouble value) \
 { \
-	if (!photo) return; \
-	g_return_if_fail ((snapshot>=0) && (snapshot<=2)); \
+	/*if (!photo) return;*/ \
+	/*g_return_if_fail ((snapshot>=0) && (snapshot<=2));*/ \
 	photo->settings[snapshot]->setting = value; \
-	g_signal_emit(photo, signals[SETTINGS_CHANGED], 0, MASK_ALL|(snapshot<<24)); \
+	g_signal_emit(photo, signals[SETTINGS_CHANGED], 0, MASK_##uppersetting|(snapshot<<24)); \
 }
 
-RS_PHOTO_SET_GDOUBLE_VALUE(exposure)
-RS_PHOTO_SET_GDOUBLE_VALUE(saturation)
-RS_PHOTO_SET_GDOUBLE_VALUE(hue)
-RS_PHOTO_SET_GDOUBLE_VALUE(contrast)
-RS_PHOTO_SET_GDOUBLE_VALUE(warmth)
-RS_PHOTO_SET_GDOUBLE_VALUE(tint)
-RS_PHOTO_SET_GDOUBLE_VALUE(sharpen)
+RS_PHOTO_SET_GDOUBLE_VALUE(exposure, EXPOSURE)
+RS_PHOTO_SET_GDOUBLE_VALUE(saturation, SATURATION)
+RS_PHOTO_SET_GDOUBLE_VALUE(hue, HUE)
+RS_PHOTO_SET_GDOUBLE_VALUE(contrast, CONTRAST)
+RS_PHOTO_SET_GDOUBLE_VALUE(warmth, WARMTH)
+RS_PHOTO_SET_GDOUBLE_VALUE(tint, TINT)
+RS_PHOTO_SET_GDOUBLE_VALUE(sharpen, SHARPEN)
 
 #undef RS_PHOTO_SET_GDOUBLE_VALUE
 
 /**
- * Apply settings to a RS_PHOTO from a RS_SETTINGS
+ * Apply settings to a RS_PHOTO from a RSSettings
  * @param photo A RS_PHOTO
  * @param snapshot Which snapshot to affect
  * @param rs_settings The settings to apply
  * @param mask A mask for defining which settings to apply
  */
 void
-rs_photo_apply_settings(RS_PHOTO *photo, const gint snapshot, const RS_SETTINGS *rs_settings, const gint mask)
+rs_photo_apply_settings(RS_PHOTO *photo, const gint snapshot, RSSettings *settings, RSSettingsMask mask)
 {
-	gint changed_mask = 0;
-
-	if (!photo) return;
-	if (!rs_settings) return;
-	g_return_if_fail ((snapshot>=0) && (snapshot<=2));
+	g_assert(RS_IS_PHOTO(photo));
+	g_assert(RS_IS_SETTINGS(settings));
+	g_assert((snapshot>=0) && (snapshot<=2));
 
 	if (mask == 0)
 		return;
 
-	if (mask & MASK_EXPOSURE)
-		if (photo->settings[snapshot]->exposure != GETVAL(rs_settings->exposure))
-		{
-			photo->settings[snapshot]->exposure = GETVAL(rs_settings->exposure);
-			changed_mask |= MASK_EXPOSURE;
-		}
-
-	if (mask & MASK_SATURATION)
-		if (photo->settings[snapshot]->saturation != GETVAL(rs_settings->saturation))
-		{
-			photo->settings[snapshot]->saturation = GETVAL(rs_settings->saturation);
-			changed_mask |= MASK_SATURATION;
-		}
-
-	if (mask & MASK_HUE)
-		if (photo->settings[snapshot]->hue != GETVAL(rs_settings->hue))
-		{
-			photo->settings[snapshot]->hue = GETVAL(rs_settings->hue);
-			changed_mask |= MASK_HUE;
-		}
-
-	if (mask & MASK_CONTRAST)
-		if (photo->settings[snapshot]->contrast != GETVAL(rs_settings->contrast))
-		{
-			photo->settings[snapshot]->contrast = GETVAL(rs_settings->contrast);
-			changed_mask |= MASK_CONTRAST;
-		}
-
-	if (mask & MASK_WARMTH)
-		if (photo->settings[snapshot]->warmth != GETVAL(rs_settings->warmth))
-		{
-			photo->settings[snapshot]->warmth = GETVAL(rs_settings->warmth);
-			changed_mask |= MASK_WARMTH;
-		}
-
-	if (mask & MASK_TINT)
-		if (photo->settings[snapshot]->tint != GETVAL(rs_settings->tint))
-		{
-			photo->settings[snapshot]->tint = GETVAL(rs_settings->tint);
-			changed_mask |= MASK_TINT;
-		}
-
-	if (mask & MASK_SHARPEN)
-		if (photo->settings[snapshot]->sharpen != GETVAL(rs_settings->sharpen))
-		{
-			photo->settings[snapshot]->sharpen = GETVAL(rs_settings->sharpen);
-			changed_mask |= MASK_SHARPEN;
-		}
-
-	if (mask & MASK_CURVE)
-	{
-		gfloat *knots;
-		guint nknots;
-		gint i;
-
-		rs_curve_widget_get_knots(RS_CURVE_WIDGET(rs_settings->curve), &knots, &nknots);
-		if (nknots != photo->settings[snapshot]->curve_nknots)
-		{
-			rs_curve_widget_get_knots(RS_CURVE_WIDGET(rs_settings->curve), &photo->settings[snapshot]->curve_knots, &photo->settings[snapshot]->curve_nknots);
-			changed_mask |= MASK_CURVE;
-		}
-		else
-			for(i=0;i<(nknots*2);i++)
-			{
-				if (knots[i] != photo->settings[snapshot]->curve_knots[i])
-				{
-					rs_curve_widget_get_knots(RS_CURVE_WIDGET(rs_settings->curve), &photo->settings[snapshot]->curve_knots, &photo->settings[snapshot]->curve_nknots);
-					changed_mask |= MASK_CURVE;
-					break;
-				}
-			}
-	}
-
-	if (changed_mask)
-		g_signal_emit(photo, signals[SETTINGS_CHANGED], 0, changed_mask|(snapshot<<24));
-}
-
-/**
- * Apply settings to a RS_PHOTO from a RS_SETTINGS_DOUBLE
- * @param photo A RS_PHOTO
- * @param snapshot Which snapshot to affect
- * @param rs_settings_double The settings to apply
- * @param mask A mask for defining which settings to apply
- */
-void
-rs_photo_apply_settings_double(RS_PHOTO *photo, const gint snapshot, const RS_SETTINGS_DOUBLE *rs_settings_double, const gint mask)
-{
-	if (!photo) return;
-	if (!rs_settings_double) return;
-	g_return_if_fail ((snapshot>=0) && (snapshot<=2));
-
-	rs_settings_double_copy(rs_settings_double, photo->settings[snapshot], mask);
-
-	g_signal_emit(photo, signals[SETTINGS_CHANGED], 0, mask|(snapshot<<24));
+	rs_settings_copy(settings, mask, photo->settings[snapshot]);
 }
 
 /**
@@ -452,11 +403,10 @@ rs_photo_set_wb_from_mul(RS_PHOTO *photo, const gint snapshot, const gdouble *mu
 	buf[R] *= (1.0/buf[G]);
 	buf[B] *= (1.0/buf[G]);
 	buf[G] = 1.0;
-	buf[G2] = 1.0;
 
 	tint = (buf[B] + buf[R] - 4.0)/-2.0;
 	warmth = (buf[R]/(2.0-tint))-1.0;
-	rs_photo_set_wb_from_wt(photo, snapshot, warmth, tint);
+	rs_settings_set_wb(photo->settings[snapshot], warmth, tint);
 }
 
 /**
@@ -560,9 +510,8 @@ RS_PHOTO *
 rs_photo_load_from_file(const gchar *filename, gboolean half_size)
 {
 	RS_PHOTO *photo = NULL;
-	RS_FILETYPE *filetype;
 	RS_IMAGE16 *image;
-	guint mask;
+	RSSettingsMask mask;
 	gint i;
 
 	/* Try preloaded first! */
@@ -570,55 +519,49 @@ rs_photo_load_from_file(const gchar *filename, gboolean half_size)
 	if (photo)
 		return photo;
 
-	filetype = rs_filetype_get(filename, TRUE);
-
-	if (filetype && filetype->load)
+	image = rs_filetype_load(filename, half_size);
+	if (image)
 	{
-		image = filetype->load(filename, half_size);
+		photo = rs_photo_new();
 
-		if (image)
+		/* Set filename */
+		photo->filename = g_strdup(filename);
+
+		/* Set input image */
+		photo->input = image;
+
+		/* Load metadata */
+		if (rs_metadata_load_from_file(photo->metadata, filename))
 		{
-			photo = rs_photo_new();
-
-			/* Set filename */
-			photo->filename = g_strdup(filename);
-
-			/* Set input image */
-			photo->input = image;
-
-			/* Load metadata */
-			if (rs_metadata_load(filename, photo->metadata))
+			/* Rotate photo inplace */
+			switch (photo->metadata->orientation)
 			{
-				/* Rotate photo inplace */
-				switch (photo->metadata->orientation)
-				{
-					case 90: ORIENTATION_90(photo->orientation);
-						break;
-					case 180: ORIENTATION_180(photo->orientation);
-						break;
-					case 270: ORIENTATION_270(photo->orientation);
-						break;
-				}
+				case 90: ORIENTATION_90(photo->orientation);
+					break;
+				case 180: ORIENTATION_180(photo->orientation);
+					break;
+				case 270: ORIENTATION_270(photo->orientation);
+					break;
 			}
+		}
 
-			/* Load cache */
-			mask = rs_cache_load(photo);
-			/* If we have no cache, try to set some sensible defaults */
-			for (i=0;i<3;i++)
-			{
-				/* White balance */
-				if (!(mask & MASK_WB))
-					if (!rs_photo_set_wb_from_camera(photo, i))
-						rs_photo_set_wb_auto(photo, i);
+		/* Load cache */
+		mask = rs_cache_load(photo);
+		/* If we have no cache, try to set some sensible defaults */
+		for (i=0;i<3;i++)
+		{
+			/* White balance */
+			if (!(mask & MASK_WB))
+				if (!rs_photo_set_wb_from_camera(photo, i))
+					rs_photo_set_wb_auto(photo, i);
 
-				/* Contrast */
-				if (!(mask & MASK_CONTRAST) && (photo->metadata->contrast != -1.0))
-					rs_photo_set_contrast(photo, i, photo->metadata->contrast);
+			/* Contrast */
+			if (!(mask & MASK_CONTRAST) && (photo->metadata->contrast != -1.0))
+				rs_photo_set_contrast(photo, i, photo->metadata->contrast);
 
-				/* Saturation */
-				if (!(mask & MASK_SATURATION) && (photo->metadata->saturation != -1.0))
-					rs_photo_set_saturation(photo, i, photo->metadata->saturation);
-			}
+			/* Saturation */
+			if (!(mask & MASK_SATURATION) && (photo->metadata->saturation != -1.0))
+				rs_photo_set_saturation(photo, i, photo->metadata->saturation);
 		}
 	}
 
