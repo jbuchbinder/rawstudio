@@ -5,7 +5,7 @@ src/gtk-helper.c
 src/gtk-interface.c
 src/gtk-progress.c
 src/gtk-save-dialog.c
-src/application.c
+src/rawstudio.c
 src/rs-batch.c
 src/rs-store.c
 src/rs-preview-widget.c
