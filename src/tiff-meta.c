@@ -720,6 +720,11 @@ makernote_olympus(RAWFILE *rawfile, guint base, guint offset, RSMetadata *meta)
 		raw_get_uint(rawfile, offset, &uint_temp1);
 		switch(fieldtag)
 		{
+			case 0x0100: /* Thumbnail */
+				raw_get_ushort(rawfile, save-4, &ushort_temp1);
+				meta->thumbnail_start = ushort_temp1;
+				meta->thumbnail_length = valuecount;
+				break;
 			case 0x1017: /* Red multiplier on many Olympus's (E-10, E-300, E-330, E-400, E-500) */
 				raw_get_ushort(rawfile, offset, &ushort_temp1);
 				meta->cam_mul[0] = (gdouble) ushort_temp1 / 256.0;
