@@ -28,11 +28,21 @@
 #include "rs-utils.h"
 #include "rs-filetypes.h"
 #include "rs-metadata.h"
+#include <arpa/inet.h> /* sony_decrypt(): htonl() */
 
 /* It is required having some arbitrary maximum exposure time to prevent borked
  * shutter speed values being interpreted from the tiff.
  * 8h seems to be reasonable, even for astronomists with extra battery packs */
 #define EXPO_TIME_MAXVAL (8*60.0*60.0)
+
+typedef struct {
+	RSMetadata meta;
+	gint sony_offset;
+	gint sony_length;
+	gint sony_key;
+	guint pad[128];
+	guint p;
+} SonyMeta;
 
 struct IFD {
 	gushort tag;
@@ -58,7 +68,10 @@ static gboolean makernote_olympus_camerasettings(RAWFILE *rawfile, guint base, g
 static gboolean makernote_olympus_imageprocessing(RAWFILE *rawfile, guint base, guint offset, RSMetadata *meta);
 static gboolean makernote_panasonic(RAWFILE *rawfile, guint offset, RSMetadata *meta);
 static gboolean makernote_pentax(RAWFILE *rawfile, guint offset, RSMetadata *meta);
+static void sony_decrypt(SonyMeta *sony, guint *data, gint len);
+static gboolean private_sony(RAWFILE *rawfile, guint offset, RSMetadata *meta);
 static gboolean ifd_reader(RAWFILE *rawfile, guint offset, RSMetadata *meta);
+static gboolean thumbnail_reader(const gchar *service, RAWFILE *rawfile, guint offset, guint length, RSMetadata *meta);
 
 typedef enum tiff_field_type
 {
@@ -840,6 +853,104 @@ makernote_pentax(RAWFILE *rawfile, guint offset, RSMetadata *meta)
 	return TRUE;
 }
 
+static void
+sony_decrypt(SonyMeta *sony, guint *data, gint len)
+{
+	while (len--)
+		*data++ ^= sony->pad[sony->p++ & 127] = sony->pad[(sony->p+1) & 127] ^ sony->pad[(sony->p+65) & 127];
+}
+
+static gboolean
+private_sony(RAWFILE *rawfile, guint offset, RSMetadata *meta)
+{
+	gushort number_of_entries;
+	struct IFD ifd;
+	gint i;
+	gint key;
+	SonyMeta *sony = (SonyMeta *) meta;
+
+	if(!raw_get_ushort(rawfile, offset, &number_of_entries))
+		return FALSE;
+
+	if (number_of_entries>5000)
+		return FALSE;
+
+	offset += 2;
+
+	while(number_of_entries--)
+	{
+		read_ifd(rawfile, offset, &ifd);
+		offset += 12;
+
+		switch(ifd.tag)
+		{
+			case 0x7200: /* SR2SubIFDOffset */
+				sony->sony_offset = ifd.value_offset;
+				break;
+			case 0x7201: /* SR2SubIFDLength */
+				sony->sony_length = ifd.value_offset;
+				break;
+			case 0x7221: /* SR2SubIFDKey */
+				sony->sony_key = ifd.value_offset;
+
+				/* Initialize decrypter */
+				key = sony->sony_key;
+				for (sony->p=0; sony->p < 4; sony->p++)
+					sony->pad[sony->p] = key = key * 48828125 + 1;
+				sony->pad[3] = sony->pad[3] << 1 | (sony->pad[0]^sony->pad[2]) >> 31;
+				for (sony->p=4; sony->p < 127; sony->p++)
+					sony->pad[sony->p] = (sony->pad[sony->p-4]^sony->pad[sony->p-2]) << 1 | (sony->pad[sony->p-3]^sony->pad[sony->p-1]) >> 31;
+				for (sony->p=0; sony->p < 127; sony->p++)
+					sony->pad[sony->p] = htonl(sony->pad[sony->p]);
+				break;
+		}
+	}
+
+	if ((sony->sony_offset > 0) && (sony->sony_length > 0) && (sony->sony_key != 0))
+	{
+		gpointer buf = g_new0(guchar, sony->sony_length);
+		if (raw_strcpy(rawfile, sony->sony_offset, buf, sony->sony_length))
+		{
+			sony_decrypt(sony, buf, sony->sony_length/4);
+			gushort *sbuf = (gushort *)(buf);
+			gushort tag_count = sbuf[0];
+			struct IFD *private_ifd;
+
+			for(i=0;i<tag_count;i++)
+			{
+#if BYTE_ORDER == BIG_ENDIAN
+#warning FIXME: This will NOT work as expected on a big endian host
+#endif
+				private_ifd = (struct IFD *) (buf+2+i*12);
+
+				switch (private_ifd->tag)
+				{
+					case 0x7303: /* WB_GRBGLevels */
+						sbuf = (gushort *)(buf + private_ifd->value_offset - sony->sony_offset);
+						meta->cam_mul[1] = (gdouble) sbuf[0];
+						meta->cam_mul[0] = (gdouble) sbuf[1];
+						meta->cam_mul[2] = (gdouble) sbuf[2];
+						meta->cam_mul[3] = (gdouble) sbuf[3];
+
+						rs_metadata_normalize_wb(meta);
+						break;
+					case 0x7313: /* WB_RGGBLevels */
+						sbuf = (gushort *)(buf + private_ifd->value_offset - sony->sony_offset);
+						meta->cam_mul[0] = (gdouble) sbuf[0];
+						meta->cam_mul[1] = (gdouble) sbuf[1];
+						meta->cam_mul[3] = (gdouble) sbuf[2];
+						meta->cam_mul[2] = (gdouble) sbuf[3];
+
+						rs_metadata_normalize_wb(meta);
+						break;
+				}
+			}
+		}
+	}
+
+	return TRUE;
+}
+
 gboolean
 exif_reader(RAWFILE *rawfile, guint offset, RSMetadata *meta)
 {
@@ -989,8 +1100,8 @@ ifd_reader(RAWFILE *rawfile, guint offset, RSMetadata *meta)
 						meta->make = MAKE_PHASEONE;
 					else if (raw_strcmp(rawfile, ifd.value_offset, "SAMSUNG", 7))
 						meta->make = MAKE_SAMSUNG;
-					else if (raw_strcmp(rawfile, ifd.value_offset, "SONY", 4))
-						meta->make = MAKE_SONY;
+					/* Do not detect SONY, we don't want to call private_sony() unless
+					   we're sure we have a hidden SonyMeta */
 					else if (raw_strcmp(rawfile, ifd.value_offset, "FUJIFILM", 4))
 						meta->make = MAKE_FUJIFILM;
 					else if (raw_strcmp(rawfile, ifd.value_offset, "SEIKO EPSON", 11))
@@ -1057,6 +1168,10 @@ ifd_reader(RAWFILE *rawfile, guint offset, RSMetadata *meta)
 					meta->cam_mul[3] = meta->cam_mul[1];
 				}
 				break;
+			case 0xc634: /* DNG: PrivateData */
+				if (meta->make == MAKE_SONY)
+					private_sony(rawfile, ifd.value_offset, meta);
+				break;
 		}
 	}
 
@@ -1112,8 +1227,6 @@ rs_tiff_load_meta_from_rawfile(RAWFILE *rawfile, guint offset, RSMetadata *meta)
 void
 rs_tiff_load_meta(const gchar *filename, RSMetadata *meta)
 {
-	GdkPixbuf *pixbuf=NULL, *pixbuf2=NULL;
-	guint start=0, length=0;
 	RAWFILE *rawfile;
 
 	raw_init();
@@ -1123,30 +1236,31 @@ rs_tiff_load_meta(const gchar *filename, RSMetadata *meta)
 
 	rs_tiff_load_meta_from_rawfile(rawfile, 0, meta);
 
-	if ((meta->thumbnail_start>0) && (meta->thumbnail_length>0))
-	{
-		start = meta->thumbnail_start;
-		length = meta->thumbnail_length;
-	}
-
-	else if ((meta->preview_start>0) && (meta->preview_length>0))
-	{
-		start = meta->preview_start;
-		length = meta->preview_length;
-	}
-
 	/* Phase One and Samsung doesn't set this */
 	if ((meta->make == MAKE_PHASEONE) || (meta->make == MAKE_SAMSUNG))
 		meta->preview_planar_config = 1;
 
-	if ((start>0) && (length>0) && (length<5000000))
+	/* Load thumbnail - try thumbnail first - then preview image */
+	if (!thumbnail_reader(filename, rawfile, meta->thumbnail_start, meta->thumbnail_length, meta))
+		thumbnail_reader(filename, rawfile, meta->preview_start, meta->preview_length, meta);
+
+	raw_close_file(rawfile);
+}
+
+static gboolean
+thumbnail_reader(const gchar *service, RAWFILE *rawfile, guint offset, guint length, RSMetadata *meta)
+{
+	gboolean ret = FALSE;
+	GdkPixbuf *pixbuf=NULL, *pixbuf2=NULL;
+
+	if ((offset>0) && (length>0) && (length<5000000))
 	{
 		if ((length==165888) && (meta->make == MAKE_CANON))
-			pixbuf = gdk_pixbuf_new_from_data(raw_get_map(rawfile)+start, GDK_COLORSPACE_RGB, FALSE, 8, 288, 192, 288*3, NULL, NULL);
+			pixbuf = gdk_pixbuf_new_from_data(raw_get_map(rawfile)+offset, GDK_COLORSPACE_RGB, FALSE, 8, 288, 192, 288*3, NULL, NULL);
 		else if (length==57600) /* Multiple Nikon, Pentax and Samsung cameras */
-			pixbuf = gdk_pixbuf_new_from_data(raw_get_map(rawfile)+start, GDK_COLORSPACE_RGB, FALSE, 8, 160, 120, 160*3, NULL, NULL);
+			pixbuf = gdk_pixbuf_new_from_data(raw_get_map(rawfile)+offset, GDK_COLORSPACE_RGB, FALSE, 8, 160, 120, 160*3, NULL, NULL);
 		else if (length==48672)
-			pixbuf = gdk_pixbuf_new_from_data(raw_get_map(rawfile)+start, GDK_COLORSPACE_RGB, FALSE, 8, 156, 104, 156*3, NULL, NULL);
+			pixbuf = gdk_pixbuf_new_from_data(raw_get_map(rawfile)+offset, GDK_COLORSPACE_RGB, FALSE, 8, 156, 104, 156*3, NULL, NULL);
 		else
 			/* Many RAW files are based on TIFF and include the preview image
 			 * as the "main" image in the TIFF so that "normal" image viewing
@@ -1155,7 +1269,7 @@ rs_tiff_load_meta(const gchar *filename, RSMetadata *meta)
 			 * possible format (e.g. uncompressed R8G8B8) and use it
 			 * if it is present.
 			 */
-			if (start == meta->preview_start && /* if we're using the preview image */
+			if (offset == meta->preview_start && /* if we're using the preview image */
 				meta->preview_planar_config == 1 && /* uncompressed */
 				meta->preview_bits [0] == 8 &&
 				meta->preview_bits [1] == 8 &&
@@ -1166,18 +1280,18 @@ rs_tiff_load_meta(const gchar *filename, RSMetadata *meta)
 				meta->preview_height > 16 &&
 				meta->preview_height < 1024)    /* Some arbitrary sane limit */
 				pixbuf = gdk_pixbuf_new_from_data(
-					raw_get_map(rawfile)+start, GDK_COLORSPACE_RGB, FALSE, 8,
+					raw_get_map(rawfile)+offset, GDK_COLORSPACE_RGB, FALSE, 8,
 					meta->preview_width, meta->preview_height,
 					meta->preview_width * 3, NULL, NULL);
 			else
 				/* Try to guess file format based on contents (JPEG previews) */
-			pixbuf = raw_get_pixbuf(rawfile, start, length);
+			pixbuf = raw_get_pixbuf(rawfile, offset, length);
 	}
 	/* Special case for Panasonic - most have no embedded thumbnail */
 	else if (meta->make == MAKE_PANASONIC)
 	{
 		RS_IMAGE16 *input;
-		if ((input = rs_filetype_load(filename, TRUE)))
+		if ((input = rs_filetype_load(service, TRUE)))
 		{
 			gint c;
 			gfloat pre_mul[4];
@@ -1240,7 +1354,22 @@ rs_tiff_load_meta(const gchar *filename, RSMetadata *meta)
 				break;
 		}
 		meta->thumbnail = pixbuf;
+		ret = TRUE;
 	}
 
-	raw_close_file(rawfile);
+	return ret;
+}
+
+void
+rs_sony_load_meta(const gchar *filename, RSMetadata *meta)
+{
+	SonyMeta sony;
+	sony.sony_offset = 0;
+	sony.sony_length = 0;
+	sony.sony_key = 0;
+	meta->make = MAKE_SONY;
+
+	memcpy(&sony, meta, sizeof(RSMetadata));
+	rs_tiff_load_meta(filename, RS_METADATA(&sony));
+	memcpy(meta, &sony, sizeof(RSMetadata));
 }

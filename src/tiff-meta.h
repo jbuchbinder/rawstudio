@@ -22,3 +22,4 @@
 extern gboolean exif_reader(RAWFILE *rawfile, guint offset, RSMetadata *meta);
 extern void rs_tiff_load_meta_from_rawfile(RAWFILE *rawfile, guint offset, RSMetadata *meta);
 extern void rs_tiff_load_meta(const gchar *filename, RSMetadata *meta);
+extern void rs_sony_load_meta(const gchar *filename, RSMetadata *meta);
