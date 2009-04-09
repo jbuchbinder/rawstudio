@@ -933,8 +933,10 @@ get_placement(RSPreviewWidget *preview, const guint view, GdkRectangle *placemen
 	gint xoffset = 0, yoffset = 0;
 	gint width, height;
 
-	g_return_val_if_fail(preview->scaled[view], FALSE);
-	g_return_val_if_fail(VIEW_IS_VALID(view), FALSE);
+	if (!preview->scaled[view])
+		return FALSE;
+	if (!VIEW_IS_VALID(view))
+		return FALSE;
 
 	width = GTK_WIDGET(preview)->allocation.width;
 	height = GTK_WIDGET(preview)->allocation.height;
