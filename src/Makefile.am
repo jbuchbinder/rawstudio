@@ -6,7 +6,7 @@ INCLUDES = \
 	@PACKAGE_CFLAGS@
 
 AM_CFLAGS =\
-	-Wall\
+	-Wall -fno-strict-aliasing\
 	-O4\
 	-DWITH_GCONF\
 	-DDCRAW_NOMAIN\

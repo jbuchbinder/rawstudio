@@ -56,7 +56,7 @@ ACTION(todo)
 {
 	GString *gs = g_string_new("Action not implemented: ");
 	g_string_append(gs, gtk_action_get_name(action));
-	g_warning(gs->str);
+	g_warning("%s", gs->str);
 	gui_status_notify(gs->str);
 	g_string_free(gs, TRUE);
 }
