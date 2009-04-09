@@ -109,6 +109,7 @@ rs_init_filetypes(void)
 	REGISTER_FILETYPE(".x3f", _("Sigma"), rs_image16_open_dcraw, rs_x3f_load_meta);
 	REGISTER_FILETYPE(".orf", _("Olympus"), rs_image16_open_dcraw, rs_tiff_load_meta);
 	REGISTER_FILETYPE(".raw", _("Panasonic raw"), rs_image16_open_dcraw, rs_tiff_load_meta);
+	REGISTER_FILETYPE(".rw2", _("Panasonic raw 2"), rs_image16_open_dcraw, rs_tiff_load_meta);
 	REGISTER_FILETYPE(".pef", _("Pentax raw"), rs_image16_open_dcraw, rs_tiff_load_meta);
 	REGISTER_FILETYPE(".dng", _("Adobe Digital negative"), rs_image16_open_dcraw, rs_tiff_load_meta);
 	REGISTER_FILETYPE(".mef", _("Mamiya"), rs_image16_open_dcraw, rs_tiff_load_meta);
