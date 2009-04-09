@@ -28,6 +28,7 @@ rawstudio_SOURCES = \
 	rs-filetypes.c rs-filetypes.h \
 	rs-settings.c rs-settings.h \
 	rs-utils.c rs-utils.h \
+	rs-job.c rs-job.h \
 	rs-actions.c rs-actions.h \
 	rs-math.c rs-math.h \
 	rs-preload.c rs-preload.h \
