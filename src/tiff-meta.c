@@ -473,25 +473,35 @@ makernote_nikon(RAWFILE *rawfile, guint offset, RSMetadata *meta)
 				raw_get_ushort(rawfile, offset+2, &meta->iso);
 				break;
 			case 0x000c: /* D1 White Balance */
-				raw_get_uint(rawfile, offset, &uint_temp1);
+				if (g_str_equal(meta->model_ascii, "NIKON D1X") || g_str_equal(meta->model_ascii, "NIKON D90"))
+				{
+					meta->cam_mul[0] = get_rational(rawfile, offset);
+					meta->cam_mul[2] = get_rational(rawfile, offset+8);
+					meta->cam_mul[1] = get_rational(rawfile, offset+16);
+					meta->cam_mul[3] = get_rational(rawfile, offset+24);
+					rs_metadata_normalize_wb(meta);
+				}
+				else
+				{
+					/* This is fucked, where did these two magic constants come from? */
+					raw_get_float(rawfile, uint_temp1, &float_temp1);
+					raw_get_float(rawfile, uint_temp1+4, &float_temp2);
+					meta->cam_mul[0] = (gdouble) (float_temp1/float_temp2)/1.0;//2.218750;
 
-				/* This is fucked, where did these two magic constants come from? */
-				raw_get_float(rawfile, uint_temp1, &float_temp1);
-				raw_get_float(rawfile, uint_temp1+4, &float_temp2);
-				meta->cam_mul[0] = (gdouble) (float_temp1/float_temp2)/2.218750;
+					raw_get_float(rawfile, uint_temp1+8, &float_temp1);
+					raw_get_float(rawfile, uint_temp1+12, &float_temp2);
+					meta->cam_mul[2] = (gdouble) (float_temp1/float_temp2)/1.0;//1.148438;
 
-				raw_get_float(rawfile, uint_temp1+8, &float_temp1);
-				raw_get_float(rawfile, uint_temp1+12, &float_temp2);
-				meta->cam_mul[2] = (gdouble) (float_temp1/float_temp2)/1.148438;
+					raw_get_float(rawfile, uint_temp1+16, &float_temp1);
+					raw_get_float(rawfile, uint_temp1+20, &float_temp2);
+					meta->cam_mul[1] = (gdouble) (float_temp1/float_temp2);
 
-				raw_get_float(rawfile, uint_temp1+16, &float_temp1);
-				raw_get_float(rawfile, uint_temp1+20, &float_temp2);
-				meta->cam_mul[1] = (gdouble) (float_temp1/float_temp2);
+					raw_get_float(rawfile, uint_temp1+24, &float_temp1);
+					raw_get_float(rawfile, uint_temp1+28, &float_temp2);
+					meta->cam_mul[3] = (gdouble) (float_temp1/float_temp2);
 
-				raw_get_float(rawfile, uint_temp1+24, &float_temp1);
-				raw_get_float(rawfile, uint_temp1+28, &float_temp2);
-				meta->cam_mul[3] = (gdouble) (float_temp1/float_temp2);
-				rs_metadata_normalize_wb(meta);
+					rs_metadata_normalize_wb(meta);
+				}
 				break;
 			case 0x0011: /* NikonPreview */
 				raw_get_uint(rawfile, offset, &uint_temp1);
@@ -499,6 +509,9 @@ makernote_nikon(RAWFILE *rawfile, guint offset, RSMetadata *meta)
 				meta->thumbnail_start += base;
 				break;
 			case 0x0097: /* white balance */
+				if (g_str_equal(meta->model_ascii, "NIKON D90"))
+					break;
+
 				for(i=0;i<4;i++)
 				{
 					raw_get_uchar(rawfile, offset+i, &char_tmp);
@@ -1160,12 +1173,13 @@ ifd_reader(RAWFILE *rawfile, guint offset, RSMetadata *meta)
 
 			/* The following tags are from the DNG spec, they should be safe */
 			case 0xc628: /* DNG: AsShotNeutral */
-				if (ifd.type == TIFF_FIELD_TYPE_RATIONAL && ifd.count == 3)
+				if (((ifd.type == TIFF_FIELD_TYPE_RATIONAL)||(ifd.type == TIFF_FIELD_TYPE_SRATIONAL)) && ifd.count == 3)
 				{
 					meta->cam_mul[0] = 1.0/get_rational(rawfile, ifd.value_offset);
 					meta->cam_mul[1] = 1.0/get_rational(rawfile, ifd.value_offset+8);
 					meta->cam_mul[2] = 1.0/get_rational(rawfile, ifd.value_offset+16);
 					meta->cam_mul[3] = meta->cam_mul[1];
+					rs_metadata_normalize_wb(meta);
 				}
 				break;
 			case 0xc634: /* DNG: PrivateData */
