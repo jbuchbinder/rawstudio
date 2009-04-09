@@ -486,9 +486,9 @@ rs_batch_process(RS_QUEUE *queue)
 		g_free(basename);
 
 		photo = rs_photo_load_from_file(filename_in, FALSE);
-		rs_image16_demosaic(photo->input, RS_DEMOSAIC_PPG);
 		if (photo)
 		{
+			rs_image16_demosaic(photo->input, RS_DEMOSAIC_PPG);
 			rs_metadata_load_from_file(photo->metadata, filename_in);
 			filename = g_string_new(queue->directory);
 			g_string_append(filename, G_DIR_SEPARATOR_S);
