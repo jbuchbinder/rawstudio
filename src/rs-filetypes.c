@@ -18,6 +18,7 @@
  */
 
 #include "rs-filetypes.h"
+#include "conf_interface.h"
 
 static gint tree_sort(gconstpointer a, gconstpointer b);
 static gpointer filetype_search(GTree *tree, const gchar *filename, gint *priority);
@@ -79,6 +80,7 @@ filetype_search(GTree *tree, const gchar *filename, gint *priority)
 {
 	gpointer func = NULL;
 	const gchar *extension;
+	gboolean load_8bit = FALSE;
 
 	extension = g_strrstr(filename, ".");
 
@@ -97,6 +99,11 @@ filetype_search(GTree *tree, const gchar *filename, gint *priority)
 		g_free(needle.extension);
 		func = needle.func;
 	}
+
+	/* This is just a nasty hack to make "Load 8-bit photos" work in release 1.2 */
+	rs_conf_get_boolean(CONF_LOAD_GDK, &load_8bit);
+	if ((!load_8bit) && (func == rs_image16_open_gdk))
+		func = NULL;
 
 	return func;
 }
