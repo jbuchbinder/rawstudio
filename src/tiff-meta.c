@@ -212,7 +212,11 @@ makernote_canon(RAWFILE *rawfile, guint offset, RSMetadata *meta)
 					case 702: /* Canon EOS 1Ds Mk III */
 					case 796: /* Canon EOS 5D, Canon EOS 30D, Canon EOS 400D */
 					case 1227: /* Canon EOS 450D */
+					case 1250: /* Canon EOS 5D Mk II */
 						ifd.value_offset += 126;
+						break;
+					case 5120: /* Canon PowerShot G10 */
+						ifd.value_offset += 142;
 						break;
 				}
 				/* RGGB-format! */
