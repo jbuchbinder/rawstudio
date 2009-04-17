@@ -40,6 +40,7 @@
 #include "rs-histogram.h"
 #include "rs-photo.h"
 #include "rs-exif.h"
+#include "rs-library.h"
 
 static void photo_settings_changed(RS_PHOTO *photo, RSSettingsMask mask, RS_BLOB *rs);
 static void photo_spatial_changed(RS_PHOTO *photo, RS_BLOB *rs);
@@ -376,6 +377,9 @@ rs_new(void)
 	for(c=0;c<3;c++)
 		rs->settings[c] = rs_settings_new();
 
+	/* FIXME: should be done with rs_library_new() */
+	rs->library = g_malloc(sizeof(RS_LIBRARY));
+
 	/* Build basic filter chain */
 	rs->filter_input = rs_filter_new("RSInputImage16", NULL);
 	rs->filter_demosaic = rs_filter_new("RSDemosaic", rs->filter_input);
@@ -667,6 +671,8 @@ main(int argc, char **argv)
 	rs->queue->cms = rs->cms = rs_cms_init();
 
 	rs_stock_init();
+
+	rs_library_init(rs->library);
 
 #if GTK_CHECK_VERSION(2,10,0)
 	gtk_link_button_set_uri_hook(runuri,NULL,NULL);
