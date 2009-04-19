@@ -299,6 +299,26 @@ rs_library_init(RS_LIBRARY *library)
 	rs_library_photo_add_tag(library, "/home/akv/test/3.cr2", "Rawstudio");
 	rs_library_photo_add_tag(library, "/home/akv/test/3.cr2", "Testing");
 
+	GList *tags = NULL, *photos = NULL;
+
+	tags = g_list_append(tags, g_strdup_printf("Rawstudio"));
+//	tags = g_list_append(tags, g_strdup_printf("Testing"));
+
+	photos = rs_library_search(library, tags);
+
+	gint num_photos = g_list_length(photos);
+	gint num_tags = g_list_length(tags);
+	gint n;
+
+	printf("Searching library for photo tagged with: ");
+	for (n = 0; n < num_tags; n++)
+		printf("'%s' ", (gchar *) g_list_nth_data(tags, n));
+	printf("\n");
+
+	printf("Result from search: \n");
+	for (n = 0; n < num_photos; n++)
+		printf("%s\n", (gchar *) g_list_nth_data(photos, n));
+
 	rs_library_delete_photo(library, "/home/akv/test/2.cr2");
 
 	rs_library_delete_tag(library, "Testing", TRUE);
@@ -394,6 +414,51 @@ rs_library_delete_tag(RS_LIBRARY *library, gchar *tag, gboolean force)
 	else
 		library_delete_tag(library, tag_id);
 	return TRUE;
+}
+
+GList *
+rs_library_search(RS_LIBRARY *library, GList *tags)
+{
+	sqlite3_stmt *stmt;
+	gint rc;
+	sqlite3 *db = library->db;
+	gchar *tag;
+	gint n, num_tags = g_list_length(tags);
+	GList *photos = NULL;
+	GTimer *gt = g_timer_new();
+	
+	sqlite3_prepare_v2(db, "create temp table filter (photo integer)", -1, &stmt, NULL);
+	rc = sqlite3_step(stmt);
+	sqlite3_finalize(stmt);
+       
+	for (n = 0; n < num_tags; n++)
+	{
+		tag = (gchar *) g_list_nth_data(tags, n);
+
+		sqlite3_prepare_v2(db, "insert into filter select phototags.photo from phototags, tags where phototags.tag = tags.id and tags.tagname = ?1;", -1, &stmt, NULL);
+		rc = sqlite3_bind_text(stmt, 1, tag, strlen(tag), SQLITE_TRANSIENT);
+		rc = sqlite3_step(stmt);
+		sqlite3_finalize(stmt);
+	}
+
+	sqlite3_prepare_v2(db, "create temp table result (photo integer, count integer)", -1, &stmt, NULL);
+	rc = sqlite3_step(stmt);
+	sqlite3_finalize(stmt);
+
+	sqlite3_prepare_v2(db, "insert into result select photo, count(photo) from filter group by photo;", -1, &stmt, NULL);
+	rc = sqlite3_step(stmt);
+	sqlite3_finalize(stmt);
+
+	sqlite3_prepare_v2(db, "select library.filename from library,result where library.id = result.photo and result.count = ?1 order by library.filename;", -1, &stmt, NULL);
+        rc = sqlite3_bind_int(stmt, 1, num_tags);
+	while (sqlite3_step(stmt) == SQLITE_ROW)
+		photos = g_list_append(photos, g_strdup((gchar *) sqlite3_column_text(stmt, 0)));
+	sqlite3_finalize(stmt);
+
+	g_debug("Search in library took %.03f seconds", g_timer_elapsed(gt, NULL));
+	g_timer_destroy(gt);
+
+	return photos;
 }
 
 /* END PUBLIC FUNCTIONS */
