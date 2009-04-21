@@ -27,6 +27,7 @@
 #include <sqlite3.h>
 #include <string.h>
 #include "rawstudio.h"
+#include "rs-metadata.h"
 #include "rs-library.h"
 
 void library_sqlite_error(sqlite3 *db, gint result);
@@ -422,6 +423,104 @@ rs_library_search(RS_LIBRARY *library, GList *tags)
 	g_timer_destroy(gt);
 
 	return photos;
+}
+
+void
+rs_library_photo_default_tags(RS_LIBRARY *library, gchar *photo, RSMetadata *metadata)
+{
+	rs_library_add_photo(library, photo);
+	if (metadata->make_ascii)
+	{
+		rs_library_add_tag(library, metadata->make_ascii);
+		rs_library_photo_add_tag(library, photo, metadata->make_ascii);
+	}
+	if (metadata->model_ascii)
+	{
+		rs_library_add_tag(library, metadata->model_ascii);
+		rs_library_photo_add_tag(library, photo, metadata->model_ascii);
+	}
+	if (metadata->lens_min_focal && metadata->lens_max_focal)
+	{
+		gchar *lens = NULL;
+		if (metadata->lens_min_focal == metadata->lens_max_focal)
+			lens = g_strdup_printf("%dmm",(gint) metadata->lens_min_focal);
+		else
+			lens = g_strdup_printf("%d-%dmm",(gint) metadata->lens_min_focal, (gint) metadata->lens_max_focal);
+		rs_library_add_tag(library, lens);
+		rs_library_photo_add_tag(library, photo, lens);
+		g_free(lens);
+
+	}
+	if (metadata->focallength)
+	{
+		gchar *text = NULL;
+		if (metadata->focallength < 50)
+			text = g_strdup("wideangle");
+		else
+			text = g_strdup("telephoto");
+		rs_library_add_tag(library, text);
+		rs_library_photo_add_tag(library, photo, text);
+		g_free(text);
+	}
+	if (metadata->timestamp)
+	{
+		gchar *year = NULL;
+		gchar *month = NULL;
+		GDate *date = g_date_new();
+		g_date_set_time_t(date, metadata->timestamp);
+		year = g_strdup_printf("%d", g_date_get_year(date));
+		gint m = g_date_get_month(date);
+
+		switch (m)
+		{
+		case 1:
+			month = g_strdup("January");
+			break;
+		case 2:
+			month = g_strdup("February");
+			break;
+		case 3:
+			month = g_strdup("March");
+			break;
+		case 4:
+			month = g_strdup("April");
+			break;
+		case 5:
+			month = g_strdup("May");
+			break;
+		case 6:
+			month = g_strdup("June");
+			break;
+		case 7:
+			month = g_strdup("July");
+			break;
+		case 8:
+			month = g_strdup("August");
+			break;
+		case 9:
+			month = g_strdup("September");
+			break;
+		case 10:
+			month = g_strdup("Ocotober");
+			break;
+		case 11:
+			month = g_strdup("November");
+			break;
+		case 12:
+			month = g_strdup("December");
+			break;
+		}
+
+		rs_library_add_tag(library, year);
+		rs_library_photo_add_tag(library, photo, year);
+		rs_library_add_tag(library, month);
+		rs_library_photo_add_tag(library, photo, month);
+
+		g_date_free(date);
+		g_free(year);
+		g_free(month);
+	}
+
 }
 
 /* END PUBLIC FUNCTIONS */

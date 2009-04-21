@@ -36,5 +36,6 @@ void rs_library_photo_add_tag(RS_LIBRARY *library, gchar *filename, gchar *tagna
 void rs_library_delete_photo(RS_LIBRARY *library, gchar *photo);
 gboolean rs_library_delete_tag(RS_LIBRARY *library, gchar *tag, gboolean force);
 GList * rs_library_search(RS_LIBRARY *library, GList *tags);
+void rs_library_photo_default_tags(RS_LIBRARY *library, gchar *photo, RSMetadata *metadata);
 
 #endif /* RS_LIBRARY_H */
