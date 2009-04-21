@@ -172,6 +172,9 @@ open_photo(RS_BLOB *rs, const gchar *filename)
 
 	rs_set_photo(rs, photo);
 
+	/* Add all photos we open to the library and tag them with default values */
+	rs_library_photo_default_tags(rs->library, (gchar *) filename, photo->metadata);
+
 	return TRUE;
 }
 
