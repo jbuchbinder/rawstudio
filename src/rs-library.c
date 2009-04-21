@@ -287,43 +287,6 @@ rs_library_init(RS_LIBRARY *library)
 
 	rc = library_create_tables(library->db);
 	library_sqlite_error(library->db, rc);
-
-	rs_library_add_photo(library, "/home/akv/test/1.cr2");
-	rs_library_add_photo(library, "/home/akv/test/2.cr2");
-	rs_library_add_photo(library, "/home/akv/test/3.cr2");
-
-	rs_library_add_tag(library, "Testing");
-	rs_library_add_tag(library, "Rawstudio");
-
-	rs_library_photo_add_tag(library, "/home/akv/test/2.cr2", "Rawstudio");
-	rs_library_photo_add_tag(library, "/home/akv/test/3.cr2", "Rawstudio");
-	rs_library_photo_add_tag(library, "/home/akv/test/3.cr2", "Testing");
-
-	GList *tags = NULL, *photos = NULL;
-
-	tags = g_list_append(tags, g_strdup_printf("Rawstudio"));
-//	tags = g_list_append(tags, g_strdup_printf("Testing"));
-
-	photos = rs_library_search(library, tags);
-
-	gint num_photos = g_list_length(photos);
-	gint num_tags = g_list_length(tags);
-	gint n;
-
-	printf("Searching library for photo tagged with: ");
-	for (n = 0; n < num_tags; n++)
-		printf("'%s' ", (gchar *) g_list_nth_data(tags, n));
-	printf("\n");
-
-	printf("Result from search: \n");
-	for (n = 0; n < num_photos; n++)
-		printf("%s\n", (gchar *) g_list_nth_data(photos, n));
-
-	rs_library_delete_photo(library, "/home/akv/test/2.cr2");
-
-	rs_library_delete_tag(library, "Testing", TRUE);
-
-	exit(1);
 }
 
 void
