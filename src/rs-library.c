@@ -291,6 +291,12 @@ rs_library_init(RS_LIBRARY *library)
 }
 
 void
+rs_library_destroy(RS_LIBRARY *library)
+{
+	sqlite3_close(library->db);
+}
+
+void
 rs_library_add_photo(RS_LIBRARY *library, gchar *filename)
 {
 	if (library_find_photo_id(library, filename) == -1)
