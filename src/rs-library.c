@@ -546,4 +546,26 @@ rs_library_photo_tags(RS_LIBRARY *library, gchar *photo)
 	return tags;
 }
 
+GList *
+rs_library_find_tag(RS_LIBRARY *library, gchar *tag)
+{
+	sqlite3_stmt *stmt;
+	gint rc;
+	sqlite3 *db = library->db;
+	GList *tags = NULL;
+
+	rc = sqlite3_prepare_v2(db, "select tags.tagname from tags WHERE tags.tagname like ?1 order by tags.tagname;", -1, &stmt, NULL);
+	gchar *like = g_strdup_printf("%%%s%%", tag);
+        rc = sqlite3_bind_text(stmt, 1, like, strlen(like), NULL);
+	library_sqlite_error(db, rc);
+	
+	while (sqlite3_step(stmt) == SQLITE_ROW)
+		tags = g_list_append(tags, g_strdup((gchar *) sqlite3_column_text(stmt, 0)));
+	sqlite3_finalize(stmt);
+
+	g_free(like);
+
+	return tags;
+}
+
 /* END PUBLIC FUNCTIONS */
