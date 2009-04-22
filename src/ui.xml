@@ -36,6 +36,7 @@
    <menuitem action="Group" />
    <menuitem action="Ungroup" />
    <menuitem action="AutoGroup" />
+   <menuitem action="TagPhoto" />
   </menu>
   <menu action="ViewMenu">
    <menuitem action="PreviousPhoto" />
