@@ -445,7 +445,7 @@ rs_library_photo_default_tags(RS_LIBRARY *library, gchar *photo, RSMetadata *met
 		rs_library_add_tag(library, metadata->model_ascii);
 		rs_library_photo_add_tag(library, photo, metadata->model_ascii);
 	}
-	if (metadata->lens_min_focal && metadata->lens_max_focal)
+	if (metadata->lens_min_focal != -1 && metadata->lens_max_focal != -1)
 	{
 		gchar *lens = NULL;
 		if (metadata->lens_min_focal == metadata->lens_max_focal)
@@ -457,7 +457,7 @@ rs_library_photo_default_tags(RS_LIBRARY *library, gchar *photo, RSMetadata *met
 		g_free(lens);
 
 	}
-	if (metadata->focallength)
+	if (metadata->focallength != -1)
 	{
 		gchar *text = NULL;
 		if (metadata->focallength < 50)
@@ -468,7 +468,7 @@ rs_library_photo_default_tags(RS_LIBRARY *library, gchar *photo, RSMetadata *met
 		rs_library_photo_add_tag(library, photo, text);
 		g_free(text);
 	}
-	if (metadata->timestamp)
+	if (metadata->timestamp != -1)
 	{
 		gchar *year = NULL;
 		gchar *month = NULL;
