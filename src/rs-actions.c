@@ -323,7 +323,8 @@ ACTION(copy_settings)
 {
 	if (!rs->settings_buffer)
 		rs->settings_buffer = rs_settings_new();
-	rs_settings_copy(rs->settings[rs->current_setting], MASK_ALL, rs->settings_buffer);
+	if (rs->photo)
+		rs_settings_copy(rs->photo->settings[rs->current_setting], MASK_ALL, rs->settings_buffer);
 	gui_status_notify(_("Copied settings"));
 }
 
@@ -425,7 +426,8 @@ ACTION(paste_settings)
 			g_list_free(selected);
 
 			/* Apply to current photo */
-			rs_settings_copy(rs->settings_buffer, mask, rs->settings[rs->current_setting]); 
+			if (rs->photo)
+				rs_settings_copy(rs->settings_buffer, mask, rs->photo->settings[rs->current_setting]); 
 
 			gui_status_notify(_("Pasted settings"));
 		}
@@ -438,10 +440,8 @@ ACTION(paste_settings)
 
 ACTION(reset_settings)
 {
-	rs_settings_reset(rs->settings[rs->current_setting], MASK_ALL);
-
 	if (RS_IS_PHOTO(rs->photo))
-		rs_photo_apply_settings(rs->photo, rs->current_setting, rs->settings[rs->current_setting], MASK_ALL);
+		rs_settings_reset(rs->photo->settings[rs->current_setting], MASK_ALL);
 }
 
 ACTION(preferences)
