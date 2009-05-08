@@ -64,7 +64,7 @@ rs_settings_class_init (RSSettingsClass *klass)
 
 	g_object_class_install_property(object_class,
 		PROP_EXPOSURE, g_param_spec_float(
-			"exposure", _("Exposure"), _("Exposure Compensation"),
+			"exposure", _("Exposure"), _("Exposure"),
 			-3.0, 3.0, 0.0, G_PARAM_READWRITE)
 	);
 	g_object_class_install_property(object_class,
