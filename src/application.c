@@ -42,6 +42,8 @@
 #include "rs-photo.h"
 #include "rs-exif.h"
 
+static void photo_spatial_changed(RS_PHOTO *photo, RS_BLOB *rs);
+
 void
 rs_free(RS_BLOB *rs)
 {
@@ -92,7 +94,22 @@ rs_set_photo(RS_BLOB *rs, RS_PHOTO *photo)
 		g_object_set(rs->filter_crop, "rectangle", rs_photo_get_crop(photo), NULL);
 		g_object_set(rs->filter_rotate, "angle", rs_photo_get_angle(photo), "orientation", rs->photo->orientation, NULL);
 		g_object_set(rs->filter_rotate, "angle", rs_photo_get_angle(photo), NULL);
+
+		g_signal_connect(G_OBJECT(rs->photo), "spatial-changed", G_CALLBACK(photo_spatial_changed), rs);
 	}
+}
+
+static void
+photo_spatial_changed(RS_PHOTO *photo, RS_BLOB *rs)
+{
+	if (photo == rs->photo)
+	{
+		/* Update crop and rotate filters */
+		g_object_set(rs->filter_crop, "rectangle", rs_photo_get_crop(photo), NULL);
+		g_object_set(rs->filter_rotate, "angle", rs_photo_get_angle(photo), "orientation", rs->photo->orientation, NULL);
+		g_object_set(rs->filter_rotate, "angle", rs_photo_get_angle(photo), NULL);
+	}
+
 }
 
 gboolean
