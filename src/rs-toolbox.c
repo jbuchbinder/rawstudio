@@ -39,12 +39,12 @@ typedef struct {
 } BasicSettings;
 
 const static BasicSettings basic[] = {
-	{ "exposure",       0.1 },
-	{ "saturation",     0.1 },
-	{ "hue",            0.1 },
-	{ "contrast",       0.1 },
-	{ "warmth",         0.1 },
-	{ "tint",           0.1 },
+	{ "exposure",       0.05 },
+	{ "saturation",     0.05 },
+	{ "hue",            1.5 },
+	{ "contrast",       0.05 },
+	{ "warmth",         0.01 },
+	{ "tint",           0.01 },
 	{ "sharpen",        0.1 },
 	{ "denoise_luma",   0.1 },
 	{ "denoise_chroma", 0.1 },
