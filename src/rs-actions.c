@@ -96,6 +96,10 @@ ACTION(photo_menu)
 	rs_core_action_group_set_sensivity("Unstraighten", (RS_IS_PHOTO(rs->photo) && (rs->photo->angle != 0.0)));
 	rs_core_action_group_set_sensivity("Group", (num_selected > 1));
 	rs_core_action_group_set_sensivity("Ungroup", (selected_groups > 0));
+	rs_core_action_group_set_sensivity("RotateClockwise", RS_IS_PHOTO(rs->photo));
+	rs_core_action_group_set_sensivity("RotateCounterClockwise", RS_IS_PHOTO(rs->photo));
+	rs_core_action_group_set_sensivity("Flip", RS_IS_PHOTO(rs->photo));
+	rs_core_action_group_set_sensivity("Mirror", RS_IS_PHOTO(rs->photo));
 #ifndef EXPERIMENTAL
 	rs_core_action_group_set_visibility("Group", FALSE);
 	rs_core_action_group_set_visibility("Ungroup", FALSE);
@@ -523,6 +527,30 @@ ACTION(unstraighten)
 	rs_preview_widget_unstraighten(RS_PREVIEW_WIDGET(rs->preview));
 }
 
+ACTION(rotate_clockwise)
+{
+	if (rs->photo)
+		rs_photo_rotate(rs->photo, 1, 0.0);
+}
+
+ACTION(rotate_counter_clockwise)
+{
+	if (rs->photo)
+		rs_photo_rotate(rs->photo, 3, 0.0);
+}
+
+ACTION(flip)
+{
+	if (rs->photo)
+		rs_photo_flip(rs->photo);
+}
+
+ACTION(mirror)
+{
+	if (rs->photo)
+		rs_photo_mirror(rs->photo);
+}
+
 ACTION(group_photos)
 {
 	rs_store_group_photos(rs->store);
@@ -832,6 +860,10 @@ rs_get_core_action_group(RS_BLOB *rs)
 	{ "Group", NULL, _("_Group"), NULL, NULL, ACTION_CB(group_photos) },
 	{ "Ungroup", NULL, _("_Ungroup"), NULL, NULL, ACTION_CB(ungroup_photos) },
 	{ "AutoGroup", NULL, _("_Auto group"), NULL, NULL, ACTION_CB(auto_group_photos) },
+	{ "RotateClockwise", NULL, _("Rotate Clockwise"), NULL, NULL, ACTION_CB(rotate_clockwise) },
+	{ "RotateCounterClockwise", NULL, _("Rotate Counter Clockwise"), NULL, NULL, ACTION_CB(rotate_counter_clockwise) },
+	{ "Flip", NULL, _("Flip"), NULL, NULL, ACTION_CB(flip) },
+	{ "Mirror", NULL, _("Mirror"), NULL, NULL, ACTION_CB(mirror) },
 
 	/* View menu */
 	{ "PreviousPhoto", GTK_STOCK_GO_BACK, _("_Previous photo"), "<control>Left", NULL, ACTION_CB(previous_photo) },

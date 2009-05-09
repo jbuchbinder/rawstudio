@@ -36,6 +36,8 @@
    <menuitem action="Group" />
    <menuitem action="Ungroup" />
    <menuitem action="AutoGroup" />
+   <menuitem action="RotateClockwise" />
+   <menuitem action="RotateCounterClockwise" />
   </menu>
   <menu action="ViewMenu">
    <menuitem action="PreviousPhoto" />
