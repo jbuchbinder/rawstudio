@@ -51,11 +51,19 @@ const static BasicSettings basic[] = {
 };
 #define NBASICS (7)
 
+const static BasicSettings channelmixer[] = {
+	{ "channelmixer_red",   0.1 },
+	{ "channelmixer_green", 0.1 },
+	{ "channelmixer_blue",  0.1 },
+};
+#define NCHANNELMIXER (3)
+
 struct _RSToolbox {
 	GtkScrolledWindow parent;
 	GtkWidget *notebook;
 	GtkBox *toolbox;
 	GtkRange *ranges[3][NBASICS];
+	GtkRange *channelmixer[3][NCHANNELMIXER];
 	RSSettings *settings[3];
 	GtkWidget *curve[3];
 
@@ -394,14 +402,17 @@ static GtkWidget *
 new_snapshot_page(RSToolbox *toolbox, const gint snapshot)
 {
 	GtkWidget *vbox = gtk_vbox_new(FALSE, 1);
-	GtkTable *table;
+	GtkTable *table, *channelmixertable;
 	gint row;
 
 	table = GTK_TABLE(gtk_table_new(NBASICS, 5, FALSE));
+	channelmixertable = GTK_TABLE(gtk_table_new(NCHANNELMIXER, 5, FALSE));
 
 	/* Add basic sliders */
 	for(row=0;row<NBASICS;row++)
 		toolbox->ranges[snapshot][row] = basic_slider(toolbox, snapshot, table, row, &basic[row]);
+	for(row=0;row<NCHANNELMIXER;row++)
+		toolbox->channelmixer[snapshot][row] = basic_slider(toolbox, snapshot, channelmixertable, row, &channelmixer[row]);
 
 	/* Add curve editor */
 	toolbox->curve[snapshot] = rs_curve_widget_new();
@@ -410,6 +421,7 @@ new_snapshot_page(RSToolbox *toolbox, const gint snapshot)
 
 	/* Pack everything nice */
 	gtk_box_pack_start(GTK_BOX(vbox), gui_box(_("Basic"), GTK_WIDGET(table), "show_basic", TRUE), FALSE, FALSE, 0);
+	gtk_box_pack_start(GTK_BOX(vbox), gui_box(_("Channel Mixer"), GTK_WIDGET(channelmixertable), "show_channelmixer", TRUE), FALSE, FALSE, 0);
 	gtk_box_pack_start(GTK_BOX(vbox), gui_box(_("Curve"), toolbox->curve[snapshot], "show_curve", TRUE), FALSE, FALSE, 0);
 
 	return vbox;
@@ -473,6 +485,10 @@ photo_finalized(gpointer data, GObject *where_the_object_was)
 		for(i=0;i<NBASICS;i++)
 		{
 			gtk_widget_set_sensitive(GTK_WIDGET(toolbox->ranges[snapshot][i]), FALSE);
+		}
+		for(i=0;i<NCHANNELMIXER;i++)
+		{
+			gtk_widget_set_sensitive(GTK_WIDGET(toolbox->channelmixer[snapshot][i]), FALSE);
 		}
 		rs_curve_widget_reset(RS_CURVE_WIDGET(toolbox->curve[snapshot]));
 		rs_curve_widget_add_knot(RS_CURVE_WIDGET(toolbox->curve[snapshot]), 0.0,0.0);
@@ -540,6 +556,8 @@ rs_toolbox_set_photo(RSToolbox *toolbox, RS_PHOTO *photo)
 			/* Set the basic types sensitive */
 			for(i=0;i<NBASICS;i++)
 				gtk_widget_set_sensitive(GTK_WIDGET(toolbox->ranges[snapshot][i]), TRUE);
+			for(i=0;i<NCHANNELMIXER;i++)
+				gtk_widget_set_sensitive(GTK_WIDGET(toolbox->channelmixer[snapshot][i]), TRUE);
 		}
 		photo_spatial_changed(toolbox->photo, toolbox);
 	}
