@@ -31,6 +31,7 @@
 #include "rs-utils.h"
 #include "rs-photo.h"
 #include "conf_interface.h"
+#include "rs-actions.h"
 
 /* Some helpers for creating the basic sliders */
 typedef struct {
@@ -95,6 +96,7 @@ static GtkRange *basic_slider(RSToolbox *toolbox, const gint snapshot, GtkTable 
 static void curve_changed(GtkWidget *widget, gpointer user_data);
 static GtkWidget *gui_box(const gchar *title, GtkWidget *in, gchar *key, gboolean default_expanded);
 static GtkWidget *new_snapshot_page();
+static GtkWidget *new_transform(RSToolbox *toolbox, gboolean show);
 static void toolbox_copy_from_photo(RSToolbox *toolbox, const gint snapshot, const RSSettingsMask mask, RS_PHOTO *photo);
 static void photo_settings_changed(RS_PHOTO *photo, RSSettingsMask mask, gpointer user_data);
 static void photo_spatial_changed(RS_PHOTO *photo, gpointer user_data);
@@ -169,6 +171,8 @@ rs_toolbox_init (RSToolbox *self)
 
 	gtk_box_pack_start(self->toolbox, self->notebook, FALSE, FALSE, 0);
 
+	gtk_box_pack_start(self->toolbox, new_transform(self, TRUE), FALSE, FALSE, 0);
+
 	/* Initialize this to some dummy image to keep it simple */
 	self->histogram_dataset = rs_image16_new(1,1,4,4);
 
@@ -187,7 +191,7 @@ rs_toolbox_init (RSToolbox *self)
 		gtk_scrolled_window_get_vadjustment (scrolled_window));
 	gtk_container_add (GTK_CONTAINER (viewport), GTK_WIDGET(self->toolbox));
 	gtk_container_add (GTK_CONTAINER (scrolled_window), viewport);
-
+		
 	rs_toolbox_set_selected_snapshot(self, 0);
 	rs_toolbox_set_photo(self, NULL);
 
@@ -425,6 +429,63 @@ new_snapshot_page(RSToolbox *toolbox, const gint snapshot)
 	gtk_box_pack_start(GTK_BOX(vbox), gui_box(_("Curve"), toolbox->curve[snapshot], "show_curve", TRUE), FALSE, FALSE, 0);
 
 	return vbox;
+}
+
+static void
+gui_transform_rot90_clicked(GtkWidget *w, RS_BLOB *rs)
+{
+	rs_core_action_group_activate("RotateClockwise");
+}
+
+static void
+gui_transform_rot270_clicked(GtkWidget *w, RS_BLOB *rs)
+{
+	rs_core_action_group_activate("RotateCounterClockwise");
+}
+
+static void
+gui_transform_mirror_clicked(GtkWidget *w, RS_BLOB *rs)
+{
+	rs_core_action_group_activate("Mirror");
+}
+
+static void
+gui_transform_flip_clicked(GtkWidget *w, RS_BLOB *rs)
+{
+	rs_core_action_group_activate("Flip");
+}
+
+static GtkWidget *
+new_transform(RSToolbox *toolbox, gboolean show)
+{
+	GtkWidget *hbox;
+	GtkWidget *flip;
+	GtkWidget *mirror;
+	GtkWidget *rot90;
+	GtkWidget *rot270;
+
+	hbox = gtk_hbox_new(FALSE, 0);
+	flip = gtk_button_new_from_stock(RS_STOCK_FLIP);
+	mirror = gtk_button_new_from_stock(RS_STOCK_MIRROR);
+	rot90 = gtk_button_new_from_stock(RS_STOCK_ROTATE_CLOCKWISE);
+	rot270 = gtk_button_new_from_stock(RS_STOCK_ROTATE_COUNTER_CLOCKWISE);
+
+	gui_tooltip_window(flip, _("Flip the photo over the x-axis"), NULL);
+	gui_tooltip_window(mirror, _("Mirror the photo over the y-axis"), NULL);
+	gui_tooltip_window(rot90, _("Rotate the photo 90 degrees clockwise"), NULL);
+	gui_tooltip_window(rot270, _("Rotate the photo 90 degrees counter clockwise"), NULL);
+
+	g_signal_connect(flip, "clicked", G_CALLBACK (gui_transform_flip_clicked), NULL);
+	g_signal_connect(mirror, "clicked", G_CALLBACK (gui_transform_mirror_clicked), NULL);
+	g_signal_connect(rot90, "clicked", G_CALLBACK (gui_transform_rot90_clicked), NULL);
+	g_signal_connect(rot270, "clicked", G_CALLBACK (gui_transform_rot270_clicked), NULL);
+
+	gtk_box_pack_start(GTK_BOX (hbox), flip, FALSE, FALSE, 0);
+	gtk_box_pack_start(GTK_BOX (hbox), mirror, FALSE, FALSE, 0);
+	gtk_box_pack_start(GTK_BOX (hbox), rot270, FALSE, FALSE, 0);
+	gtk_box_pack_start(GTK_BOX (hbox), rot90, FALSE, FALSE, 0);
+
+	return gui_box(_("Transforms"), hbox, "show_transforms", show);
 }
 
 GtkWidget *
