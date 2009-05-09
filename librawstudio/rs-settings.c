@@ -77,7 +77,7 @@ rs_settings_class_init (RSSettingsClass *klass)
 	);
 	g_object_class_install_property(object_class,
 		PROP_HUE, g_param_spec_float(
-			"hue", _("Hue"), _("Hue Rotation"),
+			"hue", _("Hue"), _("Hue"),
 			-180.0, 180.0, 0.0, G_PARAM_READWRITE)
 	);
 	g_object_class_install_property(object_class,
