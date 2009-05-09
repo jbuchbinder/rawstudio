@@ -223,7 +223,7 @@ rs_color_transform_set_from_settings(RSColorTransform *rct, RSSettings *settings
 		matrix4_color_hue(&rct->color_matrix, hue);
 	}
 
-	if (mask & MASK_WB || mask & MASK_CHANNELMIXER)
+	if ((mask & MASK_WB) || (mask & MASK_CHANNELMIXER))
 	{
 		const gfloat warmth;
 		const gfloat tint;
