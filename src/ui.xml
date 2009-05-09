@@ -38,6 +38,8 @@
    <menuitem action="AutoGroup" />
    <menuitem action="RotateClockwise" />
    <menuitem action="RotateCounterClockwise" />
+   <menuitem action="Flip" />
+   <menuitem action="Mirror" />
   </menu>
   <menu action="ViewMenu">
    <menuitem action="PreviousPhoto" />
