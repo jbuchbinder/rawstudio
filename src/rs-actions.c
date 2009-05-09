@@ -860,10 +860,10 @@ rs_get_core_action_group(RS_BLOB *rs)
 	{ "Group", NULL, _("_Group"), NULL, NULL, ACTION_CB(group_photos) },
 	{ "Ungroup", NULL, _("_Ungroup"), NULL, NULL, ACTION_CB(ungroup_photos) },
 	{ "AutoGroup", NULL, _("_Auto group"), NULL, NULL, ACTION_CB(auto_group_photos) },
-	{ "RotateClockwise", NULL, _("Rotate Clockwise"), NULL, NULL, ACTION_CB(rotate_clockwise) },
-	{ "RotateCounterClockwise", NULL, _("Rotate Counter Clockwise"), NULL, NULL, ACTION_CB(rotate_counter_clockwise) },
-	{ "Flip", NULL, _("Flip"), NULL, NULL, ACTION_CB(flip) },
-	{ "Mirror", NULL, _("Mirror"), NULL, NULL, ACTION_CB(mirror) },
+	{ "RotateClockwise", RS_STOCK_ROTATE_CLOCKWISE, _("Rotate Clockwise"), NULL, NULL, ACTION_CB(rotate_clockwise) },
+	{ "RotateCounterClockwise", RS_STOCK_ROTATE_COUNTER_CLOCKWISE, _("Rotate Counter Clockwise"), NULL, NULL, ACTION_CB(rotate_counter_clockwise) },
+	{ "Flip", RS_STOCK_FLIP, _("Flip"), NULL, NULL, ACTION_CB(flip) },
+	{ "Mirror", RS_STOCK_MIRROR, _("Mirror"), NULL, NULL, ACTION_CB(mirror) },
 
 	/* View menu */
 	{ "PreviousPhoto", GTK_STOCK_GO_BACK, _("_Previous photo"), "<control>Left", NULL, ACTION_CB(previous_photo) },
