@@ -50,7 +50,7 @@ const static BasicSettings basic[] = {
 	{ "denoise_luma",   0.1 },
 	{ "denoise_chroma", 0.1 },
 };
-#define NBASICS (7)
+#define NBASICS (9)
 
 const static BasicSettings channelmixer[] = {
 	{ "channelmixer_red",   1.0 },
