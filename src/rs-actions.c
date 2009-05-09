@@ -333,7 +333,7 @@ ACTION(paste_settings)
 	gint mask = 0xffffff; /* Should be RSSettingsMask, is gint to satisfy rs_conf_get_integer() */
 
 	GtkWidget *dialog, *cb_box;
-	GtkWidget *cb_exposure, *cb_saturation, *cb_hue, *cb_contrast, *cb_whitebalance, *cb_curve, *cb_sharpen;
+	GtkWidget *cb_exposure, *cb_saturation, *cb_hue, *cb_contrast, *cb_whitebalance, *cb_curve, *cb_sharpen, *cb_channelmixer;
 
 	if (rs->settings_buffer)
 	{
@@ -344,6 +344,7 @@ ACTION(paste_settings)
 		cb_contrast = gtk_check_button_new_with_label (_("Contrast"));
 		cb_whitebalance = gtk_check_button_new_with_label (_("White balance"));
 		cb_sharpen = gtk_check_button_new_with_label (_("Sharpen"));
+		cb_channelmixer = gtk_check_button_new_with_label (_("Channel mixer"));
 		cb_curve = gtk_check_button_new_with_label (_("Curve"));
 
 		rs_conf_get_integer(CONF_PASTE_MASK, &mask);
@@ -360,6 +361,8 @@ ACTION(paste_settings)
 			gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(cb_whitebalance), TRUE);
 		if (mask & MASK_SHARPEN)
 			gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(cb_sharpen), TRUE);
+		if (mask & MASK_CHANNELMIXER)
+			gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(cb_channelmixer), TRUE);
 		if (mask & MASK_CURVE)
 			gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(cb_curve), TRUE);
 
@@ -371,6 +374,7 @@ ACTION(paste_settings)
 		gtk_box_pack_start (GTK_BOX (cb_box), cb_contrast, FALSE, TRUE, 0);
 		gtk_box_pack_start (GTK_BOX (cb_box), cb_whitebalance, FALSE, TRUE, 0);
 		gtk_box_pack_start (GTK_BOX (cb_box), cb_sharpen, FALSE, TRUE, 0);
+		gtk_box_pack_start (GTK_BOX (cb_box), cb_channelmixer, FALSE, TRUE, 0);
 		gtk_box_pack_start (GTK_BOX (cb_box), cb_curve, FALSE, TRUE, 0);
 
 		dialog = gui_dialog_make_from_widget(GTK_STOCK_DIALOG_QUESTION, _("Select settings to paste"), cb_box);
@@ -396,6 +400,8 @@ ACTION(paste_settings)
 				mask |= MASK_WB;
 			if (GTK_TOGGLE_BUTTON(cb_sharpen)->active)
 				mask |= MASK_SHARPEN;
+			if (GTK_TOGGLE_BUTTON(cb_channelmixer)->active)
+				mask |= MASK_CHANNELMIXER;
 			if (GTK_TOGGLE_BUTTON(cb_curve)->active)
 				mask |= MASK_CURVE;
 			rs_conf_set_integer(CONF_PASTE_MASK, mask);
