@@ -52,9 +52,9 @@ const static BasicSettings basic[] = {
 #define NBASICS (7)
 
 const static BasicSettings channelmixer[] = {
-	{ "channelmixer_red",   0.1 },
-	{ "channelmixer_green", 0.1 },
-	{ "channelmixer_blue",  0.1 },
+	{ "channelmixer_red",   1.0 },
+	{ "channelmixer_green", 1.0 },
+	{ "channelmixer_blue",  1.0 },
 };
 #define NCHANNELMIXER (3)
 
