@@ -514,6 +514,15 @@ toolbox_copy_from_photo(RSToolbox *toolbox, const gint snapshot, const RSSetting
 				gtk_range_set_value(toolbox->ranges[snapshot][i], value);
 			}
 
+		/* Update channel mixer */
+		for(i=0;i<NCHANNELMIXER;i++)
+			if (mask)
+			{
+				gfloat value;
+				g_object_get(toolbox->photo->settings[snapshot], channelmixer[i].property_name, &value, NULL);
+				gtk_range_set_value(toolbox->channelmixer[snapshot][i], value);
+			}
+
 		/* Update curve */
 		if(mask & MASK_CURVE)
 		{
