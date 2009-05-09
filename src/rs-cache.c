@@ -112,12 +112,14 @@ rs_cache_save(RS_PHOTO *photo, const RSSettingsMask mask)
 		xmlTextWriterWriteFormatElement(writer, BAD_CAST "denoise_chroma", "%f",
 			photo->settings[id]->denoise_chroma);
 		if (mask & MASK_CHANNELMIXER)
-		xmlTextWriterWriteFormatElement(writer, BAD_CAST "channelmixer_red", "%f",
-			photo->settings[id]->channelmixer_red);
-		xmlTextWriterWriteFormatElement(writer, BAD_CAST "channelmixer_green", "%f",
-			photo->settings[id]->channelmixer_green);
-		xmlTextWriterWriteFormatElement(writer, BAD_CAST "channelmixer_blue", "%f",
-			photo->settings[id]->channelmixer_blue);
+		{
+			xmlTextWriterWriteFormatElement(writer, BAD_CAST "channelmixer_red", "%f",
+				photo->settings[id]->channelmixer_red);
+			xmlTextWriterWriteFormatElement(writer, BAD_CAST "channelmixer_green", "%f",
+				photo->settings[id]->channelmixer_green);
+			xmlTextWriterWriteFormatElement(writer, BAD_CAST "channelmixer_blue", "%f",
+				photo->settings[id]->channelmixer_blue);
+		}
 		if (mask & MASK_CURVE && photo->settings[id]->curve_nknots > 0)
 		{
 			xmlTextWriterStartElement(writer, BAD_CAST "curve");
