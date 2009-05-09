@@ -962,6 +962,7 @@ snapshot_changed(RSToolbox *toolbox, gint snapshot, RS_BLOB *rs)
 {
 	/* Switch preview widget to the correct snapshot */
 	rs_preview_widget_set_snapshot(RS_PREVIEW_WIDGET(rs->preview), 0, snapshot);
+	rs->current_setting = snapshot;
 }
 
 int
