@@ -1,0 +1,1061 @@
+# translation of cs.po to
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+#
+# Jakub Friedl <jfriedl@suse.cz>, 2007.
+# Roman Schulz <rschulz@centrum.cz>, 2009.
+msgid ""
+msgstr ""
+"Project-Id-Version: Rawstudio 1.1.1\n"
+"Report-Msgid-Bugs-To: rawstudio-dev@rawstudio.org\n"
+"POT-Creation-Date: 2009-01-11 04:26+0100\n"
+"PO-Revision-Date: 2008-04-17 22:04+0100\n"
+"Last-Translator: Anders Kvist <anders@kvistmail.dk>\n"
+"Language-Team: Rawstudio development <rawstudio-dev@rawstudio.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: KBabel 1.11.4\n"
+"Plural-Forms: nplurals=3; plural=(n==1) ? 0 : (n>=2 && n<=4) ? 1 : 2;\n"
+"X-Poedit-Language: Czech\n"
+"X-Poedit-Country: CZECH REPUBLIC\n"
+
+#, c-format
+msgid "%f - Original filename"
+msgstr "%f - Původní jméno souboru"
+
+#, c-format
+msgid "%2c - Incremental counter"
+msgstr "%2c - vzestupné počítadlo"
+
+#, c-format
+msgid "%s - Setting id (A, B or C)"
+msgstr ""
+
+msgid "Select color profile"
+msgstr "Vyberte barevný profil"
+
+msgid "All files"
+msgstr "Všechny soubory"
+
+msgid "Color profiles (icc and icm)"
+msgstr "Barevné profily (icc a icm)"
+
+msgid "Not a valid color profile."
+msgstr "Není platný barevný profil."
+
+#, fuzzy
+msgid ""
+"The file you selected does not appear to be a valid color profile for this "
+"version of Rawstudio."
+msgstr "Zvolený soubor zřejmě není platným barevným profilem."
+
+msgid "Enable color management (experimental)"
+msgstr "Povolit správu barev (experimentální)"
+
+msgid "Input profile"
+msgstr "Vstupní profil"
+
+msgid "BuiltInRGBProfile"
+msgstr "Vestavěný RGB profil"
+
+msgid "Display profile"
+msgstr "Profil obrazovky"
+
+msgid "sRGB"
+msgstr "sRGB"
+
+msgid "Export profile"
+msgstr "Exportní profil"
+
+msgid "Intent"
+msgstr "Záměr"
+
+msgid "Perceptual"
+msgstr "Perceptuální"
+
+msgid "Relative colormetric"
+msgstr "Relativní kolorimetrický"
+
+msgid "Saturation"
+msgstr "Sytost"
+
+msgid "Absolute colormetric"
+msgstr "Absolutní kolorimetrický"
+
+msgid "Background renderer active"
+msgstr "Vykreslování pozadí aktivní"
+
+msgid "Opening photo ..."
+msgstr "Otevírá se fotografie..."
+
+msgid "Couldn't open photo"
+msgstr "Nelze otevřít fotografii"
+
+msgid "Image opened"
+msgstr "Obrázek otevřen"
+
+msgid "Rawstudio"
+msgstr "Rawstudio"
+
+#, c-format
+msgid "Changed photo priority (*)"
+msgstr "Změněna priorita fotografie (*)"
+
+#, c-format
+msgid "Changed photo priority (D)"
+msgstr "Změněna priorita fotografie (D)"
+
+#, c-format
+msgid "Changed photo priority (%d)"
+msgstr "Změněna priorita fotografie (%d)"
+
+msgid "Preferences"
+msgstr "Předvolby"
+
+msgid "Preview background color:"
+msgstr "Náhled barvy pozadí:"
+
+msgid "Histogram height:"
+msgstr "Výška histogramu:"
+
+msgid "Show filenames in iconview"
+msgstr "Zobrazit jména souborů v pohledu na ikony"
+
+msgid "Use system theme"
+msgstr "Použít systémové téma"
+
+msgid "Place cache in home directory"
+msgstr "Umístit vyrovnávací paměť do domovského adresáře"
+
+msgid "Load 8 bit photos (jpeg, png, etc)"
+msgstr "Načíst 8bitové fotografie (JPEG, PNG, apod.)"
+
+#, fuzzy
+msgid "Preload photos"
+msgstr "Smazané fotografie"
+
+#, fuzzy
+msgid "Directory:"
+msgstr "Adresář otevřen"
+
+#, fuzzy
+msgid "Filename:"
+msgstr "Jméno souboru"
+
+#, fuzzy
+msgid "File type:"
+msgstr "Šablona jména souboru:"
+
+#. set default
+msgid "Filename example:"
+msgstr "Příklad jména souboru:"
+
+msgid "Save uncompressed TIFF"
+msgstr "Uložit nekomprimovaný TIFF"
+
+msgid "General"
+msgstr "Obecné"
+
+#. gtk_notebook_append_page(GTK_NOTEBOOK(notebook), batch_page, gtk_label_new(_("Batch")));
+#, fuzzy
+msgid "Quick export"
+msgstr "Soubor exportován"
+
+msgid "Colors"
+msgstr "Barvy"
+
+#, fuzzy
+msgid "Open recursive"
+msgstr "Otevřít křivku..."
+
+msgid "Tools"
+msgstr "Nástroje"
+
+msgid "Batch"
+msgstr "Dávka"
+
+msgid "Open"
+msgstr "Otevřít"
+
+msgid "Ready"
+msgstr "Připraveno"
+
+msgid "Progress"
+msgstr "Průběh"
+
+msgid "JPEG Quality:"
+msgstr "Kvalita JPEG:"
+
+msgid "Keep aspect"
+msgstr "Zachovat poměr stran"
+
+msgid "Width:"
+msgstr "Šířka:"
+
+msgid "Height:"
+msgstr "Výška:"
+
+msgid "Percent:"
+msgstr "Procento:"
+
+msgid "Export File"
+msgstr "Exportovat soubor"
+
+msgid "Exporting file ..."
+msgstr "Exportuje se soubor..."
+
+msgid "File exported"
+msgstr "Soubor exportován"
+
+msgid "File export canceled"
+msgstr "Export souboru zrušen"
+
+msgid "JPEG (Joint Photographic Experts Group)"
+msgstr "JPEG (Joint Photographic Experts Group)"
+
+msgid "PNG (Portable Network Graphics)"
+msgstr "PNG (Portable Network Graphics)"
+
+msgid "8-bit TIFF (Tagged Image File Format)"
+msgstr "8-bit TIFF (Tagged Image File Format)"
+
+msgid "16-bit TIFF (Tagged Image File Format)"
+msgstr "16-bit TIFF (Tagged Image File Format)"
+
+msgid "A"
+msgstr "A"
+
+msgid "B"
+msgstr "B"
+
+msgid "C"
+msgstr "C"
+
+msgid "Processing photos"
+msgstr "Zpracovávají se fotografie"
+
+msgid "Cancel"
+msgstr "Zrušit"
+
+msgid "Last image:"
+msgstr "Poslední obrázek:"
+
+#, c-format
+msgid "Time left: %dh %dm %ds"
+msgstr ""
+
+msgid "Time left: ..."
+msgstr ""
+
+#, c-format
+msgid "Loading %s ..."
+msgstr "Načítá se %s..."
+
+#, c-format
+msgid "Saving %s ..."
+msgstr "Ukládá se %s..."
+
+msgid "Icon"
+msgstr "Ikona"
+
+msgid "Filename"
+msgstr "Jméno souboru"
+
+msgid "Setting"
+msgstr "Nastavení"
+
+msgid "Start"
+msgstr "Spustit"
+
+msgid "Remove"
+msgstr "Odstranit"
+
+msgid "Remove all"
+msgstr "Odstranit vše"
+
+msgid "Photo size"
+msgstr "Velikost fotografie"
+
+msgid "Constant scale"
+msgstr "Konstatní poměr"
+
+msgid "Constant width"
+msgstr "Konstantní šířka"
+
+#, fuzzy
+msgid "Constant height"
+msgstr "Výška histogramu:"
+
+msgid "Maximum size"
+msgstr "Maximální velikost"
+
+msgid "Photo width:"
+msgstr "Šířka fotografie"
+
+msgid "pixels"
+msgstr ""
+
+#, fuzzy
+msgid "Photo height:"
+msgstr "Výška histogramu:"
+
+msgid "Photo scale:"
+msgstr ""
+
+msgid "%"
+msgstr "%"
+
+#, c-format
+msgid ""
+"Constant width:\n"
+"%d"
+msgstr ""
+
+#, fuzzy, c-format
+msgid ""
+"Constant height:\n"
+"%d"
+msgstr "Výška histogramu:"
+
+#, c-format
+msgid ""
+"Constant Scale:\n"
+"%d"
+msgstr ""
+
+#, c-format
+msgid ""
+"Maximum size:\n"
+"%d x %d"
+msgstr ""
+
+msgid "Choose output directory"
+msgstr "Zvolte výstupní adresář"
+
+msgid "Output directory:"
+msgstr "Výstupní adresář:"
+
+msgid "Filename template:"
+msgstr "Šablona jména souboru:"
+
+#, fuzzy
+msgid "Change"
+msgstr "Zrušit"
+
+#, fuzzy
+msgid "Export dimensions"
+msgstr "Adresář pro export:"
+
+#. All
+#, c-format
+msgid "* <small>(%d)</small>"
+msgstr "* <small>(%d)</small>"
+
+msgid "All photos (excluding deleted)"
+msgstr "Všechny fotografie (kromě smazaných)"
+
+#. 1
+#, c-format
+msgid "1 <small>(%d)</small>"
+msgstr "1 <small>(%d)</small>"
+
+msgid "Priority 1 photos"
+msgstr "Fotografie s prioritou 1"
+
+#. 2
+#, c-format
+msgid "2 <small>(%d)</small>"
+msgstr "2 <small>(%d)</small>"
+
+msgid "Priority 2 photos"
+msgstr "Fotografie s prioritou 2"
+
+#. 3
+#, c-format
+msgid "3 <small>(%d)</small>"
+msgstr "3 <small>(%d)</small>"
+
+msgid "Priority 3 photos"
+msgstr "Fotografie s prioritou 3"
+
+#. Unsorted
+#, c-format
+msgid "U <small>(%d)</small>"
+msgstr "U <small>(%d)</small>"
+
+msgid "Unprioritized photos"
+msgstr "Fotografie bez priority"
+
+#. Deleted
+#, c-format
+msgid "D <small>(%d)</small>"
+msgstr "D <small>(%d)</small>"
+
+msgid "Deleted photos"
+msgstr "Smazané fotografie"
+
+#. Due to popular demand, I will now add a very nice GTK+ label to the left
+#. of the notebook. We hope this will give our users an even better
+#. understanding of our interface. I was thinking about adding a button instead
+#. that said "ROCK ON!" to instantly play "AC/DC - Highway to Hell", but I
+#. believe this will be better for the end user
+#, fuzzy
+msgid "Priorities"
+msgstr "Průběh"
+
+#, c-format
+msgid ""
+"<big>%s</big>\n"
+"\n"
+msgstr ""
+
+#, c-format
+msgid "<b>Focal length</b>: %dmm\n"
+msgstr ""
+
+#, c-format
+msgid "<b>Shutter speed</b>: %.1fs\n"
+msgstr ""
+
+#, c-format
+msgid "<b>Shutter speed</b>: 1/%.0fs\n"
+msgstr ""
+
+#, c-format
+msgid "<b>Aperture</b>: F/%.01f\n"
+msgstr ""
+
+#, c-format
+msgid "<b>ISO</b>: %u\n"
+msgstr ""
+
+#, c-format
+msgid "<b>Time</b>: %s"
+msgstr ""
+
+msgid "Size"
+msgstr "Velikost"
+
+msgid "-"
+msgstr ""
+
+msgid "Grid"
+msgstr "Mřížka"
+
+msgid "None"
+msgstr "Žádný"
+
+msgid "Golden sections"
+msgstr "Zlaté řezy"
+
+msgid "Rule of thirds"
+msgstr "Pravidlo třetin"
+
+msgid "Golden triangles #1"
+msgstr "Zlaté trojúhelníky #1"
+
+msgid "Golden triangles #2"
+msgstr "Zlaté trojúhelníky #2"
+
+msgid "Harmonious triangles #1"
+msgstr "Harmonické trojúhelníky #1"
+
+msgid "Harmonious triangles #2"
+msgstr "Harmonické trojúhelníky #2"
+
+msgid "Aspect"
+msgstr "Poměr stran"
+
+msgid "Freeform"
+msgstr "Volně"
+
+msgid "ISO paper (A4)"
+msgstr "Formát A4"
+
+msgid "3:2 (35mm)"
+msgstr "3:2 (35mm)"
+
+msgid "4:3"
+msgstr "4:3"
+
+msgid "10:8 (SXGA)"
+msgstr "10:8 (SXGA)"
+
+msgid "16:10 (Wide XGA)"
+msgstr "16:10 (Wide XGA)"
+
+msgid "8:3 (Dualhead XGA)"
+msgstr "8:3 (Dualhead XGA)"
+
+msgid "1:1"
+msgstr "1:1"
+
+msgid "Golden rectangle"
+msgstr "Zlatý obdélník"
+
+msgid "Crop"
+msgstr "Oříznout"
+
+#, fuzzy
+msgid "Don't crop"
+msgstr "Zrušit oříznutí"
+
+msgid "Flip the photo over the x-axis"
+msgstr "Převrátit fotografii podle osy x"
+
+msgid "Mirror the photo over the y-axis"
+msgstr "Zrcadlit fotografii podle osy y"
+
+msgid "Rotate the photo 90 degrees clockwise"
+msgstr "Otočit fotografii o 90 stupňů ve směru hodinových ručiček"
+
+msgid "Rotate the photo 180 degrees"
+msgstr "Otočit fotografii o 180 stupňů"
+
+msgid "Rotate the photo 90 degrees counter clockwise"
+msgstr "Otočit fotografii o 90 stupňů proti směru hodinových ručiček"
+
+msgid "Transforms"
+msgstr "Transformace"
+
+msgid "Reset this setting"
+msgstr "Resetovat toto nastavení"
+
+msgid "Open curve ..."
+msgstr "Otevřít křivku..."
+
+msgid "Save curve as ..."
+msgstr "Uložit křivku jako..."
+
+msgid "Reset curve"
+msgstr "Resetovat křivku"
+
+msgid "Auto adjust curve ends"
+msgstr ""
+
+msgid " A "
+msgstr " A "
+
+msgid " B "
+msgstr " B "
+
+msgid " C "
+msgstr " C "
+
+#. Build GUI
+msgid "Exposure"
+msgstr "Expozice"
+
+msgid "Hue"
+msgstr "Odstín"
+
+msgid "Contrast"
+msgstr "Kontrast"
+
+#. Box it!
+msgid "Warmth/tint"
+msgstr "Teplota/tónování"
+
+msgid "Sharpen"
+msgstr "Doostření"
+
+msgid "Curve"
+msgstr "Křivka"
+
+msgid "Histogram"
+msgstr "Histogram"
+
+msgid "Open directory"
+msgstr "Otevřít adresář"
+
+msgid "Error exporting"
+msgstr "Chyba exportu"
+
+msgid "Error exporting photo to gimp."
+msgstr "Chyba exportu do gimpu."
+
+msgid "Deleting photos"
+msgstr "Mazání fotografií"
+
+msgid "Your files will be <b>permanently</b> deleted!"
+msgstr "Vaše soubory budou <b>trvale</b> smazány!"
+
+msgid "Delete photos"
+msgstr "Smazat fotografie"
+
+msgid "Copied settings"
+msgstr "Zkopírovaná nastavení"
+
+msgid "White balance"
+msgstr "Vyvážení bílé"
+
+msgid "Select settings to paste"
+msgstr "Vyberte nastavení pro vložení"
+
+msgid "Pasted settings"
+msgstr "Vložená nastavení"
+
+msgid "Nothing to paste"
+msgstr "Nic ke vložení"
+
+msgid "Buffer empty"
+msgstr "Prázdný buffer"
+
+msgid "Adjusting to auto white balance"
+msgstr "Automatická úprava vyvážení bílé"
+
+msgid "No white balance to set from"
+msgstr "Neexistuje vyvážení bílé k nastavení"
+
+msgid "Adjusting to camera white balance"
+msgstr "Vyvážení bílé podle fotoaparátu"
+
+msgid "Showing exposure mask"
+msgstr "Zobrazení expoziční masky"
+
+msgid "Hiding exposure mask"
+msgstr "Skrytí expoziční masky"
+
+#, fuzzy, c-format
+msgid " %s added to batch queue"
+msgstr "Přidáno do fronty"
+
+#, fuzzy, c-format
+msgid "%s already added to batch queue"
+msgstr "Je již ve frontě"
+
+#, fuzzy, c-format
+msgid "%d photos added to batch queue"
+msgstr "Přidáno do fronty"
+
+msgid ""
+"Select which settings to\n"
+"add to batch queue"
+msgstr ""
+"Zvolte, která nastavení\n"
+"přidat do fronty"
+
+msgid "Removed from batch queue"
+msgstr "Odstraněno z fronty"
+
+msgid "Not in batch queue"
+msgstr "Není ve frontě"
+
+msgid "A raw image converter for GTK+/GNOME"
+msgstr "Konvertor obrazového formátu raw pro GTK+/GNOME"
+
+msgid "_File"
+msgstr "_Soubor"
+
+msgid "_Edit"
+msgstr "_Úpravy"
+
+msgid "_Photo"
+msgstr "_Fotografie"
+
+msgid "_Set Priority"
+msgstr "_Nastavit prioritu"
+
+#, fuzzy
+msgid "_White Balance"
+msgstr "Vyvážení bílé"
+
+msgid "_View"
+msgstr "_Zobrazení"
+
+msgid "_Sort by"
+msgstr ""
+
+msgid "_Batch"
+msgstr "_Dávka"
+
+msgid "_Help"
+msgstr "_Nápověda"
+
+#. File menu
+#, fuzzy
+msgid "_Open Directory"
+msgstr "Otevřít adresář"
+
+#, fuzzy
+msgid "_Quick Export"
+msgstr "Soubor exportován"
+
+#, fuzzy
+msgid "_Export As"
+msgstr "Export"
+
+#, fuzzy
+msgid "_Export to Gimp"
+msgstr "Exportní profil"
+
+#, fuzzy
+msgid "_Reload directory"
+msgstr "Otevřít adresář"
+
+msgid "_Delete flagged photos"
+msgstr "_Smazat označené fotografie"
+
+msgid "_Quit"
+msgstr "_Ukončit"
+
+#. Edit menu
+msgid "_Revert settings"
+msgstr "_Obnovit nastavení"
+
+#, fuzzy
+msgid "_Copy settings"
+msgstr "Zkopírovaná nastavení"
+
+#, fuzzy
+msgid "_Paste settings"
+msgstr "Vložená nastavení"
+
+#, fuzzy
+msgid "_Reset settings"
+msgstr "Resetovat toto nastavení"
+
+#, fuzzy
+msgid "_Preferences"
+msgstr "Předvolby"
+
+#. Photo menu
+msgid "_Flag photo for deletion"
+msgstr ""
+
+msgid "_1"
+msgstr ""
+
+msgid "_2"
+msgstr ""
+
+msgid "_3"
+msgstr ""
+
+msgid "_Remove priority"
+msgstr ""
+
+msgid "_Auto"
+msgstr ""
+
+msgid "_Camera"
+msgstr ""
+
+#, fuzzy
+msgid "_Crop"
+msgstr "Oříznout"
+
+#, fuzzy
+msgid "_Uncrop"
+msgstr "Zrušit oříznutí"
+
+#, fuzzy
+msgid "_Straighten"
+msgstr "Narovnat"
+
+#, fuzzy
+msgid "_Unstraighten"
+msgstr "Zrušit narovnání"
+
+#, fuzzy
+msgid "_Group"
+msgstr "Oříznout"
+
+#, fuzzy
+msgid "_Ungroup"
+msgstr "Zrušit oříznutí"
+
+#, fuzzy
+msgid "_Auto group"
+msgstr "Zrušit oříznutí"
+
+#. View menu
+msgid "_Previous photo"
+msgstr "_Předchozí fotografie"
+
+msgid "_Next Photo"
+msgstr "_Další fotografie"
+
+msgid "_Zoom to fit"
+msgstr "_Přiblížit podle okna"
+
+msgid "_Zoom to 100%"
+msgstr "_Přiblížit 100%"
+
+#. Batch menu
+#, fuzzy
+msgid "_Add to batch queue"
+msgstr "Přidat do fronty"
+
+msgid "_Add current view to queue"
+msgstr "_Přidat aktuální pohled do fronty"
+
+#, fuzzy
+msgid "_Remove from batch queue"
+msgstr "Odstraněno z fronty"
+
+#, fuzzy
+msgid "_Start"
+msgstr "Spustit"
+
+#. help menu
+msgid "_About"
+msgstr "O aplikaci"
+
+#, fuzzy
+msgid "_Iconbox"
+msgstr "Ikona"
+
+#, fuzzy
+msgid "_Toolbox"
+msgstr "Nástroje"
+
+msgid "_Fullscreen"
+msgstr "_Celá obrazovka"
+
+#, fuzzy
+msgid "_Exposure mask"
+msgstr "Expozice"
+
+msgid "_Split"
+msgstr ""
+
+msgid "Name"
+msgstr ""
+
+msgid "Timestamp"
+msgstr "Časové razítko"
+
+#, fuzzy
+msgid "ISO"
+msgstr "ISO%d"
+
+msgid "Aperture"
+msgstr "Clona"
+
+msgid "Focallength"
+msgstr "Ohnisko"
+
+msgid "Shutterspeed"
+msgstr "Expozice"
+
+#~ msgid "%dmm "
+#~ msgstr "%dmm "
+
+#, fuzzy
+#~ msgid "%.1fs "
+#~ msgstr "%.1f "
+
+#, fuzzy
+#~ msgid "1/%.0fs "
+#~ msgstr "1/%.0f "
+
+#~ msgid "F/%.1f "
+#~ msgstr "F/%.1f "
+
+#~ msgid "No metadata"
+#~ msgstr "Chybí metadata"
+
+#~ msgid "Canon CR2"
+#~ msgstr "Canon CR2"
+
+#~ msgid "Canon CIFF"
+#~ msgstr "Canon CIFF"
+
+#~ msgid "Nikon NEF"
+#~ msgstr "Nikon NEF"
+
+#~ msgid "Minolta raw"
+#~ msgstr "Minolta raw"
+
+#~ msgid "Canon TIFF"
+#~ msgstr "Canon TIFF"
+
+#~ msgid "Sony"
+#~ msgstr "Sony"
+
+#~ msgid "Kodak"
+#~ msgstr "Kodak"
+
+#~ msgid "Sigma"
+#~ msgstr "Sigma"
+
+#~ msgid "Panasonic raw"
+#~ msgstr "Panasonic raw"
+
+#~ msgid "Pentax raw"
+#~ msgstr "Pentax raw"
+
+#, fuzzy
+#~ msgid "Opening directory..."
+#~ msgstr "Otevírá se adresář..."
+
+#, fuzzy
+#~ msgid "Added view to batch queue"
+#~ msgstr "Pohled(y) přidány do fronty"
+
+#~ msgid "/File/_Open directory..."
+#~ msgstr "/Soubor/_Otevřít adresář..."
+
+#, fuzzy
+#~ msgid "/File/_Quick export"
+#~ msgstr "/Soubor/_Exportovat"
+
+#~ msgid "/File/_Export as..."
+#~ msgstr "/Soubor/_Exportovat jako..."
+
+#~ msgid "/File/_Reload"
+#~ msgstr "/Soubor/_Znovu načíst"
+
+#~ msgid "/_Edit/_Copy settings"
+#~ msgstr "/_Úpravy/_Kopírovat nastavení"
+
+#~ msgid "/_Edit/_Paste settings"
+#~ msgstr "/_Úpravy/_Vložit nastavení"
+
+#~ msgid "/_Edit/_Reset current settings"
+#~ msgstr "/_Úpravy/_Resetovat aktuální nastavení"
+
+#~ msgid "/_Edit/sep1"
+#~ msgstr "/_Úpravy/sep1"
+
+#~ msgid "/_Edit/_Preferences"
+#~ msgstr "/_Úpravy/_Předvolby"
+
+#~ msgid "/_Photo/_Set priority/_2"
+#~ msgstr "/_Fotografie/_Nastavit prioritu/_2"
+
+#~ msgid "/_Photo/_Set priority/_3"
+#~ msgstr "/_Fotografie/_Nastavit prioritu/_3"
+
+#~ msgid "/_Photo/_Set priority/_Remove priority"
+#~ msgstr "/_Fotografie/_Nastavit prioritu/_Odstranit prioritu"
+
+#~ msgid "/_Photo/_White balance/_Auto"
+#~ msgstr "/_Fotografie/_Vyvážení bílé/_Automaticky"
+
+#~ msgid "/_Photo/_White balance/_Camera"
+#~ msgstr "/_Fotografie/_Vyvážení bílé/_Fotoaparát"
+
+#~ msgid "/_Photo/_Uncrop"
+#~ msgstr "/_Fotografie/_Zrušit oříznutí"
+
+#~ msgid "/_Photo/_Straighten"
+#~ msgstr "/_Fotografie/_Narovnat"
+
+#~ msgid "/_Photo/_Unstraighten"
+#~ msgstr "/_Fotografie/_Zrušit narovnání"
+
+#, fuzzy
+#~ msgid "/_Photo/_Group photos"
+#~ msgstr "/_Fotografie/_Oříznout"
+
+#, fuzzy
+#~ msgid "/_Photo/_Ungroup photos"
+#~ msgstr "/_Fotografie/_Zrušit oříznutí"
+
+#~ msgid "/_View/sep1"
+#~ msgstr "/_Zobrazení/sep1"
+
+#~ msgid "/_View/_Zoom in"
+#~ msgstr "/_Zobrazení/_Příbližit"
+
+#~ msgid "/_View/_Zoom out"
+#~ msgstr "/_Zobrazení/_Oddálit"
+
+#~ msgid "/_View/_Zoom to fit"
+#~ msgstr "/_Zobrazeni/_Přiblížit podle okna"
+
+#~ msgid "/_View/_Zoom to 100%"
+#~ msgstr "/_Zobrazení/_Přiblížit 100%"
+
+#~ msgid "/_View/sep2"
+#~ msgstr "/_Zobrazení/sep2"
+
+#~ msgid "/_View/_Icon Box"
+#~ msgstr "/_Zobrazení/_Panel ikon"
+
+#~ msgid "/_View/_Tool Box"
+#~ msgstr "/_Zobrazení/_Nástrojový panel"
+
+#~ msgid "/_View/sep3"
+#~ msgstr "/_Zobrazení/sep3"
+
+#~ msgid "/_View/_Show exposure mask"
+#~ msgstr "/_Zobrazení/_Zobrazit expoziční masku"
+
+#~ msgid "/_Batch/_Add to batch queue"
+#~ msgstr "/_Dávka/_Přidat do fronty"
+
+#~ msgid "/_Batch/_Remove from batch queue"
+#~ msgstr "/_Dávka/_Odstranit z fronty"
+
+#~ msgid "/_Batch/_Start"
+#~ msgstr "/_Dávka/_Spustit"
+
+#, fuzzy
+#~ msgid "Toggle exposure mask"
+#~ msgstr "Zobrazení expoziční masky"
+
+#, fuzzy
+#~ msgid "Zoom out"
+#~ msgstr "/_Zobrazení/_Oddálit"
+
+#, fuzzy
+#~ msgid "Zoom in"
+#~ msgstr "/_Zobrazení/_Příbližit"
+
+#~ msgid "Apply"
+#~ msgstr "Použít"
+
+#~ msgid "Export filename:"
+#~ msgstr "Jméno souboru pro export:"
+
+#~ msgid "Export filetype:"
+#~ msgstr "Typ souboru pro export:"
+
+#~ msgid "px"
+#~ msgstr "px"
+
+#~ msgid "Set image size by scale:"
+#~ msgstr "nastavit velikost obrázku měřítkem:"
+
+#~ msgid "Set image size by width:"
+#~ msgstr "Nastavit velikost obrázku podle šířky:"
+
+#~ msgid "Set image size by height:"
+#~ msgstr "Nastavit velikost obrázku podle výšky:"
+
+#~ msgid "%d x %d"
+#~ msgstr "%d x %d"
+
+#~ msgid "Left-click and drag to draw guide"
+#~ msgstr "Vytvořte vodítko kliknutím levým tlačítkem a tažením"
+
+#~ msgid "Cancel straighten"
+#~ msgstr "Zrušit narovnání"
+
+#~ msgid "Angle: %.02f"
+#~ msgstr "Úhel: %.02f"
+
+#~ msgid "Flip"
+#~ msgstr "Převrátit"
+
+#~ msgid "Mirror"
+#~ msgstr "Zrcadlit"
+
+#~ msgid "CW"
+#~ msgstr "Ve směru hodinových ručiček"
+
+#~ msgid "180"
+#~ msgstr "180"
+
+#~ msgid "CCW"
+#~ msgstr "Proti směru hodinových ručiček"
+
+#~ msgid "Open Curve ..."
+#~ msgstr "Otevřít křivku..."
+
+#~ msgid "Scale"
+#~ msgstr "Měřítko"

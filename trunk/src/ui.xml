@@ -1,0 +1,106 @@
+<ui>
+ <menubar name="MainMenu">
+  <menu action="FileMenu">
+   <menuitem action="Open" />
+   <menuitem action="QuickExport" />
+   <menuitem action="ExportAs" />
+   <menuitem action="ExportToGimp" />
+   <menuitem action="Reload" />
+   <menuitem action="DeleteFlagged" />
+   <menuitem action="Quit" />
+  </menu>
+  <menu action="EditMenu">
+   <menuitem action="RevertSettings" />
+   <menuitem action="CopySettings" />
+   <menuitem action="PasteSettings" />
+   <menuitem action="ResetSettings" />
+   <separator />
+   <menuitem action="Preferences" />
+  </menu>
+  <menu action="PhotoMenu">
+   <menuitem action="FlagPhoto" />
+   <menu action="PriorityMenu">
+    <menuitem action="Priority1" />
+    <menuitem action="Priority2" />
+    <menuitem action="Priority3" />
+    <menuitem action="RemovePriority" />
+   </menu>
+   <menu action="WhiteBalanceMenu">
+    <menuitem action="AutoWB" />
+    <menuitem action="CameraWB" />
+   </menu>
+   <menuitem action="Crop" />
+   <menuitem action="Uncrop" />
+   <menuitem action="Straighten" />
+   <menuitem action="Unstraighten" />
+   <menuitem action="Group" />
+   <menuitem action="Ungroup" />
+   <menuitem action="AutoGroup" />
+   <menuitem action="RotateClockwise" />
+   <menuitem action="RotateCounterClockwise" />
+   <menuitem action="Flip" />
+   <menuitem action="Mirror" />
+  </menu>
+  <menu action="ViewMenu">
+   <menuitem action="PreviousPhoto" />
+   <menuitem action="NextPhoto" />
+   <menu action="SortByMenu">
+    <menuitem action="SortByName" />
+    <menuitem action="SortByTimestamp" />
+	<menuitem action="SortByISO" />
+	<menuitem action="SortByAperture" />
+	<menuitem action="SortByFocallength" />
+	<menuitem action="SortByShutterspeed" />
+   </menu>
+   <separator />
+   <menuitem action="ZommToFit" />
+   <menuitem action="ZoomTo100" />
+   <separator />
+   <menuitem action="Iconbox" />
+   <menuitem action="Toolbox" />
+   <menuitem action="Fullscreen" />
+   <separator />
+   <menuitem action="ExposureMask" />
+   <menuitem action="Split" />
+   <menuitem action="Lightsout" />
+  </menu>
+  <menu action="BatchMenu">
+   <menuitem action="AddToBatch" />
+   <menuitem action="AddViewToBatch" />
+   <menuitem action="RemoveFromBatch" />
+   <menuitem action="ProcessBatch" />
+  </menu>
+  <menu action="HelpMenu">
+   <menuitem action="About" />
+  </menu>
+ </menubar>
+ <popup name="PreviewPopup" action="PreviewPopup">
+   <menuitem action="ZommToFit" />
+   <menuitem action="ZoomTo100" />
+   <separator />
+  <menuitem action="Crop" />
+  <menuitem action="Uncrop" />
+  <menuitem action="Straighten" />
+  <menuitem action="Unstraighten" />
+  <separator />
+  <menuitem action="ExposureMask" />
+  <menuitem action="Split" />
+  <menuitem action="Lightsout" />
+ </popup>
+ <popup name="PreviewPopupRight" action="PreviewPopupRight">
+  <menuitem action="RightA" />
+  <menuitem action="RightB" />
+  <menuitem action="RightC" />
+  <separator />
+   <menuitem action="ZommToFit" />
+   <menuitem action="ZoomTo100" />
+   <separator />
+  <menuitem action="Crop" />
+  <menuitem action="Uncrop" />
+  <menuitem action="Straighten" />
+  <menuitem action="Unstraighten" />
+  <separator />
+  <menuitem action="ExposureMask" />
+  <menuitem action="Split" />
+ </popup>
+</ui>

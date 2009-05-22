@@ -1,0 +1,12 @@
+Rawstudio should compile on must UNIX'es (only tested on major Linux distributions).
+
+Rawstudio requires the following libraries:
+ - GTK+ 2.6
+ - glib 2.6
+ - gconf
+ - libxml
+ - libjpeg 6b
+ - libtiff
+ - liblcms (Little CMS)
+
+Fast processor with MMX, 3DNow! or SSE recommended.

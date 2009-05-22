@@ -1,0 +1,61 @@
+Mews for version 1.2:
+This release adds a lot of small incremental improvements like sorting
+photos based on various photo data, more verbose tooltips for thumbnails
+and threaded loading of thumbnails and the usual swarm of bugfixes.
+
+News for version 1.1.1:
+This is a bugfix release fixing bug 221, 222, 223, 227, 230.
+
+News for version 1.1:
+This release adds the much needed EXIF-awareness! We have added support for
+a lot of new cameras and the usual truckload of bugfixes.
+
+News for version 1.0:
+This release adds a new sharpen-tool, exporting to GIMP for further editing,
+a nice in-window directory selector with optional recursive loading, the
+GUI has been spiced up to look much more modern, Rawstudio has been
+translated to more than 10 languages and as usual a ton of bugfixes and
+minor enhancements!
+
+News for version 0.7:
+This release finally adds demosaic allowing photographers to work with and
+export photos at full resolution. We got nicer Cairo-based graphics and a
+ton of bugfixes as usual.
+
+News for version 0.6:
+This release adds the much awaited curve-tool and supprt for DNG-files and
+more cameras. Rawstudio now remembers the state of the GUI and a progressbar
+is added for slow operations. Adjustments can be added to multiple files in
+one operation and finally we got a lot of shiny new icons.
+
+News for version 0.5.1:
+This release fixes numerous minor bugs.
+
+News for version 0.5:
+This release has a lot of new features like batch processing, crop and 
+straighten tools. There has also been added support for a lot more camers,
+support for 16 bit export, more output formats and last of all various GUI 
+enhancements.
+
+News for version 0.4.1:
+This release fixes a nasty bug when loading images on non 32bit x86.
+
+News for version 0.4:
+This release adds much needed color management with Little CMS, more sensible
+defaults when opening photos from Canon/Nikon cameras, lots of small
+improvements and even a shiny new icon.
+
+News for version 0.3:
+This release adds better zoom, tooltips, for camera whitebalance and native
+thumbnail support for most supported cameras, saving in more file formats,
+one-key export, many cosmetic enhancements and bugfixes.
+
+News for version 0.2:
+Local cache directory, support for older glib. Lots of code cleanups. Many
+bugfixes.
+
+New features for version 0.1:
+Preference dialog, fullscreen mode, whitebalance-adjustment, xml settings
+cache, photo-sorting, runtime mmx/sse/3dnow-optimization - more speed!,
+basic exif-reading, native thumbnail reading for some cameras, exposure mask,
+copy/paste settings, nice graphics - many bugfixes and much more.

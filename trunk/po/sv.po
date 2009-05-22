@@ -1,0 +1,870 @@
+# English translation for Rawstudio.
+# Copyright (C) 2006-2008 Anders Brander <anders@brander.dk> and Anders Kvist <akv@lnxbx.dk>
+# This file is distributed under the same license as the Rawstudio package.
+#
+# Simone Contini <s.contini@oltrelinux.com>, 2008.
+msgid ""
+msgstr ""
+"Project-Id-Version: Rawstudio 1.1.1\n"
+"Report-Msgid-Bugs-To: rawstudio-dev@rawstudio.org\n"
+"POT-Creation-Date: 2009-01-11 04:26+0100\n"
+"PO-Revision-Date: 2008-05-03 12:21+0100\n"
+"Last-Translator: Patrik Jarl <swedish.po@gmail.com>\n"
+"Language-Team: Rawstudio development <rawstudio-dev@rawstudio.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Poedit-Language: English\n"
+
+#, c-format
+msgid "%f - Original filename"
+msgstr "%f - Ursprungligt filnamn"
+
+#, c-format
+msgid "%2c - Incremental counter"
+msgstr "%2c - Ökande räknare"
+
+#, c-format
+msgid "%s - Setting id (A, B or C)"
+msgstr "%s - Inställning (A, B or C)"
+
+msgid "Select color profile"
+msgstr "Välj färgprofil"
+
+msgid "All files"
+msgstr "Alla filer"
+
+msgid "Color profiles (icc and icm)"
+msgstr "Färgprofil (icc och icm)"
+
+msgid "Not a valid color profile."
+msgstr "Inte en giltig färgprofil."
+
+msgid ""
+"The file you selected does not appear to be a valid color profile for this "
+"version of Rawstudio."
+msgstr ""
+"Filen du valde verkar inte vara en giltig färgprofilför denna version av "
+"Rawstudio."
+
+msgid "Enable color management (experimental)"
+msgstr "Aktivera färghantering (exprementell)"
+
+msgid "Input profile"
+msgstr "Indata profil"
+
+msgid "BuiltInRGBProfile"
+msgstr "Inbyggd RGB-profilBuiltInRGBProfile"
+
+msgid "Display profile"
+msgstr "Skärmprofil"
+
+msgid "sRGB"
+msgstr "sRGB"
+
+msgid "Export profile"
+msgstr "Exportprofil"
+
+msgid "Intent"
+msgstr "Avsikt"
+
+msgid "Perceptual"
+msgstr "Uppfattning"
+
+msgid "Relative colormetric"
+msgstr "Relativ färgmetrisk"
+
+msgid "Saturation"
+msgstr "Mättnad"
+
+msgid "Absolute colormetric"
+msgstr "Absolut färgmetrisk"
+
+msgid "Background renderer active"
+msgstr "Bakgrundsrendering pågår"
+
+msgid "Opening photo ..."
+msgstr "Öppnar foto ..."
+
+msgid "Couldn't open photo"
+msgstr "Kunde inte öppna foto"
+
+msgid "Image opened"
+msgstr "Bild öppnad"
+
+msgid "Rawstudio"
+msgstr "Rawstudio"
+
+#, c-format
+msgid "Changed photo priority (*)"
+msgstr "Bildprioritet ändrad (*)"
+
+#, c-format
+msgid "Changed photo priority (D)"
+msgstr "Bildprioritet ändrad (D)"
+
+#, c-format
+msgid "Changed photo priority (%d)"
+msgstr "Bildprioritet ändrad (%d)"
+
+msgid "Preferences"
+msgstr "Egenskaper"
+
+msgid "Preview background color:"
+msgstr "Förhandsgranska bakgrundsfärger:"
+
+msgid "Histogram height:"
+msgstr "Histogram höjd:"
+
+msgid "Show filenames in iconview"
+msgstr "Visa filnamn i ikonvy"
+
+msgid "Use system theme"
+msgstr "Använd systemtema"
+
+msgid "Place cache in home directory"
+msgstr "Mellanlagra i hemkatalogen"
+
+msgid "Load 8 bit photos (jpeg, png, etc)"
+msgstr "Ladda 8 bitars foto (jpeg, png, etc)"
+
+msgid "Preload photos"
+msgstr "Förhandsladda foton"
+
+msgid "Directory:"
+msgstr "Katalog:"
+
+msgid "Filename:"
+msgstr "Filnamn:"
+
+msgid "File type:"
+msgstr "Filtyp:"
+
+#. set default
+msgid "Filename example:"
+msgstr "Filnamnsexampel:"
+
+msgid "Save uncompressed TIFF"
+msgstr "Spara i okomprimerad TIFF"
+
+msgid "General"
+msgstr "Allmän"
+
+#. gtk_notebook_append_page(GTK_NOTEBOOK(notebook), batch_page, gtk_label_new(_("Batch")));
+msgid "Quick export"
+msgstr "Snabb export"
+
+msgid "Colors"
+msgstr "Färger"
+
+msgid "Open recursive"
+msgstr "Öppna rekursivt"
+
+msgid "Tools"
+msgstr "Verktyg"
+
+msgid "Batch"
+msgstr "Processering"
+
+msgid "Open"
+msgstr "Öppna"
+
+msgid "Ready"
+msgstr "Färdig"
+
+msgid "Progress"
+msgstr "Framgång"
+
+msgid "JPEG Quality:"
+msgstr "JPEG Kvalitet:"
+
+msgid "Keep aspect"
+msgstr "Behåll höjd-breddförhållandet"
+
+msgid "Width:"
+msgstr "Bredd:"
+
+msgid "Height:"
+msgstr "Höjd:"
+
+msgid "Percent:"
+msgstr "Procent:"
+
+msgid "Export File"
+msgstr "Exportera Fil"
+
+msgid "Exporting file ..."
+msgstr "Exporterar fil ..."
+
+msgid "File exported"
+msgstr "Fil exporterad"
+
+msgid "File export canceled"
+msgstr "Filexport avbruten"
+
+msgid "JPEG (Joint Photographic Experts Group)"
+msgstr "JPEG (Joint Photographic Experts Group)"
+
+msgid "PNG (Portable Network Graphics)"
+msgstr "PNG (Portable Network Graphics)"
+
+msgid "8-bit TIFF (Tagged Image File Format)"
+msgstr "8-bit TIFF (Tagged Image File Format)"
+
+msgid "16-bit TIFF (Tagged Image File Format)"
+msgstr "16-bit TIFF (Tagged Image File Format)"
+
+msgid "A"
+msgstr "A"
+
+msgid "B"
+msgstr "B"
+
+msgid "C"
+msgstr "C"
+
+msgid "Processing photos"
+msgstr "Bearbetar foton"
+
+msgid "Cancel"
+msgstr "Avbryt"
+
+msgid "Last image:"
+msgstr "Sista bild:"
+
+#, c-format
+msgid "Time left: %dh %dm %ds"
+msgstr "Återstående tid: %dh %dm %ds"
+
+msgid "Time left: ..."
+msgstr "Återstående tidt: ..."
+
+#, c-format
+msgid "Loading %s ..."
+msgstr "Läser  %s ..."
+
+#, c-format
+msgid "Saving %s ..."
+msgstr "Sparar %s ..."
+
+msgid "Icon"
+msgstr "Ikon"
+
+msgid "Filename"
+msgstr "Filnamn"
+
+msgid "Setting"
+msgstr "Inställning"
+
+msgid "Start"
+msgstr "Starta"
+
+msgid "Remove"
+msgstr "Radera"
+
+msgid "Remove all"
+msgstr "Radera alla"
+
+msgid "Photo size"
+msgstr "Fotostorlek"
+
+msgid "Constant scale"
+msgstr "Konstant skalning"
+
+msgid "Constant width"
+msgstr "Konstant bredd"
+
+msgid "Constant height"
+msgstr "Konstant höjd"
+
+msgid "Maximum size"
+msgstr "Maximal storlek"
+
+msgid "Photo width:"
+msgstr "Fotobredd:"
+
+msgid "pixels"
+msgstr "pixels"
+
+msgid "Photo height:"
+msgstr "Fotohöjd:"
+
+msgid "Photo scale:"
+msgstr "Fotoskala:"
+
+msgid "%"
+msgstr "%"
+
+#, c-format
+msgid ""
+"Constant width:\n"
+"%d"
+msgstr ""
+"Konstant bredd:\n"
+"%d"
+
+#, c-format
+msgid ""
+"Constant height:\n"
+"%d"
+msgstr ""
+"Konstant höjd:\n"
+"%d"
+
+#, c-format
+msgid ""
+"Constant Scale:\n"
+"%d"
+msgstr ""
+"Konstant skala:\n"
+"%d"
+
+#, c-format
+msgid ""
+"Maximum size:\n"
+"%d x %d"
+msgstr ""
+"Maximal storlek:\n"
+"%d x %d"
+
+msgid "Choose output directory"
+msgstr "Välj destinationskatalog"
+
+msgid "Output directory:"
+msgstr "Destinationskatalog:"
+
+msgid "Filename template:"
+msgstr "Filnamnsmall:"
+
+msgid "Change"
+msgstr "Ändra"
+
+msgid "Export dimensions"
+msgstr "Exportera dimensioner"
+
+#. All
+#, c-format
+msgid "* <small>(%d)</small>"
+msgstr "* <small>(%d)</small>"
+
+msgid "All photos (excluding deleted)"
+msgstr "Alla foton (förutom raderade)"
+
+#. 1
+#, c-format
+msgid "1 <small>(%d)</small>"
+msgstr "1 <small>(%d)</small>"
+
+msgid "Priority 1 photos"
+msgstr "Prioritet 1 foton"
+
+#. 2
+#, c-format
+msgid "2 <small>(%d)</small>"
+msgstr "2 <small>(%d)</small>"
+
+msgid "Priority 2 photos"
+msgstr "Prioritet 2 foton"
+
+#. 3
+#, c-format
+msgid "3 <small>(%d)</small>"
+msgstr "3 <small>(%d)</small>"
+
+msgid "Priority 3 photos"
+msgstr "Prioritet 3 foton"
+
+#. Unsorted
+#, c-format
+msgid "U <small>(%d)</small>"
+msgstr "U <small>(%d)</small>"
+
+msgid "Unprioritized photos"
+msgstr "Oprioriterade foton"
+
+#. Deleted
+#, c-format
+msgid "D <small>(%d)</small>"
+msgstr "D <small>(%d)</small>"
+
+msgid "Deleted photos"
+msgstr "Raderade foton"
+
+#. Due to popular demand, I will now add a very nice GTK+ label to the left
+#. of the notebook. We hope this will give our users an even better
+#. understanding of our interface. I was thinking about adding a button instead
+#. that said "ROCK ON!" to instantly play "AC/DC - Highway to Hell", but I
+#. believe this will be better for the end user
+msgid "Priorities"
+msgstr "Prioriteter"
+
+#, c-format
+msgid ""
+"<big>%s</big>\n"
+"\n"
+msgstr ""
+
+#, c-format
+msgid "<b>Focal length</b>: %dmm\n"
+msgstr ""
+
+#, c-format
+msgid "<b>Shutter speed</b>: %.1fs\n"
+msgstr ""
+
+#, c-format
+msgid "<b>Shutter speed</b>: 1/%.0fs\n"
+msgstr ""
+
+#, c-format
+msgid "<b>Aperture</b>: F/%.01f\n"
+msgstr ""
+
+#, c-format
+msgid "<b>ISO</b>: %u\n"
+msgstr ""
+
+#, c-format
+msgid "<b>Time</b>: %s"
+msgstr ""
+
+msgid "Size"
+msgstr "Storlek"
+
+msgid "-"
+msgstr "-"
+
+msgid "Grid"
+msgstr "Rutnät"
+
+msgid "None"
+msgstr "Ingen"
+
+msgid "Golden sections"
+msgstr "Gyllene snittet"
+
+msgid "Rule of thirds"
+msgstr "Tredjedels-regeln"
+
+msgid "Golden triangles #1"
+msgstr "Gyllene trianglar #1"
+
+msgid "Golden triangles #2"
+msgstr "Gyllene trianglar #2"
+
+msgid "Harmonious triangles #1"
+msgstr "Harmoniska trianglar #1"
+
+msgid "Harmonious triangles #2"
+msgstr "Harmoniska trianglar #2"
+
+msgid "Aspect"
+msgstr "Förhållande"
+
+msgid "Freeform"
+msgstr "Fri form"
+
+msgid "ISO paper (A4)"
+msgstr "ISO papper (A4)"
+
+msgid "3:2 (35mm)"
+msgstr "3:2 (35mm)"
+
+msgid "4:3"
+msgstr "4:3"
+
+msgid "10:8 (SXGA)"
+msgstr "10:8 (SXGA)"
+
+msgid "16:10 (Wide XGA)"
+msgstr "16:10 (Wide XGA)"
+
+msgid "8:3 (Dualhead XGA)"
+msgstr "8:3 (Dualhead XGA)"
+
+msgid "1:1"
+msgstr "1:1"
+
+msgid "Golden rectangle"
+msgstr "Gyllene retangel"
+
+msgid "Crop"
+msgstr "Beskär"
+
+msgid "Don't crop"
+msgstr "Beskär inte"
+
+msgid "Flip the photo over the x-axis"
+msgstr "Vänd fotot lodrätt"
+
+msgid "Mirror the photo over the y-axis"
+msgstr "Vänd fotot vågrätt"
+
+msgid "Rotate the photo 90 degrees clockwise"
+msgstr "Rotera fotot 90 grader medsols"
+
+msgid "Rotate the photo 180 degrees"
+msgstr "Rotera fotot 180 grader"
+
+msgid "Rotate the photo 90 degrees counter clockwise"
+msgstr "Rotera fotot 90 grader motsols"
+
+msgid "Transforms"
+msgstr "Transformera"
+
+msgid "Reset this setting"
+msgstr "Återställ inställning"
+
+msgid "Open curve ..."
+msgstr "Öppna kurva ..."
+
+msgid "Save curve as ..."
+msgstr "Spara kurva som ..."
+
+msgid "Reset curve"
+msgstr "Återställ kurva"
+
+msgid "Auto adjust curve ends"
+msgstr "Autojustera kurvändpunkter"
+
+msgid " A "
+msgstr " A "
+
+msgid " B "
+msgstr " B "
+
+msgid " C "
+msgstr " C "
+
+#. Build GUI
+msgid "Exposure"
+msgstr "Exponering"
+
+msgid "Hue"
+msgstr "Färgmättnad"
+
+msgid "Contrast"
+msgstr "Konstrast"
+
+#. Box it!
+msgid "Warmth/tint"
+msgstr "Värme/nyans"
+
+msgid "Sharpen"
+msgstr "Mer skärpa"
+
+msgid "Curve"
+msgstr "Kurva"
+
+msgid "Histogram"
+msgstr "Histogram"
+
+msgid "Open directory"
+msgstr "Öppna katalog"
+
+msgid "Error exporting"
+msgstr "Misslyckad export"
+
+msgid "Error exporting photo to gimp."
+msgstr "Misslyckades exportera foto till gimp."
+
+msgid "Deleting photos"
+msgstr "Raderar foton"
+
+msgid "Your files will be <b>permanently</b> deleted!"
+msgstr "Dina filer kommer raderas <b>permanent</b>!"
+
+msgid "Delete photos"
+msgstr "Radera foton"
+
+msgid "Copied settings"
+msgstr "Inställningar kopierade"
+
+msgid "White balance"
+msgstr "Vitbalans"
+
+#, fuzzy
+msgid "Select settings to paste"
+msgstr "Välj inställning att klistra in"
+
+msgid "Pasted settings"
+msgstr "Inklistrad inställning"
+
+msgid "Nothing to paste"
+msgstr "Inget att klistra in"
+
+msgid "Buffer empty"
+msgstr "Buffert tom"
+
+msgid "Adjusting to auto white balance"
+msgstr "Justerar till automatisk vitbalans"
+
+msgid "No white balance to set from"
+msgstr "No white balance to set from"
+
+msgid "Adjusting to camera white balance"
+msgstr "Justerar till kamerans vitbalans"
+
+msgid "Showing exposure mask"
+msgstr "Visar exponeringsmask"
+
+msgid "Hiding exposure mask"
+msgstr "Döljer exponeringsmask"
+
+#, c-format
+msgid " %s added to batch queue"
+msgstr " %s lägger till processeringskön"
+
+#, c-format
+msgid "%s already added to batch queue"
+msgstr "%s redan tillagd i processeringskön"
+
+#, c-format
+msgid "%d photos added to batch queue"
+msgstr "%d foton tillagda i processeringskön"
+
+msgid ""
+"Select which settings to\n"
+"add to batch queue"
+msgstr ""
+"Välj vilken inställning som\n"
+"ska gälla för processeringkön"
+
+msgid "Removed from batch queue"
+msgstr "Borttagen från processeringkön"
+
+msgid "Not in batch queue"
+msgstr "Inte i satsprocesseringskön"
+
+msgid "A raw image converter for GTK+/GNOME"
+msgstr "En råfilskonvertering för GTK+/GNOME"
+
+msgid "_File"
+msgstr "_Fil"
+
+msgid "_Edit"
+msgstr "_Redigera"
+
+msgid "_Photo"
+msgstr "_Foto"
+
+msgid "_Set Priority"
+msgstr "_Sätt prioritet"
+
+msgid "_White Balance"
+msgstr "Vit_balans"
+
+msgid "_View"
+msgstr "_Visa"
+
+msgid "_Sort by"
+msgstr ""
+
+msgid "_Batch"
+msgstr "_Processeringskö"
+
+msgid "_Help"
+msgstr "_Hjälp"
+
+#. File menu
+msgid "_Open Directory"
+msgstr "_Öppna katalog"
+
+msgid "_Quick Export"
+msgstr "_Snabbexportering"
+
+msgid "_Export As"
+msgstr "_Exportera som"
+
+msgid "_Export to Gimp"
+msgstr "_Exportera till Gimp"
+
+msgid "_Reload directory"
+msgstr "_Läs om katalog"
+
+msgid "_Delete flagged photos"
+msgstr "_Radera markerade foton"
+
+msgid "_Quit"
+msgstr "_Avsluta"
+
+#. Edit menu
+msgid "_Revert settings"
+msgstr "_Återställ inställningar"
+
+msgid "_Copy settings"
+msgstr "_Kopiera inställningar"
+
+msgid "_Paste settings"
+msgstr "_Klistra in inställningar"
+
+msgid "_Reset settings"
+msgstr "_Nollställ inställningar"
+
+msgid "_Preferences"
+msgstr "_Egenskaper"
+
+#. Photo menu
+msgid "_Flag photo for deletion"
+msgstr "_Märk foto för radering"
+
+msgid "_1"
+msgstr "_1"
+
+msgid "_2"
+msgstr "_2"
+
+msgid "_3"
+msgstr "_3"
+
+msgid "_Remove priority"
+msgstr "_Ta bort prioritet"
+
+msgid "_Auto"
+msgstr "_Autojustera"
+
+msgid "_Camera"
+msgstr "_Kamera"
+
+msgid "_Crop"
+msgstr "_Beskär"
+
+msgid "_Uncrop"
+msgstr "_Beskär inte"
+
+msgid "_Straighten"
+msgstr "_Rätta upp"
+
+msgid "_Unstraighten"
+msgstr "_Rätta inte upp"
+
+msgid "_Group"
+msgstr "_Gruppera"
+
+msgid "_Ungroup"
+msgstr "_Gruppera inte"
+
+#, fuzzy
+msgid "_Auto group"
+msgstr "_Gruppera inte"
+
+#. View menu
+msgid "_Previous photo"
+msgstr "_Föregående foto"
+
+msgid "_Next Photo"
+msgstr "_Efterföljande foto"
+
+msgid "_Zoom to fit"
+msgstr "_Anpassad zoom"
+
+msgid "_Zoom to 100%"
+msgstr "_Zooma till 100%"
+
+#. Batch menu
+msgid "_Add to batch queue"
+msgstr "_Lägg i processeringskö"
+
+msgid "_Add current view to queue"
+msgstr "_Lägg till aktuell vy till kö"
+
+msgid "_Remove from batch queue"
+msgstr "_Ta bort från processeringskö"
+
+msgid "_Start"
+msgstr "_Starta"
+
+#. help menu
+msgid "_About"
+msgstr "_Om"
+
+msgid "_Iconbox"
+msgstr "_Ikonlåda"
+
+msgid "_Toolbox"
+msgstr "_Verktygslåda"
+
+msgid "_Fullscreen"
+msgstr "_Fullskärm"
+
+msgid "_Exposure mask"
+msgstr "_Exponeringsmask"
+
+msgid "_Split"
+msgstr "_Dela"
+
+msgid "Name"
+msgstr ""
+
+msgid "Timestamp"
+msgstr ""
+
+#, fuzzy
+msgid "ISO"
+msgstr "ISO%d"
+
+msgid "Aperture"
+msgstr ""
+
+msgid "Focallength"
+msgstr ""
+
+msgid "Shutterspeed"
+msgstr ""
+
+#~ msgid "%dmm "
+#~ msgstr "%dmm "
+
+#~ msgid "%.1fs "
+#~ msgstr "%.1fs "
+
+#~ msgid "1/%.0fs "
+#~ msgstr "1/%.0fs "
+
+#~ msgid "F/%.1f "
+#~ msgstr "F/%.1f "
+
+#~ msgid "No metadata"
+#~ msgstr "Inget metadata"
+
+#~ msgid "Canon CR2"
+#~ msgstr "Canon CR2"
+
+#~ msgid "Canon CIFF"
+#~ msgstr "Canon CIFF"
+
+#~ msgid "Nikon NEF"
+#~ msgstr "Nikon NEF"
+
+#~ msgid "Minolta raw"
+#~ msgstr "Minolta raw"
+
+#~ msgid "Canon TIFF"
+#~ msgstr "Canon TIFF"
+
+#~ msgid "Sony"
+#~ msgstr "Sony"
+
+#~ msgid "Kodak"
+#~ msgstr "Kodak"
+
+#~ msgid "Sigma"
+#~ msgstr "Sigma"
+
+#~ msgid "Panasonic raw"
+#~ msgstr "Panasonic raw"
+
+#~ msgid "Pentax raw"
+#~ msgstr "Pentax raw"
+
+#~ msgid "Adobe Digital negative"
+#~ msgstr "Adobe Digital negative"
+
+#~ msgid "Mamiya"
+#~ msgstr "Mamiya"
+
+#~ msgid "Hasselblad"
+#~ msgstr "Hasselblad"
+
+#~ msgid "Opening directory..."
+#~ msgstr "Öppnar katalog..."

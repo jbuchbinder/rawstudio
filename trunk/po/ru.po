@@ -1,0 +1,957 @@
+# translation of Rawstudio to Russian
+# translation of rawstudio.po to Russian
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+#
+# Alexandre Prokoudine <alexandre.prokoudine@gmail.com>, 2007.
+msgid ""
+msgstr ""
+"Project-Id-Version: Rawstudio 1.1.1\n"
+"Report-Msgid-Bugs-To: rawstudio-dev@rawstudio.org\n"
+"POT-Creation-Date: 2009-01-11 04:26+0100\n"
+"PO-Revision-Date: 2008-09-30 01:06+0300\n"
+"Last-Translator: Alexandre Prokoudine <alexandre.prokoudine@gmail.com>\n"
+"Language-Team: Rawstudio development <rawstudio-dev@rawstudio.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: KBabel 1.11.4\n"
+"Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%"
+"10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
+"X-Poedit-Language: Russian\n"
+"X-Poedit-Country: RUSSIAN FEDERATION\n"
+
+#, c-format
+msgid "%f - Original filename"
+msgstr "%f — Исходное имя файла"
+
+#, c-format
+msgid "%2c - Incremental counter"
+msgstr "%2c — Увеличение номера"
+
+#, c-format
+msgid "%s - Setting id (A, B or C)"
+msgstr "%s — Набор параметров (A, B или C)"
+
+msgid "Select color profile"
+msgstr "Выберите цветовой профиль"
+
+msgid "All files"
+msgstr "Все файлы"
+
+msgid "Color profiles (icc and icm)"
+msgstr "Цветовые профили (icc и icm)"
+
+msgid "Not a valid color profile."
+msgstr "Это некорректный цветовой профиль."
+
+msgid ""
+"The file you selected does not appear to be a valid color profile for this "
+"version of Rawstudio."
+msgstr ""
+"Указанный вами файл не похож на корректный цветовой профиль, который можно "
+"было бы использовать в Rawstudio."
+
+msgid "Enable color management (experimental)"
+msgstr "Включить управление цветом"
+
+msgid "Input profile"
+msgstr "Профиль камеры: "
+
+msgid "BuiltInRGBProfile"
+msgstr "Встроенный профиль RGB"
+
+msgid "Display profile"
+msgstr "Профиль монитора: "
+
+msgid "sRGB"
+msgstr "sRGB"
+
+msgid "Export profile"
+msgstr "Профиль экспорта: "
+
+msgid "Intent"
+msgstr "Цветопередача: "
+
+msgid "Perceptual"
+msgstr "Воспринимаемая"
+
+msgid "Relative colormetric"
+msgstr "Относительная колориметрическая"
+
+msgid "Saturation"
+msgstr "Насыщенность"
+
+msgid "Absolute colormetric"
+msgstr "Абсолютная колориметрическая"
+
+msgid "Background renderer active"
+msgstr "Фоновый отрисовщик активен"
+
+msgid "Opening photo ..."
+msgstr "Открывается снимок..."
+
+msgid "Couldn't open photo"
+msgstr "Не удалось открыть снимок"
+
+msgid "Image opened"
+msgstr "Снимок открыт"
+
+msgid "Rawstudio"
+msgstr "Rawstudio"
+
+#, c-format
+msgid "Changed photo priority (*)"
+msgstr "Изменён приоритет снимка (*)"
+
+#, c-format
+msgid "Changed photo priority (D)"
+msgstr "Изменён приоритет снимка (D)"
+
+#, c-format
+msgid "Changed photo priority (%d)"
+msgstr "Изменён приоритет снимка (%d)"
+
+msgid "Preferences"
+msgstr "Параметры"
+
+msgid "Preview background color:"
+msgstr "Цвет фона:"
+
+msgid "Histogram height:"
+msgstr "Высота гистограммы:"
+
+msgid "Show filenames in iconview"
+msgstr "Показывать имена файлов"
+
+msgid "Use system theme"
+msgstr "Использовать системный стиль оформления"
+
+msgid "Place cache in home directory"
+msgstr "Хранить кэш в домашнем каталоге"
+
+msgid "Load 8 bit photos (jpeg, png, etc)"
+msgstr "Загружать 8-разрядные снимки (JPEG, PNG и т.д.)"
+
+msgid "Preload photos"
+msgstr "Удаленные снимки"
+
+msgid "Directory:"
+msgstr "Каталог:"
+
+msgid "Filename:"
+msgstr "Имя файла:"
+
+msgid "File type:"
+msgstr "Тип файла:"
+
+#. set default
+msgid "Filename example:"
+msgstr "Пример имени файла:"
+
+msgid "Save uncompressed TIFF"
+msgstr "Сохранить несжатый TIFF"
+
+msgid "General"
+msgstr "Общие"
+
+#. gtk_notebook_append_page(GTK_NOTEBOOK(notebook), batch_page, gtk_label_new(_("Batch")));
+msgid "Quick export"
+msgstr "Быстрый экспорт"
+
+msgid "Colors"
+msgstr "Цвета"
+
+msgid "Open recursive"
+msgstr "Открывать рекурсивно"
+
+msgid "Tools"
+msgstr "Инструменты"
+
+msgid "Batch"
+msgstr "Проявка"
+
+msgid "Open"
+msgstr "Каталоги"
+
+msgid "Ready"
+msgstr "Готово"
+
+msgid "Progress"
+msgstr "Прогресс"
+
+msgid "JPEG Quality:"
+msgstr "Качество JPEG"
+
+msgid "Keep aspect"
+msgstr "Сохранять соотношение"
+
+msgid "Width:"
+msgstr "Ширина:"
+
+msgid "Height:"
+msgstr "Высота:"
+
+msgid "Percent:"
+msgstr "Процент:"
+
+msgid "Export File"
+msgstr "Экспортировать снимок"
+
+msgid "Exporting file ..."
+msgstr "Экспортируется снимок..."
+
+msgid "File exported"
+msgstr "Файл экспортирован"
+
+msgid "File export canceled"
+msgstr "Экспорт снимков отменен"
+
+msgid "JPEG (Joint Photographic Experts Group)"
+msgstr "JPEG (Joint Photographic Experts Group)"
+
+msgid "PNG (Portable Network Graphics)"
+msgstr "PNG (Portable Network Graphics)"
+
+msgid "8-bit TIFF (Tagged Image File Format)"
+msgstr "8-разрядный TIFF (Tagged Image File Format)"
+
+msgid "16-bit TIFF (Tagged Image File Format)"
+msgstr "16-разрядный TIFF (Tagged Image File Format)"
+
+msgid "A"
+msgstr "A"
+
+msgid "B"
+msgstr "B"
+
+msgid "C"
+msgstr "C"
+
+msgid "Processing photos"
+msgstr "Проявка снимков"
+
+msgid "Cancel"
+msgstr "Отменить"
+
+msgid "Last image:"
+msgstr "Последний снимок:"
+
+#, c-format
+msgid "Time left: %dh %dm %ds"
+msgstr "Осталось времени: %dh %dm %ds"
+
+msgid "Time left: ..."
+msgstr "Осталось времени: ..."
+
+#, c-format
+msgid "Loading %s ..."
+msgstr "Загружается %s ..."
+
+#, c-format
+msgid "Saving %s ..."
+msgstr "Сохраняется %s ..."
+
+msgid "Icon"
+msgstr "Эскиз"
+
+msgid "Filename"
+msgstr "Имя файла"
+
+msgid "Setting"
+msgstr "Параметр"
+
+msgid "Start"
+msgstr "Начать"
+
+msgid "Remove"
+msgstr "Удалить"
+
+msgid "Remove all"
+msgstr "Удалить все"
+
+msgid "Photo size"
+msgstr "Размер снимка:"
+
+msgid "Constant scale"
+msgstr "Масштабирование"
+
+msgid "Constant width"
+msgstr "Постоянная ширина"
+
+msgid "Constant height"
+msgstr "Постоянная высота"
+
+msgid "Maximum size"
+msgstr "Максимальный размер"
+
+msgid "Photo width:"
+msgstr "Ширина снимка:"
+
+msgid "pixels"
+msgstr "пикселов"
+
+msgid "Photo height:"
+msgstr "Высота снимка:"
+
+msgid "Photo scale:"
+msgstr "Масштаб снимка:"
+
+msgid "%"
+msgstr "%"
+
+#, c-format
+msgid ""
+"Constant width:\n"
+"%d"
+msgstr ""
+"Постоянная ширина:\n"
+"%d"
+
+#, c-format
+msgid ""
+"Constant height:\n"
+"%d"
+msgstr ""
+"Постоянная высота:\n"
+"%d"
+
+#, c-format
+msgid ""
+"Constant Scale:\n"
+"%d"
+msgstr ""
+"Постоянный масштаб:\n"
+"%d"
+
+#, c-format
+msgid ""
+"Maximum size:\n"
+"%d x %d"
+msgstr ""
+"Максимальный размер:\n"
+"%d x %d"
+
+msgid "Choose output directory"
+msgstr "Укажите каталог для экспорта"
+
+msgid "Output directory:"
+msgstr "Каталог вывода:"
+
+msgid "Filename template:"
+msgstr "Шаблон имени файла:"
+
+msgid "Change"
+msgstr "Сменить"
+
+msgid "Export dimensions"
+msgstr "Размеры при экспорте"
+
+#. All
+#, c-format
+msgid "* <small>(%d)</small>"
+msgstr "* <small>(%d)</small>"
+
+msgid "All photos (excluding deleted)"
+msgstr "Все снимки (кроме удалённых)"
+
+#. 1
+#, c-format
+msgid "1 <small>(%d)</small>"
+msgstr "1 <small>(%d)</small>"
+
+msgid "Priority 1 photos"
+msgstr "Снимки с приоритетом 1"
+
+#. 2
+#, c-format
+msgid "2 <small>(%d)</small>"
+msgstr "2 <small>(%d)</small>"
+
+msgid "Priority 2 photos"
+msgstr "Снимки с приоритетом 2"
+
+#. 3
+#, c-format
+msgid "3 <small>(%d)</small>"
+msgstr "3 <small>(%d)</small>"
+
+msgid "Priority 3 photos"
+msgstr "Снимки с приоритетом 3"
+
+#. Unsorted
+#, c-format
+msgid "U <small>(%d)</small>"
+msgstr "U <small>(%d)</small>"
+
+msgid "Unprioritized photos"
+msgstr "Снимки без приоритета"
+
+#. Deleted
+#, c-format
+msgid "D <small>(%d)</small>"
+msgstr "D <small>(%d)</small>"
+
+msgid "Deleted photos"
+msgstr "Удалённые снимки"
+
+#. Due to popular demand, I will now add a very nice GTK+ label to the left
+#. of the notebook. We hope this will give our users an even better
+#. understanding of our interface. I was thinking about adding a button instead
+#. that said "ROCK ON!" to instantly play "AC/DC - Highway to Hell", but I
+#. believe this will be better for the end user
+msgid "Priorities"
+msgstr "Приоритеты"
+
+#, c-format
+msgid ""
+"<big>%s</big>\n"
+"\n"
+msgstr ""
+"<big>%s</big>\n"
+"\n"
+
+#, c-format
+msgid "<b>Focal length</b>: %dmm\n"
+msgstr "<b>Фокусное расстояние</b>: %dмм\n"
+
+#, c-format
+msgid "<b>Shutter speed</b>: %.1fs\n"
+msgstr "<b>Выдержка</b>: %.1fс\n"
+
+#, c-format
+msgid "<b>Shutter speed</b>: 1/%.0fs\n"
+msgstr "<b>Выдержка</b>: 1/%.0fс\n"
+
+#, c-format
+msgid "<b>Aperture</b>: F/%.01f\n"
+msgstr "<b>Апертура</b>: F/%.01f\n"
+
+#, c-format
+msgid "<b>ISO</b>: %u\n"
+msgstr "<b>ISO</b>: %u\n"
+
+#, c-format
+msgid "<b>Time</b>: %s"
+msgstr "<b>Время</b>: %s"
+
+msgid "Size"
+msgstr "Размер"
+
+msgid "-"
+msgstr "—"
+
+msgid "Grid"
+msgstr "Сетка"
+
+msgid "None"
+msgstr "Нет"
+
+msgid "Golden sections"
+msgstr "Золотое сечение"
+
+msgid "Rule of thirds"
+msgstr "Правило третей"
+
+msgid "Golden triangles #1"
+msgstr "Золотые треугольники №1"
+
+msgid "Golden triangles #2"
+msgstr "Золотые треугольники №2"
+
+msgid "Harmonious triangles #1"
+msgstr "Гармоничные треугольники №1"
+
+msgid "Harmonious triangles #2"
+msgstr "Гармоничные треугольники №2"
+
+msgid "Aspect"
+msgstr "Соотношение"
+
+msgid "Freeform"
+msgstr "Произвольное"
+
+msgid "ISO paper (A4)"
+msgstr "Формат бумаги ISO (A4)"
+
+msgid "3:2 (35mm)"
+msgstr "3:2 (35мм)"
+
+msgid "4:3"
+msgstr "4:3"
+
+msgid "10:8 (SXGA)"
+msgstr "10:8 (SXGA)"
+
+msgid "16:10 (Wide XGA)"
+msgstr "16:10 (Wide XGA)"
+
+msgid "8:3 (Dualhead XGA)"
+msgstr "8:3 (Dualhead XGA)"
+
+msgid "1:1"
+msgstr "1:1"
+
+msgid "Golden rectangle"
+msgstr "Золотой прямоугольник"
+
+msgid "Crop"
+msgstr "Кадрировать"
+
+msgid "Don't crop"
+msgstr "Не кадрировать"
+
+msgid "Flip the photo over the x-axis"
+msgstr "Зеркально отразить по горизонтальной оси"
+
+msgid "Mirror the photo over the y-axis"
+msgstr "Зеркально отразить по вертикальной оси"
+
+msgid "Rotate the photo 90 degrees clockwise"
+msgstr "Повернуть снимок на 90° по часовой стрелке"
+
+msgid "Rotate the photo 180 degrees"
+msgstr "Повернуть снимок на 180°"
+
+msgid "Rotate the photo 90 degrees counter clockwise"
+msgstr "Повернуть снимок на 90° против часовой стрелки"
+
+msgid "Transforms"
+msgstr "Преобразования"
+
+msgid "Reset this setting"
+msgstr "Сбросить этот параметр"
+
+msgid "Open curve ..."
+msgstr "Загрузить кривую из файла..."
+
+msgid "Save curve as ..."
+msgstr "Сохранить кривую как..."
+
+msgid "Reset curve"
+msgstr "Обнулить кривую"
+
+msgid "Auto adjust curve ends"
+msgstr "Поправить концы кривой"
+
+msgid " A "
+msgstr " A "
+
+msgid " B "
+msgstr " B "
+
+msgid " C "
+msgstr " C "
+
+#. Build GUI
+msgid "Exposure"
+msgstr "Экспозиция"
+
+msgid "Hue"
+msgstr "Тон"
+
+msgid "Contrast"
+msgstr "Контраст"
+
+#. Box it!
+msgid "Warmth/tint"
+msgstr "Температура и оттенок"
+
+msgid "Sharpen"
+msgstr "Резкость"
+
+msgid "Curve"
+msgstr "Кривая"
+
+msgid "Histogram"
+msgstr "Гистограмма"
+
+msgid "Open directory"
+msgstr "Открыть каталог"
+
+msgid "Error exporting"
+msgstr "Ошибка при экспорте"
+
+msgid "Error exporting photo to gimp."
+msgstr "Ошибка при экспорте в GIMP"
+
+msgid "Deleting photos"
+msgstr "Удаляются снимки"
+
+msgid "Your files will be <b>permanently</b> deleted!"
+msgstr "Ваши файлы будут удалены <b>безвозвратно</b>!"
+
+msgid "Delete photos"
+msgstr "Удалить снимки"
+
+msgid "Copied settings"
+msgstr "Параметры проявки скопированы"
+
+msgid "White balance"
+msgstr "Баланс белого"
+
+msgid "Select settings to paste"
+msgstr "Применяемые параметры"
+
+msgid "Pasted settings"
+msgstr "Параметры проявки применены"
+
+msgid "Nothing to paste"
+msgstr "Нет применяемых параметров проявки"
+
+msgid "Buffer empty"
+msgstr "Буфер пуст"
+
+msgid "Adjusting to auto white balance"
+msgstr "Выполняется коррекция с автоматическим балансом белого"
+
+msgid "No white balance to set from"
+msgstr "Неоткуда взять баланс белого"
+
+msgid "Adjusting to camera white balance"
+msgstr "Выполняется коррекция по балансу белого камеры"
+
+msgid "Showing exposure mask"
+msgstr "Показывается маска экспозиции"
+
+msgid "Hiding exposure mask"
+msgstr "Прячется маска экспозиции"
+
+#, c-format
+msgid " %s added to batch queue"
+msgstr "%s добавлен в очередь на проявку"
+
+#, c-format
+msgid "%s already added to batch queue"
+msgstr "%s уже добавлен в очередь на проявку"
+
+#, c-format
+msgid "%d photos added to batch queue"
+msgstr "%d снимков добавлено в очередь на проявку"
+
+msgid ""
+"Select which settings to\n"
+"add to batch queue"
+msgstr ""
+"Выберите, какие параметры\n"
+"добавить в очередь на проявку"
+
+msgid "Removed from batch queue"
+msgstr "Удалён из очереди на проявку"
+
+msgid "Not in batch queue"
+msgstr "Не в очереди на проявку"
+
+msgid "A raw image converter for GTK+/GNOME"
+msgstr "Проявитель цифровых негативов для GTK+/GNOME"
+
+msgid "_File"
+msgstr "_Файл"
+
+msgid "_Edit"
+msgstr "_Правка"
+
+msgid "_Photo"
+msgstr "С_нимок"
+
+msgid "_Set Priority"
+msgstr "_Указать приоритет"
+
+msgid "_White Balance"
+msgstr "_Баланс белого"
+
+msgid "_View"
+msgstr "_Вид"
+
+msgid "_Sort by"
+msgstr "_Сортировать по"
+
+msgid "_Batch"
+msgstr "Про_явка"
+
+msgid "_Help"
+msgstr "_Справка"
+
+#. File menu
+msgid "_Open Directory"
+msgstr "_Открыть каталог"
+
+msgid "_Quick Export"
+msgstr "Быстрый экспорт"
+
+msgid "_Export As"
+msgstr "Экспортировать _как"
+
+msgid "_Export to Gimp"
+msgstr "_Экспортировать в GIMP"
+
+msgid "_Reload directory"
+msgstr "_Перезагрузить каталог"
+
+msgid "_Delete flagged photos"
+msgstr "_Удалить помеченные снимки"
+
+msgid "_Quit"
+msgstr "В_ыход"
+
+#. Edit menu
+msgid "_Revert settings"
+msgstr "_Отменить изменения"
+
+msgid "_Copy settings"
+msgstr "_Скопировать параметры"
+
+msgid "_Paste settings"
+msgstr "_Вставить параметры"
+
+msgid "_Reset settings"
+msgstr "_Забыть параметры"
+
+msgid "_Preferences"
+msgstr "_Параметры"
+
+#. Photo menu
+msgid "_Flag photo for deletion"
+msgstr "По_метить для удаления"
+
+msgid "_1"
+msgstr "_1"
+
+msgid "_2"
+msgstr "_2"
+
+msgid "_3"
+msgstr "_3"
+
+msgid "_Remove priority"
+msgstr "_Снять приоритет"
+
+msgid "_Auto"
+msgstr "_Авто"
+
+msgid "_Camera"
+msgstr "_Камера"
+
+msgid "_Crop"
+msgstr "_Кадрировать"
+
+msgid "_Uncrop"
+msgstr "_Снять кадрирование"
+
+msgid "_Straighten"
+msgstr "_Выровнять"
+
+msgid "_Unstraighten"
+msgstr "Сн_ять выравнивание"
+
+msgid "_Group"
+msgstr "С_группировать"
+
+msgid "_Ungroup"
+msgstr "_Разгруппировать"
+
+msgid "_Auto group"
+msgstr "Сгруппировать _автоматически"
+
+#. View menu
+msgid "_Previous photo"
+msgstr "_Предыдущий снимок"
+
+msgid "_Next Photo"
+msgstr "_Следующий снимок"
+
+msgid "_Zoom to fit"
+msgstr "_Уместить в окне"
+
+msgid "_Zoom to 100%"
+msgstr "_Масштаб 1:1"
+
+#. Batch menu
+msgid "_Add to batch queue"
+msgstr "_Добавить в очередь"
+
+msgid "_Add current view to queue"
+msgstr "Добавить _всю серию в очередь"
+
+msgid "_Remove from batch queue"
+msgstr "_Удалить из очереди"
+
+msgid "_Start"
+msgstr "_Начать проявку"
+
+#. help menu
+msgid "_About"
+msgstr "_О программе"
+
+msgid "_Iconbox"
+msgstr "Панель _эскизов"
+
+msgid "_Toolbox"
+msgstr "Панель _инструментов"
+
+msgid "_Fullscreen"
+msgstr "П_олноэкранный режим"
+
+msgid "_Exposure mask"
+msgstr "М_аска экспозиции"
+
+msgid "_Split"
+msgstr "_Разделить"
+
+msgid "Name"
+msgstr "Имени"
+
+msgid "Timestamp"
+msgstr "Времени"
+
+msgid "ISO"
+msgstr "ISO"
+
+msgid "Aperture"
+msgstr "Апертуре"
+
+msgid "Focallength"
+msgstr "Фокусному расстоянию"
+
+msgid "Shutterspeed"
+msgstr "Выдержке"
+
+#~ msgid "Canon CR2"
+#~ msgstr "Canon CR2"
+
+#~ msgid "Canon CIFF"
+#~ msgstr "Canon CIFF"
+
+#~ msgid "Nikon NEF"
+#~ msgstr "Nikon NEF"
+
+#~ msgid "Minolta raw"
+#~ msgstr "Minolta RAW"
+
+#~ msgid "Canon TIFF"
+#~ msgstr "Canon TIFF"
+
+#~ msgid "Sony"
+#~ msgstr "Sony"
+
+#~ msgid "Kodak"
+#~ msgstr "Kodak"
+
+#~ msgid "Sigma"
+#~ msgstr "Sigma"
+
+#~ msgid "Olympus"
+#~ msgstr "Olympus"
+
+#~ msgid "Panasonic raw"
+#~ msgstr "Panasonic RAW"
+
+#~ msgid "Pentax raw"
+#~ msgstr "Pentax RAW"
+
+#~ msgid "Adobe Digital negative"
+#~ msgstr "Adobe Digital Negative"
+
+#~ msgid "Mamiya"
+#~ msgstr "Mamiya"
+
+#~ msgid "Hasselblad"
+#~ msgstr "Hasselblad"
+
+#~ msgid "Epson"
+#~ msgstr "Epson"
+
+#~ msgid "Opening directory..."
+#~ msgstr "Открывается каталог"
+
+#~ msgid "%dmm "
+#~ msgstr "%dмм "
+
+#~ msgid "%.1fs "
+#~ msgstr "%.1fs "
+
+#~ msgid "1/%.0fs "
+#~ msgstr "1/%.0fs "
+
+#~ msgid "F/%.1f "
+#~ msgstr "F/%.1f "
+
+#~ msgid "No metadata"
+#~ msgstr "Нет метаданных"
+
+#~ msgid "Split"
+#~ msgstr "Разделить"
+
+#~ msgid "Exp. mask"
+#~ msgstr "Маска экспозиции"
+
+#~ msgid "Toggle exposure mask"
+#~ msgstr "Переключить маску экспозиции"
+
+#~ msgid "Set zoom"
+#~ msgstr "Укажите масштаб отображения снимка"
+
+#~ msgid "Zoom out"
+#~ msgstr "Отдалить"
+
+#~ msgid "Zoom in"
+#~ msgstr "Приблизить"
+
+#~ msgid "Zoom to fit"
+#~ msgstr "Уместить в окне"
+
+#~ msgid "Zoom to 100%"
+#~ msgstr "Показать 100%"
+
+#~ msgid "Zoom:"
+#~ msgstr "Масштаб:"
+
+#~ msgid "Apply"
+#~ msgstr "Применить"
+
+#~ msgid "Straighten"
+#~ msgstr "Выровнять"
+
+#~ msgid "Unstraighten"
+#~ msgstr "Снять выравнивание"
+
+#~ msgid "Exposure Mask"
+#~ msgstr "Маска экспозиции"
+
+#, fuzzy
+#~ msgid "Added view to batch queue"
+#~ msgstr "Добавлен в очередь на обработку"
+
+#~ msgid "/File/_Open directory..."
+#~ msgstr "/Файл/_Открыть каталог..."
+
+#, fuzzy
+#~ msgid "/File/_Quick export"
+#~ msgstr "/Файл/_Экспортировать"
+
+#~ msgid "/File/_Export as..."
+#~ msgstr "/Файл/Экспортировать _как..."
+
+#~ msgid "/File/_Reload"
+#~ msgstr "/Файл/_Перезагрузить"
+
+#~ msgid "/_Batch/_Add to batch queue"
+#~ msgstr "/Пакетная обработка/_Добавить в очередь"
+
+#~ msgid "/_Batch/_Remove from batch queue"
+#~ msgstr "/Пакетная обработка/_Удалить из очереди"
+
+#~ msgid "Mirror"
+#~ msgstr "Зеркало"
+
+#~ msgid "CW"
+#~ msgstr "CW"
+
+#~ msgid "180"
+#~ msgstr "180°"
+
+#~ msgid "CCW"
+#~ msgstr "CCW"
+
+#~ msgid "Scale"
+#~ msgstr "Масштаб"

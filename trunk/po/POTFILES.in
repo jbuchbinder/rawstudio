@@ -1,0 +1,14 @@
+# List of source files containing translatable strings.
+
+src/filename.c
+src/gtk-helper.c
+src/gtk-interface.c
+src/gtk-progress.c
+src/rs-save-dialog.c
+src/application.c
+src/rs-batch.c
+src/rs-store.c
+src/rs-preview-widget.c
+src/toolbox.c
+src/rs-actions.c
+src/rs-dir-selector.c

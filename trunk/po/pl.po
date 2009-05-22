@@ -1,0 +1,885 @@
+# translation of pl.po to Polish
+# Polish translation for Rawstudio.
+# Copyright (C) 2006-2008 Anders Brander <anders@brander.dk> and Anders Kvist <akv@lnxbx.dk>
+# This file is distributed under the same license as the Rawstudio package.
+#
+# Simone Contini <s.contini@oltrelinux.com>, 2008.
+# Paweł Gołaszewski <blues@pld-linux.org>, 2008.
+# Krzysztof Kościuszkiewicz <kosciuszkiewicz@poczta.onet.pl>, 2008.
+# Łukasz Romanowicz <romanowicz88@gmail.com>, 2008.
+msgid ""
+msgstr ""
+"Project-Id-Version: Rawstudio 1.1.1\n"
+"Report-Msgid-Bugs-To: rawstudio-dev@rawstudio.org\n"
+"POT-Creation-Date: 2009-01-11 04:26+0100\n"
+"PO-Revision-Date: 2008-09-24 01:00+0100\n"
+"Last-Translator: Łukasz Romanowicz <romanowicz88@gmail.com>\n"
+"Language-Team: Rawstudio development <rawstudio-dev@rawstudio.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=3; plural=(n==1 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 "
+"|| n%100>=20) ? 1 : 2);\n"
+"X-Poedit-Language: Polish\n"
+"X-Poedit-Country: POLAND\n"
+
+# Comments for future translators
+# Uwagi dla kolejnych tłumaczy:
+#
+# Zastosowane konwencje:
+#
+#   Settings (w sensie "A, B, C") to "zestawy parametrów", pojedyńcze
+#   wartości suwaków w toolboxie to "parametry"
+#
+#   Priorities to "priorytety", z braku pomysłu na coś bardziej
+#   adekwatnego.
+#
+#   Export został zamieniony na "konwersję", bo po polsku raczej mówi się o
+#   "konwersji plików RAW".
+#
+#   Wszystkie komunikaty pojawiające się na pasku stanu programu zostały
+#   przetłumaczone na formę bezosobową lub stronę bierną.
+#, c-format
+msgid "%f - Original filename"
+msgstr "%f - Oryginalna nazwa pliku"
+
+#, c-format
+msgid "%2c - Incremental counter"
+msgstr "%2c - Numer zdjęcia w kolejce"
+
+#, c-format
+msgid "%s - Setting id (A, B or C)"
+msgstr "%s - Zestaw parametrów (A, B lub C)"
+
+msgid "Select color profile"
+msgstr "Wybierz profil kolorów"
+
+msgid "All files"
+msgstr "Wszystkie pliki"
+
+msgid "Color profiles (icc and icm)"
+msgstr "Profile kolorów (icc oraz icm)"
+
+msgid "Not a valid color profile."
+msgstr "To nie jest prawidłowy profil kolorów."
+
+msgid ""
+"The file you selected does not appear to be a valid color profile for this "
+"version of Rawstudio."
+msgstr ""
+"Wybrany plik wydaje się nie być prawidłowym profilem kolorów dla tej wersji "
+"Rawstudio."
+
+msgid "Enable color management (experimental)"
+msgstr "Włącz zarządzanie kolorami (eksperymentalne)"
+
+# I'm not really sure is it the camera profile or some other?
+msgid "Input profile"
+msgstr "Profil wejściowy"
+
+msgid "BuiltInRGBProfile"
+msgstr "Wbudowany profil RGB"
+
+msgid "Display profile"
+msgstr "Profil monitora"
+
+msgid "sRGB"
+msgstr "sRGB"
+
+msgid "Export profile"
+msgstr "Profil wyjściowy"
+
+msgid "Intent"
+msgstr "Tryb odwzorowania"
+
+msgid "Perceptual"
+msgstr "Percepcyjny"
+
+msgid "Relative colormetric"
+msgstr "Kolorymetryczny względny"
+
+# should be a different string for color rendering intent
+msgid "Saturation"
+msgstr "Nasycenie"
+
+msgid "Absolute colormetric"
+msgstr "Kolorymetryczny bezwzględny"
+
+msgid "Background renderer active"
+msgstr "Przygotowywanie obrazu"
+
+msgid "Opening photo ..."
+msgstr "Otwieranie zdjęcia ..."
+
+msgid "Couldn't open photo"
+msgstr "Otworzenie zdjęcia nie powiodło się"
+
+msgid "Image opened"
+msgstr "Zdjęcie otworzone"
+
+msgid "Rawstudio"
+msgstr "Rawstudio"
+
+#, c-format
+msgid "Changed photo priority (*)"
+msgstr "Zmieniono priorytet zdjęcia (*)"
+
+#, c-format
+msgid "Changed photo priority (D)"
+msgstr "Zaznaczono zdjęcie do usunięcia (D)"
+
+#, c-format
+msgid "Changed photo priority (%d)"
+msgstr "Zmieniono priorytet zdjęcia (%d)"
+
+msgid "Preferences"
+msgstr "Ustawienia"
+
+msgid "Preview background color:"
+msgstr "Kolor tła podglądu:"
+
+msgid "Histogram height:"
+msgstr "Wysokość histogramu:"
+
+msgid "Show filenames in iconview"
+msgstr "Wyświetlaj nazwy plików pod miniaturami"
+
+msgid "Use system theme"
+msgstr "Użyj skórki systemowej"
+
+msgid "Place cache in home directory"
+msgstr "Przechowuj pliki podręczne w katalogu domowym"
+
+msgid "Load 8 bit photos (jpeg, png, etc)"
+msgstr "Otwieraj 8-bitowe zdjęcia (jpeg, png, itp.)"
+
+msgid "Preload photos"
+msgstr "Ładuj zdjęcia z wyprzedzeniem"
+
+msgid "Directory:"
+msgstr "Katalog:"
+
+msgid "Filename:"
+msgstr "Nazwa pliku:"
+
+msgid "File type:"
+msgstr "Typ pliku:"
+
+#. set default
+msgid "Filename example:"
+msgstr "Przykładowa nazwa:"
+
+msgid "Save uncompressed TIFF"
+msgstr "Zapisuj pliki TIFF bez kompresji"
+
+msgid "General"
+msgstr "Ogólne"
+
+#. gtk_notebook_append_page(GTK_NOTEBOOK(notebook), batch_page, gtk_label_new(_("Batch")));
+msgid "Quick export"
+msgstr "Szybka konwersja"
+
+msgid "Colors"
+msgstr "Kolory"
+
+msgid "Open recursive"
+msgstr "Przeszukuj podkatalogi"
+
+msgid "Tools"
+msgstr "Narzędzia"
+
+msgid "Batch"
+msgstr "Kolejka"
+
+msgid "Open"
+msgstr "Otwórz"
+
+msgid "Ready"
+msgstr "Gotowe"
+
+msgid "Progress"
+msgstr "Postęp"
+
+msgid "JPEG Quality:"
+msgstr "Jakość JPEG:"
+
+msgid "Keep aspect"
+msgstr "Zachowuj proporcje"
+
+msgid "Width:"
+msgstr "Szerokość:"
+
+msgid "Height:"
+msgstr "Wysokość:"
+
+msgid "Percent:"
+msgstr "Procent:"
+
+msgid "Export File"
+msgstr "Konwertuj plik"
+
+msgid "Exporting file ..."
+msgstr "Konwertowanie do pliku ..."
+
+msgid "File exported"
+msgstr "Konwersja zakończona"
+
+msgid "File export canceled"
+msgstr "Konwersja anulowana"
+
+msgid "JPEG (Joint Photographic Experts Group)"
+msgstr "JPEG (Joint Photographic Experts Group)"
+
+msgid "PNG (Portable Network Graphics)"
+msgstr "PNG (Portable Network Graphics)"
+
+msgid "8-bit TIFF (Tagged Image File Format)"
+msgstr "8-bitowy TIFF (Tagged Image File Format)"
+
+msgid "16-bit TIFF (Tagged Image File Format)"
+msgstr "16-bitowy TIFF (Tagged Image File Format)"
+
+msgid "A"
+msgstr "A"
+
+msgid "B"
+msgstr "B"
+
+msgid "C"
+msgstr "C"
+
+msgid "Processing photos"
+msgstr "Przetwarzanie zdjęć"
+
+msgid "Cancel"
+msgstr "Anuluj"
+
+msgid "Last image:"
+msgstr "Ostatnie zdjęcie:"
+
+#, c-format
+msgid "Time left: %dh %dm %ds"
+msgstr "Pozostały czas: %dh %dm %ds"
+
+msgid "Time left: ..."
+msgstr "Pozostały czas: ..."
+
+#, c-format
+msgid "Loading %s ..."
+msgstr "Ładowanie %s ..."
+
+#, c-format
+msgid "Saving %s ..."
+msgstr "Zapisywanie %s ..."
+
+msgid "Icon"
+msgstr "Ikona"
+
+msgid "Filename"
+msgstr "Nazwa pliku"
+
+msgid "Setting"
+msgstr "Zestaw parametrów"
+
+msgid "Start"
+msgstr "Rozpocznij konwersję"
+
+msgid "Remove"
+msgstr "Usuń"
+
+msgid "Remove all"
+msgstr "Usuń wszystkie"
+
+msgid "Photo size"
+msgstr "Wielkość zdjęcia"
+
+msgid "Constant scale"
+msgstr "Skaluj do"
+
+msgid "Constant width"
+msgstr "Stała szerokość"
+
+msgid "Constant height"
+msgstr "Stała wysokość"
+
+msgid "Maximum size"
+msgstr "Ogranicz oba wymiary"
+
+msgid "Photo width:"
+msgstr "Szerokość:"
+
+msgid "pixels"
+msgstr "pikseli"
+
+msgid "Photo height:"
+msgstr "Wysokość:"
+
+msgid "Photo scale:"
+msgstr "Skaluj do:"
+
+msgid "%"
+msgstr "%"
+
+#, c-format
+msgid ""
+"Constant width:\n"
+"%d"
+msgstr ""
+"Stała szerokość:\n"
+"%d"
+
+#, c-format
+msgid ""
+"Constant height:\n"
+"%d"
+msgstr ""
+"Stała wysokość:\n"
+"%d"
+
+#, c-format
+msgid ""
+"Constant Scale:\n"
+"%d"
+msgstr ""
+"Skaluj do:\n"
+"%d"
+
+#, c-format
+msgid ""
+"Maximum size:\n"
+"%d x %d"
+msgstr ""
+"Ogranicz wymiary do:\n"
+"%d x %d"
+
+msgid "Choose output directory"
+msgstr "Wybierz katalog docelowy"
+
+msgid "Output directory:"
+msgstr "Katalog docelowy:"
+
+msgid "Filename template:"
+msgstr "Wzorzec nazwy pliku:"
+
+msgid "Change"
+msgstr "Zmień"
+
+# "export dimensions" - maybe just plain "dimensions" instead?
+msgid "Export dimensions"
+msgstr "Wymiary zdjęć"
+
+#. All
+#, c-format
+msgid "* <small>(%d)</small>"
+msgstr "* <small>(%d)</small>"
+
+msgid "All photos (excluding deleted)"
+msgstr "Wszystkie zdjęcia (bez usuniętych)"
+
+#. 1
+#, c-format
+msgid "1 <small>(%d)</small>"
+msgstr "1 <small>(%d)</small>"
+
+msgid "Priority 1 photos"
+msgstr "Zdjęcia z priorytetem 1"
+
+#. 2
+#, c-format
+msgid "2 <small>(%d)</small>"
+msgstr "2 <small>(%d)</small>"
+
+msgid "Priority 2 photos"
+msgstr "Zdjęcia z priorytetem 2"
+
+#. 3
+#, c-format
+msgid "3 <small>(%d)</small>"
+msgstr "3 <small>(%d)</small>"
+
+msgid "Priority 3 photos"
+msgstr "Zdjęcia z priorytetem 3"
+
+#. Unsorted
+#, c-format
+msgid "U <small>(%d)</small>"
+msgstr "U <small>(%d)</small>"
+
+msgid "Unprioritized photos"
+msgstr "Zdjęcia bez przypisanego priorytetu"
+
+#. Deleted
+#, c-format
+msgid "D <small>(%d)</small>"
+msgstr "D <small>(%d)</small>"
+
+msgid "Deleted photos"
+msgstr "Zdjęcia do usunięcia"
+
+#. Due to popular demand, I will now add a very nice GTK+ label to the left
+#. of the notebook. We hope this will give our users an even better
+#. understanding of our interface. I was thinking about adding a button instead
+#. that said "ROCK ON!" to instantly play "AC/DC - Highway to Hell", but I
+#. believe this will be better for the end user
+msgid "Priorities"
+msgstr "Priorytety"
+
+#, c-format
+msgid ""
+"<big>%s</big>\n"
+"\n"
+msgstr ""
+"<big>%s</big>\n"
+"\n"
+
+#, c-format
+msgid "<b>Focal length</b>: %dmm\n"
+msgstr "<b>Ogniskowa</b>: %dmm\n"
+
+#, c-format
+msgid "<b>Shutter speed</b>: %.1fs\n"
+msgstr "<b>Czas naświetlania</b>: %.1fs\n"
+
+#, c-format
+msgid "<b>Shutter speed</b>: 1/%.0fs\n"
+msgstr "<b>Czas naświetlania</b>: 1/%.0fs\n"
+
+#, c-format
+msgid "<b>Aperture</b>: F/%.01f\n"
+msgstr "<b>Przysłona</b>: F/%.01f\n"
+
+#, c-format
+msgid "<b>ISO</b>: %u\n"
+msgstr "<b>ISO</b>: %u\n"
+
+#, c-format
+msgid "<b>Time</b>: %s"
+msgstr "<b>Data wykonania</b>: %s"
+
+msgid "Size"
+msgstr "Wymiary"
+
+msgid "-"
+msgstr "-"
+
+msgid "Grid"
+msgstr "Siatka"
+
+msgid "None"
+msgstr "Brak"
+
+msgid "Golden sections"
+msgstr "Złoty podział"
+
+msgid "Rule of thirds"
+msgstr "Trójpodział"
+
+msgid "Golden triangles #1"
+msgstr "Złote trójkąty #1"
+
+msgid "Golden triangles #2"
+msgstr "Złote trójkąty #2"
+
+msgid "Harmonious triangles #1"
+msgstr "Trójkąty harmoniczne #1"
+
+msgid "Harmonious triangles #2"
+msgstr "Trójkąty harmoniczne #2"
+
+msgid "Aspect"
+msgstr "Stosunek krawędzi"
+
+msgid "Freeform"
+msgstr "Dowolnie"
+
+msgid "ISO paper (A4)"
+msgstr "Papier A4"
+
+msgid "3:2 (35mm)"
+msgstr "3:2 (35mm)"
+
+msgid "4:3"
+msgstr "4:3"
+
+msgid "10:8 (SXGA)"
+msgstr "10:8 (SXGA)"
+
+msgid "16:10 (Wide XGA)"
+msgstr "16:10 (Szerokie XGA)"
+
+msgid "8:3 (Dualhead XGA)"
+msgstr "8:3 (Podwójne XGA)"
+
+msgid "1:1"
+msgstr "1:1"
+
+msgid "Golden rectangle"
+msgstr "Złoty podział"
+
+msgid "Crop"
+msgstr "Przytnij"
+
+msgid "Don't crop"
+msgstr "Anuluj"
+
+msgid "Flip the photo over the x-axis"
+msgstr "Odbicie lustrzane w pionie"
+
+msgid "Mirror the photo over the y-axis"
+msgstr "Odbicie lustrzane w poziomie"
+
+msgid "Rotate the photo 90 degrees clockwise"
+msgstr "Obróc zdjęcie o 90 stopni zgodnie z ruchem wskazówek zegara"
+
+msgid "Rotate the photo 180 degrees"
+msgstr "Obróć zdjęcie o 180 stopni"
+
+msgid "Rotate the photo 90 degrees counter clockwise"
+msgstr "Obróć zdjęcie o 90 stopni przeciwnie do ruchu wskazówek zegara"
+
+msgid "Transforms"
+msgstr "Przekształcenia"
+
+msgid "Reset this setting"
+msgstr "Przywróć wartość domyślną"
+
+msgid "Open curve ..."
+msgstr "Otwórz krzywą ..."
+
+msgid "Save curve as ..."
+msgstr "Zapisz krzywą jako ..."
+
+msgid "Reset curve"
+msgstr "Przywróć domyślną krzywą"
+
+msgid "Auto adjust curve ends"
+msgstr "Automatycznie ustaw końce krzywej"
+
+msgid " A "
+msgstr " A "
+
+msgid " B "
+msgstr " B "
+
+msgid " C "
+msgstr " C "
+
+#. Build GUI
+msgid "Exposure"
+msgstr "Ekspozycja"
+
+msgid "Hue"
+msgstr "Barwa"
+
+msgid "Contrast"
+msgstr "Kontrast"
+
+#. Box it!
+msgid "Warmth/tint"
+msgstr "Temperatura/zabarwienie"
+
+msgid "Sharpen"
+msgstr "Wyostrzanie"
+
+msgid "Curve"
+msgstr "Krzywa"
+
+msgid "Histogram"
+msgstr "Histogram"
+
+msgid "Open directory"
+msgstr "Otwórz katalog"
+
+msgid "Error exporting"
+msgstr "Błąd podczas eksportu"
+
+msgid "Error exporting photo to gimp."
+msgstr "Błąd podczas eksportowania zdjęcia do gimp-a."
+
+msgid "Deleting photos"
+msgstr "Usuwanie zdjęć"
+
+msgid "Your files will be <b>permanently</b> deleted!"
+msgstr "Twoje pliki zostaną <b>nieodwracalnie</b> usunięte!"
+
+msgid "Delete photos"
+msgstr "Usuń zdjęcia"
+
+msgid "Copied settings"
+msgstr "Skopiowano parametry"
+
+msgid "White balance"
+msgstr "Balans bieli"
+
+msgid "Select settings to paste"
+msgstr "Wybierz parametry do zastąpienia"
+
+msgid "Pasted settings"
+msgstr "Wklejono parametry"
+
+msgid "Nothing to paste"
+msgstr "Brak parametrów do zastosowania"
+
+msgid "Buffer empty"
+msgstr "Bufor jest pusty"
+
+msgid "Adjusting to auto white balance"
+msgstr "Ustawiono automatyczny balans bieli"
+
+msgid "No white balance to set from"
+msgstr "Brak wzorca balansu bieli"
+
+msgid "Adjusting to camera white balance"
+msgstr "Ustawiono balans bieli z aparatu"
+
+# not entirely sure when this string shows up
+msgid "Showing exposure mask"
+msgstr "Włączono widok maski ekspozycji"
+
+# not entirely sure when this string shows up
+msgid "Hiding exposure mask"
+msgstr "Ukryto widok maski ekspozycji"
+
+#, c-format
+msgid " %s added to batch queue"
+msgstr " %s - dodano do kolejki"
+
+#, c-format
+msgid "%s already added to batch queue"
+msgstr "%s znajduje się już w kolejce"
+
+#, c-format
+msgid "%d photos added to batch queue"
+msgstr "%d zdjęć dodanych do kolejki"
+
+msgid ""
+"Select which settings to\n"
+"add to batch queue"
+msgstr ""
+"Które zestawy parametrów\n"
+"dodać do kolejki?"
+
+msgid "Removed from batch queue"
+msgstr "Usunięto z kolejki"
+
+msgid "Not in batch queue"
+msgstr "Zdjęcia nie ma w kolejce"
+
+msgid "A raw image converter for GTK+/GNOME"
+msgstr "Program do konwersji plików RAW dla GTK+/GNOME"
+
+msgid "_File"
+msgstr "_Plik"
+
+msgid "_Edit"
+msgstr "_Edycja"
+
+msgid "_Photo"
+msgstr "_Zdjęcie"
+
+msgid "_Set Priority"
+msgstr "Zmień _priorytet"
+
+msgid "_White Balance"
+msgstr "_Balans bieli"
+
+msgid "_View"
+msgstr "_Widok"
+
+msgid "_Sort by"
+msgstr "_Sortuj wg"
+
+msgid "_Batch"
+msgstr "_Kolejka"
+
+msgid "_Help"
+msgstr "_Pomoc"
+
+#. File menu
+msgid "_Open Directory"
+msgstr "_Otwórz katalog"
+
+msgid "_Quick Export"
+msgstr "_Szybka konwersja"
+
+msgid "_Export As"
+msgstr "_Konwertuj do..."
+
+msgid "_Export to Gimp"
+msgstr "_Eksportuj do Gimp-a"
+
+msgid "_Reload directory"
+msgstr "_Przeładuj katalog"
+
+msgid "_Delete flagged photos"
+msgstr "_Usuń oznaczone zdjęcia"
+
+msgid "_Quit"
+msgstr "Za_kończ"
+
+#. Edit menu
+msgid "_Revert settings"
+msgstr "_Cofnij zmiany"
+
+msgid "_Copy settings"
+msgstr "_Kopiuj parametry"
+
+msgid "_Paste settings"
+msgstr "_Wklej parametry"
+
+msgid "_Reset settings"
+msgstr "_Parametry domyślne"
+
+msgid "_Preferences"
+msgstr "_Ustawienia"
+
+#. Photo menu
+msgid "_Flag photo for deletion"
+msgstr "_Oznacz do usunięcia"
+
+msgid "_1"
+msgstr "_1"
+
+msgid "_2"
+msgstr "_2"
+
+msgid "_3"
+msgstr "_3"
+
+msgid "_Remove priority"
+msgstr "_Usuń priorytet"
+
+msgid "_Auto"
+msgstr "_Auto"
+
+msgid "_Camera"
+msgstr "_Z aparatu"
+
+msgid "_Crop"
+msgstr "_Przytnij"
+
+msgid "_Uncrop"
+msgstr "_Cofnij przycinanie"
+
+msgid "_Straighten"
+msgstr "_Wyprostuj"
+
+msgid "_Unstraighten"
+msgstr "_Cofnij prostowanie"
+
+msgid "_Group"
+msgstr "_Grupuj"
+
+msgid "_Ungroup"
+msgstr "_Anuluj grupowanie"
+
+msgid "_Auto group"
+msgstr "Grupuj a_utomatycznie"
+
+#. View menu
+msgid "_Previous photo"
+msgstr "_Poprzednie zdjęcie"
+
+msgid "_Next Photo"
+msgstr "_Następne zdjęcie"
+
+msgid "_Zoom to fit"
+msgstr "_Dopasuj do okna"
+
+msgid "_Zoom to 100%"
+msgstr "_Skala 1:1"
+
+#. Batch menu
+msgid "_Add to batch queue"
+msgstr "_Dodaj do kolejki"
+
+msgid "_Add current view to queue"
+msgstr "Dodaj bieżący _widok do kolejki"
+
+msgid "_Remove from batch queue"
+msgstr "_Usuń z kolejki"
+
+msgid "_Start"
+msgstr "_Rozpocznij konwersję"
+
+#. help menu
+msgid "_About"
+msgstr "_O programie"
+
+msgid "_Iconbox"
+msgstr "_Miniaturki"
+
+msgid "_Toolbox"
+msgstr "_Panel narzędzi"
+
+msgid "_Fullscreen"
+msgstr "Pełny _ekran"
+
+msgid "_Exposure mask"
+msgstr "_Maska ekspozycji"
+
+msgid "_Split"
+msgstr "Podgląd _dzielony"
+
+msgid "Name"
+msgstr "Nazwy pliku"
+
+msgid "Timestamp"
+msgstr "Daty wykonania"
+
+msgid "ISO"
+msgstr "ISO"
+
+msgid "Aperture"
+msgstr "Przysłony"
+
+msgid "Focallength"
+msgstr "Ogniskowej"
+
+msgid "Shutterspeed"
+msgstr "Czasu naświetlania"
+
+#~ msgid "Canon CR2"
+#~ msgstr "Canon CR2"
+
+#~ msgid "Canon CIFF"
+#~ msgstr "Canon CIFF"
+
+#~ msgid "Nikon NEF"
+#~ msgstr "Nikon NEF"
+
+#~ msgid "Minolta raw"
+#~ msgstr "Minolta raw"
+
+#~ msgid "Canon TIFF"
+#~ msgstr "Canon TIFF"
+
+#~ msgid "Sony"
+#~ msgstr "Sony"
+
+#~ msgid "Kodak"
+#~ msgstr "Kodak"
+
+#~ msgid "Sigma"
+#~ msgstr "Sigma"
+
+#~ msgid "Olympus"
+#~ msgstr "Olympus"
+
+#~ msgid "Panasonic raw"
+#~ msgstr "Panasonic raw"
+
+#~ msgid "Pentax raw"
+#~ msgstr "Pentax raw"
+
+#~ msgid "Adobe Digital negative"
+#~ msgstr "Adobe Digital negative"
+
+#~ msgid "Mamiya"
+#~ msgstr "Mamiya"
+
+#~ msgid "Hasselblad"
+#~ msgstr "Hasselblad"
+
+#~ msgid "Opening directory..."
+#~ msgstr "Otwieranie katalogu..."

@@ -1,0 +1,912 @@
+# Finnish translation for Rawstudio
+# Rawstudio.org
+#
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+#
+# Olli H. / 2008
+# Contact: write to the Rawstudio developer mailing list.
+#
+#
+# There are some older translation that were not needed in further versions
+# of Rawstudio. These are presented as commented lines at the end of this file.
+#
+#
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Rawstudio 1.1.1\n"
+"Report-Msgid-Bugs-To: rawstudio-dev@rawstudio.org\n"
+"POT-Creation-Date: 2009-01-11 04:26+0100\n"
+"PO-Revision-Date: 2008-04-18 07:45+0200\n"
+"Last-Translator: Olli H.\n"
+"Language-Team: Rawstudio development <rawstudio-dev@rawstudio.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Poedit-Language: Finnish\n"
+"X-Poedit-Country: FINLAND\n"
+
+#, c-format
+msgid "%f - Original filename"
+msgstr "%f - Alkuperäinen tiedostonimi"
+
+#, c-format
+msgid "%2c - Incremental counter"
+msgstr "%2c - Kasvava laskuri"
+
+#, c-format
+msgid "%s - Setting id (A, B or C)"
+msgstr "%s - Tärkeysmerkintä (A, B tai C)"
+
+msgid "Select color profile"
+msgstr "Valitse väriprofiili"
+
+msgid "All files"
+msgstr "Kaikki tiedostot"
+
+msgid "Color profiles (icc and icm)"
+msgstr "Väriprofiilit (icc ja icm)"
+
+msgid "Not a valid color profile."
+msgstr "Epäkelpo väriprofiili."
+
+msgid ""
+"The file you selected does not appear to be a valid color profile for this "
+"version of Rawstudio."
+msgstr ""
+"Valitsemasi tiedosto ei kelpaa väriprofiiliksi Rawstudion tälle versiolle"
+
+msgid "Enable color management (experimental)"
+msgstr "Ota värien hallinta käyttöön (kokeellinen toiminto)"
+
+msgid "Input profile"
+msgstr "Tuontiprofiili"
+
+msgid "BuiltInRGBProfile"
+msgstr "Sisäänrakennettu RGB-profiili"
+
+msgid "Display profile"
+msgstr "Näytön profiili"
+
+msgid "sRGB"
+msgstr "sRGB"
+
+msgid "Export profile"
+msgstr "Vientiprofiili"
+
+msgid "Intent"
+msgstr "Rasterointiaie"
+
+msgid "Perceptual"
+msgstr "Havainnollinen"
+
+msgid "Relative colormetric"
+msgstr "Suhteellinen kolorimetrinen"
+
+msgid "Saturation"
+msgstr "Värikylläisyys"
+
+msgid "Absolute colormetric"
+msgstr "Absoluuttinen kolorimetrinen"
+
+msgid "Background renderer active"
+msgstr "Taustan renderöijä on aktiivinen"
+
+msgid "Opening photo ..."
+msgstr "Avataan kuvaa ..."
+
+msgid "Couldn't open photo"
+msgstr "Kuvaa ei voitu avata"
+
+msgid "Image opened"
+msgstr "Kuva on avattu"
+
+msgid "Rawstudio"
+msgstr "Rawstudio"
+
+#, c-format
+msgid "Changed photo priority (*)"
+msgstr "Kuvan tärkeys muutettu (*)"
+
+#, c-format
+msgid "Changed photo priority (D)"
+msgstr "Kuva merkitty poistettavaksi (D)"
+
+#, c-format
+msgid "Changed photo priority (%d)"
+msgstr "Kuvan tärkeys muutettu (%d)"
+
+msgid "Preferences"
+msgstr "Asetukset"
+
+msgid "Preview background color:"
+msgstr "Esikatselun taustan väri:"
+
+msgid "Histogram height:"
+msgstr "Histogrammin korkeus:"
+
+msgid "Show filenames in iconview"
+msgstr "Näytä kuvien nimet pikkukuvien yhteydessä"
+
+msgid "Use system theme"
+msgstr "Käytä järjestelmän teemaa"
+
+msgid "Place cache in home directory"
+msgstr "Sijoita asetukset sisältävät tiedostot kotihakemistoon"
+
+msgid "Load 8 bit photos (jpeg, png, etc)"
+msgstr "Lataa 8-bittiset kuvat (jpeg, png, jne.)"
+
+msgid "Preload photos"
+msgstr "Esilataa kuvat"
+
+msgid "Directory:"
+msgstr "Kansio:"
+
+msgid "Filename:"
+msgstr "Tiedoston nimi:"
+
+msgid "File type:"
+msgstr "Tiedoston tyyppi:"
+
+#. set default
+msgid "Filename example:"
+msgstr "Tiedostonimen esimerkki:"
+
+msgid "Save uncompressed TIFF"
+msgstr "Tallenna pakkaamaton TIFF"
+
+msgid "General"
+msgstr "Yleistä"
+
+#. gtk_notebook_append_page(GTK_NOTEBOOK(notebook), batch_page, gtk_label_new(_("Batch")));
+msgid "Quick export"
+msgstr "Pikavienti"
+
+msgid "Colors"
+msgstr "Värit"
+
+msgid "Open recursive"
+msgstr "Avaa alihakemistot rekursiivisesti"
+
+msgid "Tools"
+msgstr "Työkalut"
+
+msgid "Batch"
+msgstr "Työjono"
+
+msgid "Open"
+msgstr "Avaa"
+
+msgid "Ready"
+msgstr "Valmis"
+
+msgid "Progress"
+msgstr "Edistyminen"
+
+msgid "JPEG Quality:"
+msgstr "JPEG-laatu"
+
+msgid "Keep aspect"
+msgstr "Säilytä sivusuhteet"
+
+msgid "Width:"
+msgstr "Leveys:"
+
+msgid "Height:"
+msgstr "Korkeus:"
+
+msgid "Percent:"
+msgstr "Prosenttia:"
+
+msgid "Export File"
+msgstr "Vie tiedosto"
+
+msgid "Exporting file ..."
+msgstr "Viedään tiedostoa ..."
+
+msgid "File exported"
+msgstr "Tiedosto on viety"
+
+msgid "File export canceled"
+msgstr "Tiedoston vienti keskeytettiin"
+
+msgid "JPEG (Joint Photographic Experts Group)"
+msgstr "JPEG (Joint Photographic Experts Group)"
+
+msgid "PNG (Portable Network Graphics)"
+msgstr "PNG (Portable Network Graphics)"
+
+msgid "8-bit TIFF (Tagged Image File Format)"
+msgstr "8-bittinen TIFF (Tagged Image File Format)"
+
+msgid "16-bit TIFF (Tagged Image File Format)"
+msgstr "16-bit TIFF (Tagged Image File Format)"
+
+msgid "A"
+msgstr "A"
+
+msgid "B"
+msgstr "B"
+
+msgid "C"
+msgstr "C"
+
+msgid "Processing photos"
+msgstr "Työstetään kuvia"
+
+msgid "Cancel"
+msgstr "Peruuta"
+
+msgid "Last image:"
+msgstr "Viimeinen kuva:"
+
+#, c-format
+msgid "Time left: %dh %dm %ds"
+msgstr "Aikaa jäljellä:  %dh %dm %ds"
+
+msgid "Time left: ..."
+msgstr "Aikaa jäljellä: ..."
+
+#, c-format
+msgid "Loading %s ..."
+msgstr "Ladataan %s ..."
+
+#, c-format
+msgid "Saving %s ..."
+msgstr "Tallennetaan %s ..."
+
+msgid "Icon"
+msgstr "Pikkukuva"
+
+msgid "Filename"
+msgstr "Tiedostonimi"
+
+msgid "Setting"
+msgstr "Asetus"
+
+msgid "Start"
+msgstr "Aloita"
+
+msgid "Remove"
+msgstr "Poista"
+
+msgid "Remove all"
+msgstr "Poista kaikki"
+
+msgid "Photo size"
+msgstr "Kuvan koko"
+
+msgid "Constant scale"
+msgstr "Vakiomittasuhteet"
+
+msgid "Constant width"
+msgstr "Vakioleveys"
+
+msgid "Constant height"
+msgstr "Vakiokorkeus"
+
+msgid "Maximum size"
+msgstr "Suurin koko"
+
+msgid "Photo width:"
+msgstr "Kuvan leveys:"
+
+msgid "pixels"
+msgstr "kuvapistettä"
+
+msgid "Photo height:"
+msgstr "Kuvan korkeus:"
+
+msgid "Photo scale:"
+msgstr "Kuvan mittakaava:"
+
+msgid "%"
+msgstr "%"
+
+#, c-format
+msgid ""
+"Constant width:\n"
+"%d"
+msgstr ""
+"Vakioleveys:\n"
+"%d"
+
+#, c-format
+msgid ""
+"Constant height:\n"
+"%d"
+msgstr ""
+"Vakiokorkeus:\n"
+"%d"
+
+#, c-format
+msgid ""
+"Constant Scale:\n"
+"%d"
+msgstr ""
+"Vakiomittasuhteet:\n"
+"%d"
+
+#, c-format
+msgid ""
+"Maximum size:\n"
+"%d x %d"
+msgstr ""
+"Suurin koko:\n"
+"%d x %d"
+
+msgid "Choose output directory"
+msgstr "Valitse kansio mihin viedään"
+
+msgid "Output directory:"
+msgstr "Kansio mihin viedään:"
+
+msgid "Filename template:"
+msgstr "Tiedostonimen malli:"
+
+msgid "Change"
+msgstr "Muuta"
+
+msgid "Export dimensions"
+msgstr "Viedyn kuvan mitat"
+
+#. All
+#, c-format
+msgid "* <small>(%d)</small>"
+msgstr "* <small>(%d)</small>"
+
+msgid "All photos (excluding deleted)"
+msgstr "Kaikki kuvat (paitsi poistettavaksi merkityt)"
+
+#. 1
+#, c-format
+msgid "1 <small>(%d)</small>"
+msgstr "1 <small>(%d)</small>"
+
+msgid "Priority 1 photos"
+msgstr "Tärkeysmerkinnän 1 kuvat"
+
+#. 2
+#, c-format
+msgid "2 <small>(%d)</small>"
+msgstr "2 <small>(%d)</small>"
+
+msgid "Priority 2 photos"
+msgstr "Tärkeysmerkinnän 2 kuvat"
+
+#. 3
+#, c-format
+msgid "3 <small>(%d)</small>"
+msgstr "3 <small>(%d)</small>"
+
+msgid "Priority 3 photos"
+msgstr "Tärkeysmerkinnän 1 kuvat"
+
+#. Unsorted
+#, c-format
+msgid "U <small>(%d)</small>"
+msgstr "U <small>(%d)</small>"
+
+msgid "Unprioritized photos"
+msgstr "Tärkeysmerkitsemättömät kuvat"
+
+#. Deleted
+#, c-format
+msgid "D <small>(%d)</small>"
+msgstr "D <small>(%d)</small>"
+
+msgid "Deleted photos"
+msgstr "Poistettavaksi merkityt kuvat"
+
+#. Due to popular demand, I will now add a very nice GTK+ label to the left
+#. of the notebook. We hope this will give our users an even better
+#. understanding of our interface. I was thinking about adding a button instead
+#. that said "ROCK ON!" to instantly play "AC/DC - Highway to Hell", but I
+#. believe this will be better for the end user
+msgid "Priorities"
+msgstr "Tärkeysmerkinnät"
+
+#, c-format
+msgid ""
+"<big>%s</big>\n"
+"\n"
+msgstr ""
+
+#, c-format
+msgid "<b>Focal length</b>: %dmm\n"
+msgstr ""
+
+#, c-format
+msgid "<b>Shutter speed</b>: %.1fs\n"
+msgstr ""
+
+#, c-format
+msgid "<b>Shutter speed</b>: 1/%.0fs\n"
+msgstr ""
+
+#, c-format
+msgid "<b>Aperture</b>: F/%.01f\n"
+msgstr ""
+
+#, c-format
+msgid "<b>ISO</b>: %u\n"
+msgstr ""
+
+#, c-format
+msgid "<b>Time</b>: %s"
+msgstr ""
+
+msgid "Size"
+msgstr "Koko"
+
+msgid "-"
+msgstr "-"
+
+msgid "Grid"
+msgstr "Verkko"
+
+msgid "None"
+msgstr "Ei mitään"
+
+msgid "Golden sections"
+msgstr "Kultaiset leikkaukset"
+
+msgid "Rule of thirds"
+msgstr "Kolmanneksien sääntö"
+
+msgid "Golden triangles #1"
+msgstr "Kultaiset kolmiot #1"
+
+msgid "Golden triangles #2"
+msgstr "Kultaiset kolmiot #2"
+
+msgid "Harmonious triangles #1"
+msgstr "Harmoniset kolmiot #1"
+
+msgid "Harmonious triangles #2"
+msgstr "Harmoniset kolmiot #2"
+
+msgid "Aspect"
+msgstr "Sivusuhde"
+
+msgid "Freeform"
+msgstr "Vapaamuoto"
+
+msgid "ISO paper (A4)"
+msgstr "A4 (ISO-standardin mukainen)"
+
+msgid "3:2 (35mm)"
+msgstr "3:2 (35mm)"
+
+msgid "4:3"
+msgstr "4:3"
+
+msgid "10:8 (SXGA)"
+msgstr "10:8 (SXGA)"
+
+msgid "16:10 (Wide XGA)"
+msgstr "16:10 (Wide XGA)"
+
+msgid "8:3 (Dualhead XGA)"
+msgstr "8:3 (Dualhead XGA)"
+
+msgid "1:1"
+msgstr "1:1"
+
+msgid "Golden rectangle"
+msgstr "Kultainen neliö"
+
+msgid "Crop"
+msgstr "Rajaa"
+
+msgid "Don't crop"
+msgstr ""
+
+msgid "Flip the photo over the x-axis"
+msgstr "Käännä kuva x-akselin suhteen"
+
+msgid "Mirror the photo over the y-axis"
+msgstr "Peilaa kuva y-akselin suhteen"
+
+msgid "Rotate the photo 90 degrees clockwise"
+msgstr "Käännä kuvaa 90 astetta myötäpäivään"
+
+msgid "Rotate the photo 180 degrees"
+msgstr "Käännä kuvaa 180 astetta"
+
+msgid "Rotate the photo 90 degrees counter clockwise"
+msgstr "Käännä kuvaa 90 astetta vastapäivään"
+
+msgid "Transforms"
+msgstr "Muotoilut"
+
+msgid "Reset this setting"
+msgstr "Palauta oletusarvo"
+
+msgid "Open curve ..."
+msgstr "Avaa käyrä ..."
+
+msgid "Save curve as ..."
+msgstr "Tallenna käyrä nimellä ..."
+
+msgid "Reset curve"
+msgstr "Palauta käyrän oletusmuoto"
+
+msgid "Auto adjust curve ends"
+msgstr "Säädä käyrän ääripäät automaattisesti"
+
+msgid " A "
+msgstr " A "
+
+msgid " B "
+msgstr " B "
+
+msgid " C "
+msgstr " C "
+
+#. Build GUI
+msgid "Exposure"
+msgstr "Valotus"
+
+msgid "Hue"
+msgstr "Sävy"
+
+msgid "Contrast"
+msgstr "Kontrasti"
+
+#. Box it!
+msgid "Warmth/tint"
+msgstr "Värilämpötila/väri"
+
+msgid "Sharpen"
+msgstr "Terävöitys"
+
+msgid "Curve"
+msgstr "Käyrä"
+
+msgid "Histogram"
+msgstr "Histrogrammi"
+
+msgid "Open directory"
+msgstr "Avaa kansio"
+
+msgid "Error exporting"
+msgstr "Virhe vietäessä"
+
+msgid "Error exporting photo to gimp."
+msgstr "Virhe vietäessä kuvaa gimp-kuvienkäsittelyohjelmaan."
+
+msgid "Deleting photos"
+msgstr "Poistetaan kuvia"
+
+msgid "Your files will be <b>permanently</b> deleted!"
+msgstr "Tiedostosi poistetaan <b>pysyvästi</b>!"
+
+msgid "Delete photos"
+msgstr "Poista kuvat"
+
+msgid "Copied settings"
+msgstr "Arvot kopioitu"
+
+msgid "White balance"
+msgstr "Valkotasapaino"
+
+msgid "Select settings to paste"
+msgstr "Valitse liitettävät arvot"
+
+msgid "Pasted settings"
+msgstr "Liitetyt arvot"
+
+msgid "Nothing to paste"
+msgstr "Liitettäviä asetuksia ei ole"
+
+msgid "Buffer empty"
+msgstr "Välimuisti tyhjä"
+
+msgid "Adjusting to auto white balance"
+msgstr "Säädetään valkotasapaino automaattisesti"
+
+msgid "No white balance to set from"
+msgstr "Ei valkotasapainoarvoa josta asettaa"
+
+msgid "Adjusting to camera white balance"
+msgstr "Asetetaan kameran valkotasapainoarvoon"
+
+msgid "Showing exposure mask"
+msgstr "Näytetään valotusmaski"
+
+msgid "Hiding exposure mask"
+msgstr "Piilotetaan valotusmaski"
+
+#, c-format
+msgid " %s added to batch queue"
+msgstr " %s lisättiin työjonoon"
+
+#, c-format
+msgid "%s already added to batch queue"
+msgstr "%s on jo lisätty työjonoon"
+
+#, c-format
+msgid "%d photos added to batch queue"
+msgstr "%d kuvaa lisätty työjonoon"
+
+msgid ""
+"Select which settings to\n"
+"add to batch queue"
+msgstr ""
+"Valitse mitkä asetukset\n"
+"lisätään työjonoon"
+
+msgid "Removed from batch queue"
+msgstr "Poistettu työjonosta"
+
+msgid "Not in batch queue"
+msgstr "Ei työjonossa"
+
+msgid "A raw image converter for GTK+/GNOME"
+msgstr "RAW-kuvien muunnin GTK+/GNOME -työpöytäympäristöön"
+
+msgid "_File"
+msgstr "_Tiedosto"
+
+msgid "_Edit"
+msgstr "_Muokkaa"
+
+msgid "_Photo"
+msgstr "_Kuva"
+
+msgid "_Set Priority"
+msgstr "_Aseta tärkeys"
+
+msgid "_White Balance"
+msgstr "_Valkotasapaino"
+
+msgid "_View"
+msgstr "_Näytä"
+
+msgid "_Sort by"
+msgstr ""
+
+msgid "_Batch"
+msgstr "_Työjono"
+
+msgid "_Help"
+msgstr "_Ohje"
+
+#. File menu
+msgid "_Open Directory"
+msgstr "_Avaa kansio"
+
+msgid "_Quick Export"
+msgstr "_Pikavienti"
+
+msgid "_Export As"
+msgstr "_Vie nimellä"
+
+msgid "_Export to Gimp"
+msgstr "_Vie Gimp-kuvankäsittelyohjelmaan"
+
+msgid "_Reload directory"
+msgstr "_Lataa kansio uudestaan"
+
+msgid "_Delete flagged photos"
+msgstr "_Poista poistettavaksi merkityt kuvat"
+
+msgid "_Quit"
+msgstr "_Poistu"
+
+#. Edit menu
+msgid "_Revert settings"
+msgstr "_Palauta arvot"
+
+msgid "_Copy settings"
+msgstr "_Kopioi arvot"
+
+msgid "_Paste settings"
+msgstr "_Liitä arvot"
+
+msgid "_Reset settings"
+msgstr "_Palauta oletusarvot"
+
+msgid "_Preferences"
+msgstr "_Asetukset"
+
+#. Photo menu
+msgid "_Flag photo for deletion"
+msgstr "_Merkitse kuva poistoa varten"
+
+msgid "_1"
+msgstr "_1"
+
+msgid "_2"
+msgstr "_2"
+
+msgid "_3"
+msgstr "_3"
+
+msgid "_Remove priority"
+msgstr "_Poista tärkeysmerkintä"
+
+msgid "_Auto"
+msgstr "_Automaattinen"
+
+msgid "_Camera"
+msgstr "_Kamera"
+
+msgid "_Crop"
+msgstr "_Rajaa"
+
+msgid "_Uncrop"
+msgstr "_Poista rajaus"
+
+msgid "_Straighten"
+msgstr "_Suorista"
+
+msgid "_Unstraighten"
+msgstr "_Poista suoristus"
+
+msgid "_Group"
+msgstr "_Ryhmitä"
+
+msgid "_Ungroup"
+msgstr "_Poista ryhmitys"
+
+#, fuzzy
+msgid "_Auto group"
+msgstr "_Poista ryhmitys"
+
+#. View menu
+msgid "_Previous photo"
+msgstr "_Edellinen kuva"
+
+msgid "_Next Photo"
+msgstr "_Seuraava kuva"
+
+msgid "_Zoom to fit"
+msgstr "_Zoomaa sopimaan"
+
+msgid "_Zoom to 100%"
+msgstr "_Zoomaa 100%"
+
+#. Batch menu
+msgid "_Add to batch queue"
+msgstr "_Lisää työjonoon"
+
+msgid "_Add current view to queue"
+msgstr "_Lisää kaikki pikkukuvat työjonoon"
+
+msgid "_Remove from batch queue"
+msgstr "_Poista työjonosta"
+
+msgid "_Start"
+msgstr "_Aloita"
+
+#. help menu
+msgid "_About"
+msgstr "_Tietoja"
+
+msgid "_Iconbox"
+msgstr "_Pikkukuvat"
+
+msgid "_Toolbox"
+msgstr "_Työkalut"
+
+msgid "_Fullscreen"
+msgstr "_Kokoruutu"
+
+msgid "_Exposure mask"
+msgstr "_Valotusmaski"
+
+msgid "_Split"
+msgstr "_Jaa"
+
+msgid "Name"
+msgstr ""
+
+msgid "Timestamp"
+msgstr ""
+
+#, fuzzy
+msgid "ISO"
+msgstr "ISO%d"
+
+msgid "Aperture"
+msgstr ""
+
+msgid "Focallength"
+msgstr ""
+
+msgid "Shutterspeed"
+msgstr ""
+
+#~ msgid "%dmm "
+#~ msgstr "%dmm "
+
+#~ msgid "%.1fs "
+#~ msgstr "%.1fs "
+
+#~ msgid "1/%.0fs "
+#~ msgstr "1/%.0fs "
+
+#~ msgid "F/%.1f "
+#~ msgstr "F/%.1f "
+
+#~ msgid "No metadata"
+#~ msgstr "Ei metadataa"
+
+#~ msgid "Canon CR2"
+#~ msgstr "Canon CR2"
+
+#~ msgid "Canon CIFF"
+#~ msgstr "Canon CIFF"
+
+#~ msgid "Nikon NEF"
+#~ msgstr "Nikon NEF"
+
+#~ msgid "Minolta raw"
+#~ msgstr "Minolta raw"
+
+#~ msgid "Canon TIFF"
+#~ msgstr "Canon TIFF"
+
+#~ msgid "Sony"
+#~ msgstr "Sony"
+
+#~ msgid "Kodak"
+#~ msgstr "Kodak"
+
+#~ msgid "Sigma"
+#~ msgstr "Sigma"
+
+#~ msgid "Panasonic raw"
+#~ msgstr "Panasonic raw"
+
+#~ msgid "Pentax raw"
+#~ msgstr "Pentax raw"
+
+#~ msgid "Adobe Digital negative"
+#~ msgstr "Adobe Digital negative"
+
+#~ msgid "Mamiya"
+#~ msgstr "Mamiya"
+
+#~ msgid "Hasselblad"
+#~ msgstr "Hasselblad"
+
+#~ msgid "Opening directory..."
+#~ msgstr "Avaa kansio"
+
+#~ msgid "Use dark theme"
+#~ msgstr "Käytä tummaa teemaa"
+
+#~ msgid "Split"
+#~ msgstr "Jaa"
+
+#~ msgid "Exp. mask"
+#~ msgstr "Valotusmaski"
+
+#~ msgid "Toggle exposure mask"
+#~ msgstr "Vaihda valotusmaski (päälle/pois)"
+
+#~ msgid "Set zoom"
+#~ msgstr "Aseta zoomaus"
+
+#~ msgid "Zoom out"
+#~ msgstr "Zoomaa ulos"
+
+#~ msgid "Zoom in"
+#~ msgstr "Zoomaa sisään"
+
+#~ msgid "Zoom to fit"
+#~ msgstr "Zoomaa sopimaan"
+
+#~ msgid "Zoom to 100%"
+#~ msgstr "Zoomaa 100%"
+
+#~ msgid "Zoom:"
+#~ msgstr "Zoomaus:"
+
+#~ msgid "Apply"
+#~ msgstr "Suorita"

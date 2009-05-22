@@ -1,0 +1,858 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Rawstudio 1.1.1\n"
+"Report-Msgid-Bugs-To: rawstudio-dev@rawstudio.org\n"
+"POT-Creation-Date: 2009-01-11 04:26+0100\n"
+"PO-Revision-Date: 2008-05-05 00:22+0100\n"
+"Last-Translator: O. Lavell <olav@freeict.nl>\n"
+"Language-Team: Rawstudio development <rawstudio-dev@rawstudio.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#, c-format
+msgid "%f - Original filename"
+msgstr "%f - Originele bestandsnaam"
+
+#, c-format
+msgid "%2c - Incremental counter"
+msgstr "%2c - Oplopende teller"
+
+#, c-format
+msgid "%s - Setting id (A, B or C)"
+msgstr ""
+
+msgid "Select color profile"
+msgstr "Selecteer kleurprofiel"
+
+msgid "All files"
+msgstr "Alle bestanden"
+
+msgid "Color profiles (icc and icm)"
+msgstr "Kleurprofielen (ICC en ICM)"
+
+msgid "Not a valid color profile."
+msgstr "Geen geldig kleurprofiel."
+
+msgid ""
+"The file you selected does not appear to be a valid color profile for this "
+"version of Rawstudio."
+msgstr ""
+"Het geselecteerde bestand lijkt geen geldig kleurprofielte bevatten voor "
+"deze versie van Rawstudio."
+
+msgid "Enable color management (experimental)"
+msgstr "Schakel kleurbeheer in (experimenteel)"
+
+msgid "Input profile"
+msgstr "Invoerprofiel"
+
+msgid "BuiltInRGBProfile"
+msgstr "BuiltInRGBProfile"
+
+msgid "Display profile"
+msgstr "Weergaveprofiel"
+
+msgid "sRGB"
+msgstr "sRGB"
+
+msgid "Export profile"
+msgstr "Exportprofiel"
+
+msgid "Intent"
+msgstr "Intent"
+
+msgid "Perceptual"
+msgstr "Perceptual"
+
+msgid "Relative colormetric"
+msgstr "Relative colormetric"
+
+msgid "Saturation"
+msgstr "Verzadiging"
+
+msgid "Absolute colormetric"
+msgstr "Absolute colormetric"
+
+msgid "Background renderer active"
+msgstr "Renderer op achtergrond actief"
+
+msgid "Opening photo ..."
+msgstr "Foto openen..."
+
+msgid "Couldn't open photo"
+msgstr "Kan foto niet openen"
+
+msgid "Image opened"
+msgstr "Afbeelding geopend"
+
+msgid "Rawstudio"
+msgstr "Rawstudio"
+
+#, c-format
+msgid "Changed photo priority (*)"
+msgstr ""
+
+#, c-format
+msgid "Changed photo priority (D)"
+msgstr ""
+
+#, c-format
+msgid "Changed photo priority (%d)"
+msgstr ""
+
+msgid "Preferences"
+msgstr "Voorkeuren"
+
+msgid "Preview background color:"
+msgstr "Voorbeeld achtergrondkleur:"
+
+msgid "Histogram height:"
+msgstr "Hoogte histogram:"
+
+msgid "Show filenames in iconview"
+msgstr "Bestandsnamen in pictogramweergave tonen"
+
+msgid "Use system theme"
+msgstr "Gebruik systeemthema"
+
+msgid "Place cache in home directory"
+msgstr "Cache in persoonlijke map plaatsen"
+
+msgid "Load 8 bit photos (jpeg, png, etc)"
+msgstr "8-bit foto's laden (JPEG, PNG e.d.)"
+
+msgid "Preload photos"
+msgstr "Foto's vooruitladen"
+
+msgid "Directory:"
+msgstr "Map:"
+
+msgid "Filename:"
+msgstr "Bestandsnaam:"
+
+msgid "File type:"
+msgstr "Bestandstype:"
+
+#. set default
+msgid "Filename example:"
+msgstr "Bestandsnaam voorbeeld:"
+
+msgid "Save uncompressed TIFF"
+msgstr "Ongecomprimeerde TIFF opslaan"
+
+msgid "General"
+msgstr "Algemeen"
+
+#. gtk_notebook_append_page(GTK_NOTEBOOK(notebook), batch_page, gtk_label_new(_("Batch")));
+msgid "Quick export"
+msgstr "Snelle export"
+
+msgid "Colors"
+msgstr "Kleuren"
+
+msgid "Open recursive"
+msgstr "Recursief openen"
+
+msgid "Tools"
+msgstr "Gereedschappen"
+
+msgid "Batch"
+msgstr "Batch"
+
+msgid "Open"
+msgstr "Openen"
+
+msgid "Ready"
+msgstr "Klaar"
+
+msgid "Progress"
+msgstr "Voortgang"
+
+msgid "JPEG Quality:"
+msgstr "JPEG-kwaliteit:"
+
+msgid "Keep aspect"
+msgstr "Verhoudingen behouden"
+
+msgid "Width:"
+msgstr "Breedte:"
+
+msgid "Height:"
+msgstr "Hoogte:"
+
+msgid "Percent:"
+msgstr "Percentage:"
+
+msgid "Export File"
+msgstr "Bestand exporteren"
+
+msgid "Exporting file ..."
+msgstr "Bestand exporteren..."
+
+msgid "File exported"
+msgstr "Bestand geëxporteerd"
+
+msgid "File export canceled"
+msgstr "Bestandsexport geannuleerd"
+
+msgid "JPEG (Joint Photographic Experts Group)"
+msgstr "JPEG (Joint Photographic Experts Group)"
+
+msgid "PNG (Portable Network Graphics)"
+msgstr "PNG (Portable Network Graphics)"
+
+msgid "8-bit TIFF (Tagged Image File Format)"
+msgstr "8-bit TIFF (Tagged Image File Format)"
+
+msgid "16-bit TIFF (Tagged Image File Format)"
+msgstr "16-bit TIFF (Tagged Image File Format)"
+
+msgid "A"
+msgstr "A"
+
+msgid "B"
+msgstr "B"
+
+msgid "C"
+msgstr "C"
+
+msgid "Processing photos"
+msgstr "Foto's verwerken"
+
+msgid "Cancel"
+msgstr "Annuleren"
+
+msgid "Last image:"
+msgstr "Laatste afbeelding:"
+
+#, c-format
+msgid "Time left: %dh %dm %ds"
+msgstr "Tijd over: %dh %dm %ds"
+
+msgid "Time left: ..."
+msgstr "Tijd over: ..."
+
+#, c-format
+msgid "Loading %s ..."
+msgstr "Laden %s ..."
+
+#, c-format
+msgid "Saving %s ..."
+msgstr "Bewaren %s ..."
+
+msgid "Icon"
+msgstr "Pictogram"
+
+msgid "Filename"
+msgstr "Bestandsnaam"
+
+msgid "Setting"
+msgstr "Instelling"
+
+msgid "Start"
+msgstr "Start"
+
+msgid "Remove"
+msgstr "Verwijderen"
+
+msgid "Remove all"
+msgstr "Alles verwijderen"
+
+msgid "Photo size"
+msgstr "Afbeeldingsgrootte"
+
+msgid "Constant scale"
+msgstr ""
+
+msgid "Constant width"
+msgstr ""
+
+msgid "Constant height"
+msgstr ""
+
+msgid "Maximum size"
+msgstr ""
+
+msgid "Photo width:"
+msgstr ""
+
+msgid "pixels"
+msgstr "pixels"
+
+msgid "Photo height:"
+msgstr ""
+
+msgid "Photo scale:"
+msgstr ""
+
+msgid "%"
+msgstr "%"
+
+#, c-format
+msgid ""
+"Constant width:\n"
+"%d"
+msgstr ""
+
+#, c-format
+msgid ""
+"Constant height:\n"
+"%d"
+msgstr ""
+
+#, c-format
+msgid ""
+"Constant Scale:\n"
+"%d"
+msgstr ""
+
+#, c-format
+msgid ""
+"Maximum size:\n"
+"%d x %d"
+msgstr ""
+
+msgid "Choose output directory"
+msgstr ""
+
+msgid "Output directory:"
+msgstr ""
+
+msgid "Filename template:"
+msgstr ""
+
+msgid "Change"
+msgstr ""
+
+msgid "Export dimensions"
+msgstr ""
+
+#. All
+#, c-format
+msgid "* <small>(%d)</small>"
+msgstr "* <small>(%d)</small>"
+
+msgid "All photos (excluding deleted)"
+msgstr ""
+
+#. 1
+#, c-format
+msgid "1 <small>(%d)</small>"
+msgstr "1 <small>(%d)</small>"
+
+msgid "Priority 1 photos"
+msgstr ""
+
+#. 2
+#, c-format
+msgid "2 <small>(%d)</small>"
+msgstr "2 <small>(%d)</small>"
+
+msgid "Priority 2 photos"
+msgstr ""
+
+#. 3
+#, c-format
+msgid "3 <small>(%d)</small>"
+msgstr "3 <small>(%d)</small>"
+
+msgid "Priority 3 photos"
+msgstr ""
+
+#. Unsorted
+#, c-format
+msgid "U <small>(%d)</small>"
+msgstr "U <small>(%d)</small>"
+
+msgid "Unprioritized photos"
+msgstr ""
+
+#. Deleted
+#, c-format
+msgid "D <small>(%d)</small>"
+msgstr "D <small>(%d)</small>"
+
+msgid "Deleted photos"
+msgstr "Verwijderde foto's"
+
+#. Due to popular demand, I will now add a very nice GTK+ label to the left
+#. of the notebook. We hope this will give our users an even better
+#. understanding of our interface. I was thinking about adding a button instead
+#. that said "ROCK ON!" to instantly play "AC/DC - Highway to Hell", but I
+#. believe this will be better for the end user
+msgid "Priorities"
+msgstr "Prioriteiten"
+
+#, c-format
+msgid ""
+"<big>%s</big>\n"
+"\n"
+msgstr ""
+
+#, c-format
+msgid "<b>Focal length</b>: %dmm\n"
+msgstr ""
+
+#, c-format
+msgid "<b>Shutter speed</b>: %.1fs\n"
+msgstr ""
+
+#, c-format
+msgid "<b>Shutter speed</b>: 1/%.0fs\n"
+msgstr ""
+
+#, c-format
+msgid "<b>Aperture</b>: F/%.01f\n"
+msgstr ""
+
+#, c-format
+msgid "<b>ISO</b>: %u\n"
+msgstr ""
+
+#, c-format
+msgid "<b>Time</b>: %s"
+msgstr ""
+
+msgid "Size"
+msgstr "Grootte"
+
+msgid "-"
+msgstr "-"
+
+msgid "Grid"
+msgstr "Raster"
+
+msgid "None"
+msgstr "Geen"
+
+msgid "Golden sections"
+msgstr ""
+
+msgid "Rule of thirds"
+msgstr ""
+
+msgid "Golden triangles #1"
+msgstr ""
+
+msgid "Golden triangles #2"
+msgstr ""
+
+msgid "Harmonious triangles #1"
+msgstr ""
+
+msgid "Harmonious triangles #2"
+msgstr ""
+
+msgid "Aspect"
+msgstr ""
+
+msgid "Freeform"
+msgstr ""
+
+msgid "ISO paper (A4)"
+msgstr ""
+
+msgid "3:2 (35mm)"
+msgstr "3:2 (35mm)"
+
+msgid "4:3"
+msgstr "4:3"
+
+msgid "10:8 (SXGA)"
+msgstr "10:8 (SXGA)"
+
+msgid "16:10 (Wide XGA)"
+msgstr "16:10 (Wide XGA)"
+
+msgid "8:3 (Dualhead XGA)"
+msgstr "8:3 (Dualhead XGA)"
+
+msgid "1:1"
+msgstr "1:1"
+
+msgid "Golden rectangle"
+msgstr ""
+
+msgid "Crop"
+msgstr ""
+
+msgid "Don't crop"
+msgstr ""
+
+msgid "Flip the photo over the x-axis"
+msgstr "Spiegelen om X-as"
+
+msgid "Mirror the photo over the y-axis"
+msgstr "Spiegelen om Y-as"
+
+msgid "Rotate the photo 90 degrees clockwise"
+msgstr "90 graden roteren"
+
+msgid "Rotate the photo 180 degrees"
+msgstr "180 graden roteren"
+
+msgid "Rotate the photo 90 degrees counter clockwise"
+msgstr "270 graden roteren (90 graden tegen de klok)"
+
+msgid "Transforms"
+msgstr "Transformaties"
+
+msgid "Reset this setting"
+msgstr ""
+
+msgid "Open curve ..."
+msgstr "Curve openen..."
+
+msgid "Save curve as ..."
+msgstr "Curve bewaren als..."
+
+msgid "Reset curve"
+msgstr ""
+
+msgid "Auto adjust curve ends"
+msgstr ""
+
+msgid " A "
+msgstr " A "
+
+msgid " B "
+msgstr " B "
+
+msgid " C "
+msgstr " C "
+
+#. Build GUI
+msgid "Exposure"
+msgstr "Belichting"
+
+msgid "Hue"
+msgstr "Tint"
+
+msgid "Contrast"
+msgstr "Contrast"
+
+#. Box it!
+msgid "Warmth/tint"
+msgstr "Temperatuur"
+
+msgid "Sharpen"
+msgstr "Verscherpen"
+
+msgid "Curve"
+msgstr "Curve"
+
+msgid "Histogram"
+msgstr "Histogram"
+
+msgid "Open directory"
+msgstr ""
+
+msgid "Error exporting"
+msgstr ""
+
+msgid "Error exporting photo to gimp."
+msgstr ""
+
+msgid "Deleting photos"
+msgstr "Foto's verwijderen"
+
+msgid "Your files will be <b>permanently</b> deleted!"
+msgstr "Bestanden zullen <b>definitief</b> verwijderd worden!"
+
+msgid "Delete photos"
+msgstr "Foto's verwijderen"
+
+msgid "Copied settings"
+msgstr "Gekopieerde instellingen"
+
+msgid "White balance"
+msgstr "Witbalans"
+
+msgid "Select settings to paste"
+msgstr "Selecteer instellingen om te plakken"
+
+msgid "Pasted settings"
+msgstr ""
+
+msgid "Nothing to paste"
+msgstr "Niets te plakken"
+
+msgid "Buffer empty"
+msgstr ""
+
+msgid "Adjusting to auto white balance"
+msgstr "Aanpassen naar automatische witbalans"
+
+msgid "No white balance to set from"
+msgstr ""
+
+msgid "Adjusting to camera white balance"
+msgstr "Aanpassen naar camera witbalans"
+
+msgid "Showing exposure mask"
+msgstr ""
+
+msgid "Hiding exposure mask"
+msgstr ""
+
+#, c-format
+msgid " %s added to batch queue"
+msgstr ""
+
+#, c-format
+msgid "%s already added to batch queue"
+msgstr ""
+
+#, c-format
+msgid "%d photos added to batch queue"
+msgstr ""
+
+msgid ""
+"Select which settings to\n"
+"add to batch queue"
+msgstr ""
+
+msgid "Removed from batch queue"
+msgstr ""
+
+msgid "Not in batch queue"
+msgstr ""
+
+msgid "A raw image converter for GTK+/GNOME"
+msgstr ""
+
+msgid "_File"
+msgstr "_Bestand"
+
+msgid "_Edit"
+msgstr "Be_werken"
+
+msgid "_Photo"
+msgstr "_Foto"
+
+msgid "_Set Priority"
+msgstr "_Prioriteit instellen"
+
+msgid "_White Balance"
+msgstr "_Witbalans"
+
+msgid "_View"
+msgstr "_Weergave"
+
+msgid "_Sort by"
+msgstr ""
+
+msgid "_Batch"
+msgstr "_Batch"
+
+msgid "_Help"
+msgstr "_Help"
+
+#. File menu
+msgid "_Open Directory"
+msgstr "Map _openen"
+
+msgid "_Quick Export"
+msgstr "_Vlugge export"
+
+msgid "_Export As"
+msgstr "_Exporteer als..."
+
+msgid "_Export to Gimp"
+msgstr "_Exporteer naar Gimp"
+
+msgid "_Reload directory"
+msgstr "Map _herladen"
+
+msgid "_Delete flagged photos"
+msgstr "_Verwijder gemarkeerde foto's"
+
+msgid "_Quit"
+msgstr "_Afsluiten"
+
+#. Edit menu
+msgid "_Revert settings"
+msgstr "Instellingen _herstellen"
+
+msgid "_Copy settings"
+msgstr "Instellingen _kopiëren"
+
+msgid "_Paste settings"
+msgstr "Instellingen _plakken"
+
+msgid "_Reset settings"
+msgstr "Instellingen _ongedaan maken"
+
+msgid "_Preferences"
+msgstr "_Voorkeuren"
+
+#. Photo menu
+msgid "_Flag photo for deletion"
+msgstr "_Markeer voor verwijderen"
+
+msgid "_1"
+msgstr "_1"
+
+msgid "_2"
+msgstr "_2"
+
+msgid "_3"
+msgstr "_3"
+
+msgid "_Remove priority"
+msgstr "_Verwijder prioriteit"
+
+msgid "_Auto"
+msgstr "_Auto"
+
+msgid "_Camera"
+msgstr "_Camera"
+
+msgid "_Crop"
+msgstr "_Snijden"
+
+msgid "_Uncrop"
+msgstr "Snijden ongedaan maken"
+
+msgid "_Straighten"
+msgstr "_Rechtzetten"
+
+msgid "_Unstraighten"
+msgstr "Rechtzetten ongedaan maken"
+
+msgid "_Group"
+msgstr "_Groeperen"
+
+msgid "_Ungroup"
+msgstr "Groeperen ongedaan maken"
+
+#, fuzzy
+msgid "_Auto group"
+msgstr "Groeperen ongedaan maken"
+
+#. View menu
+msgid "_Previous photo"
+msgstr "_Vorige foto"
+
+msgid "_Next Photo"
+msgstr "V_olgende foto"
+
+msgid "_Zoom to fit"
+msgstr "_Inpassen"
+
+msgid "_Zoom to 100%"
+msgstr "_Zoom naar 100%"
+
+#. Batch menu
+msgid "_Add to batch queue"
+msgstr "_Toevoegen aan batch-rij"
+
+msgid "_Add current view to queue"
+msgstr ""
+
+msgid "_Remove from batch queue"
+msgstr ""
+
+msgid "_Start"
+msgstr "_Start"
+
+#. help menu
+msgid "_About"
+msgstr "_Info..."
+
+msgid "_Iconbox"
+msgstr "_Miniaturen"
+
+msgid "_Toolbox"
+msgstr "_Gereedschappen"
+
+msgid "_Fullscreen"
+msgstr "_Volledig scherm"
+
+msgid "_Exposure mask"
+msgstr ""
+
+msgid "_Split"
+msgstr "_Splitsen"
+
+msgid "Name"
+msgstr ""
+
+msgid "Timestamp"
+msgstr ""
+
+#, fuzzy
+msgid "ISO"
+msgstr "ISO%d"
+
+msgid "Aperture"
+msgstr ""
+
+msgid "Focallength"
+msgstr ""
+
+msgid "Shutterspeed"
+msgstr ""
+
+#~ msgid "%dmm "
+#~ msgstr "%dmm "
+
+#~ msgid "%.1fs "
+#~ msgstr "%.1fs "
+
+#~ msgid "1/%.0fs "
+#~ msgstr "1/%.0fs "
+
+#~ msgid "F/%.1f "
+#~ msgstr "F/%.1f "
+
+#~ msgid "No metadata"
+#~ msgstr "Geen metagegevens"
+
+#~ msgid "Canon CR2"
+#~ msgstr "Canon CR2"
+
+#~ msgid "Canon CIFF"
+#~ msgstr "Canon CIFF"
+
+#~ msgid "Nikon NEF"
+#~ msgstr "Nikon NEF"
+
+#~ msgid "Minolta raw"
+#~ msgstr "Minolta RAW"
+
+#~ msgid "Canon TIFF"
+#~ msgstr "Canon TIFF"
+
+#~ msgid "Sony"
+#~ msgstr "Sony"
+
+#~ msgid "Kodak"
+#~ msgstr "Kodak"
+
+#~ msgid "Sigma"
+#~ msgstr "Sigma"
+
+#~ msgid "Panasonic raw"
+#~ msgstr "Panasonic raw"
+
+#~ msgid "Pentax raw"
+#~ msgstr "Pentax raw"
+
+#~ msgid "Adobe Digital negative"
+#~ msgstr "Adobe Digital negative"
+
+#~ msgid "Mamiya"
+#~ msgstr "Mamiya"
+
+#~ msgid "Hasselblad"
+#~ msgstr "Hasselblad"
+
+#~ msgid "Opening directory..."
+#~ msgstr "Map openen..."
