@@ -111,6 +111,12 @@ rs_cache_save(RS_PHOTO *photo, const RSSettingsMask mask)
 			photo->settings[id]->denoise_luma);
 		xmlTextWriterWriteFormatElement(writer, BAD_CAST "denoise_chroma", "%f",
 			photo->settings[id]->denoise_chroma);
+		if (mask & MASK_TCA_KR)
+		xmlTextWriterWriteFormatElement(writer, BAD_CAST "tca_kr", "%f",
+			photo->settings[id]->tca_kr);
+		if (mask & MASK_TCA_KB)
+		xmlTextWriterWriteFormatElement(writer, BAD_CAST "tca_kb", "%f",
+			photo->settings[id]->tca_kb);
 		if (mask & MASK_CHANNELMIXER)
 		{
 			xmlTextWriterWriteFormatElement(writer, BAD_CAST "channelmixer_red", "%f",
@@ -192,6 +198,16 @@ rs_cache_load_setting(RSSettings *rss, xmlDocPtr doc, xmlNodePtr cur)
 		{
 			mask |= MASK_DENOISE_CHROMA;
 			target = &rss->denoise_chroma;
+		}
+		else if ((!xmlStrcmp(cur->name, BAD_CAST "tca_kr")))
+		{
+			mask |= MASK_TCA_KR;
+			target = &rss->tca_kr;
+		}
+		else if ((!xmlStrcmp(cur->name, BAD_CAST "tca_kb")))
+		{
+			mask |= MASK_TCA_KB;
+			target = &rss->tca_kb;
 		}
 		else if ((!xmlStrcmp(cur->name, BAD_CAST "channelmixer_red")))
 		{

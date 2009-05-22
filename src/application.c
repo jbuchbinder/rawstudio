@@ -191,7 +191,8 @@ rs_new(void)
 	/* Build basic filter chain */
 	rs->filter_input = rs_filter_new("RSInputImage16", NULL);
 	rs->filter_demosaic = rs_filter_new("RSDemosaic", rs->filter_input);
-	rs->filter_lensfun = rs_filter_new("RSLensfun", rs->filter_demosaic);
+	cache = rs_filter_new("RSCache", rs->filter_demosaic);
+	rs->filter_lensfun = rs_filter_new("RSLensfun", cache);
 	cache = rs_filter_new("RSCache", rs->filter_lensfun);
 	rs->filter_rotate = rs_filter_new("RSRotate", cache);
 	rs->filter_crop = rs_filter_new("RSCrop", rs->filter_rotate);

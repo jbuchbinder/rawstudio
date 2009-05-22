@@ -142,6 +142,7 @@ struct _RSPreviewWidget
 	RSFilter *filter_denoise[MAX_VIEWS];
 	RSFilter *filter_cache[MAX_VIEWS];
 	RSFilter *filter_end[MAX_VIEWS]; /* For convenience */
+	RSFilter *filter_lensfun[MAX_VIEWS];
 
 	RS_PHOTO *photo;
 	void *transform;
@@ -443,6 +444,24 @@ rs_preview_widget_set_photo(RSPreviewWidget *preview, RS_PHOTO *photo)
 void
 rs_preview_widget_set_filter(RSPreviewWidget *preview, RSFilter *filter)
 {
+	RSFilter *lensfun = NULL;
+
+	RSFilter *f = filter;
+
+	while(RS_IS_FILTER(filter))
+	{
+		if (g_str_equal(RS_FILTER_NAME(filter), "RSLensfun"))
+			lensfun = filter;
+		filter = filter->previous;
+	}
+	filter = f;
+
+	if (RS_IS_FILTER(lensfun))
+	{
+		preview->filter_lensfun[0] = lensfun;
+		printf("We found the lensfun filter!\n");
+	}
+
 	g_assert(RS_IS_PREVIEW_WIDGET(preview));
 	g_assert(RS_IS_FILTER(filter));
 
@@ -2069,6 +2088,18 @@ settings_changed(RS_PHOTO *photo, RSSettingsMask mask, RSPreviewWidget *preview)
 				gfloat f = 0.0;
 				g_object_get(preview->photo->settings[preview->snapshot[view]], "denoise_chroma", &f, NULL);
 				g_object_set(preview->filter_denoise[view], "denoise_chroma", (gint) f, NULL);
+			}
+			if (mask & MASK_TCA_KR)
+			{
+				gfloat f = 1.0;
+				g_object_get(preview->photo->settings[preview->snapshot[view]], "tca_kr", &f, NULL);
+				g_object_set(preview->filter_lensfun[view], "tca_kr", (gfloat) f, NULL);
+			}
+			if (mask & MASK_TCA_KB)
+			{
+				gfloat f = 1.0;
+				g_object_get(preview->photo->settings[preview->snapshot[view]], "tca_kb", &f, NULL);
+				g_object_set(preview->filter_lensfun[view], "tca_kb", (gfloat) f, NULL);
 			}
 			if (mask ^ (MASK_SHARPEN|MASK_DENOISE_LUMA|MASK_DENOISE_CHROMA))
 				rs_color_transform_set_from_settings(preview->rct[view], preview->photo->settings[preview->snapshot[view]], mask);
