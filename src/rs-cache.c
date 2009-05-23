@@ -117,6 +117,9 @@ rs_cache_save(RS_PHOTO *photo, const RSSettingsMask mask)
 		if (mask & MASK_TCA_KB)
 		xmlTextWriterWriteFormatElement(writer, BAD_CAST "tca_kb", "%f",
 			photo->settings[id]->tca_kb);
+		if (mask & MASK_VIGNETTING)
+		xmlTextWriterWriteFormatElement(writer, BAD_CAST "vignetting", "%f",
+			photo->settings[id]->vignetting);
 		if (mask & MASK_CHANNELMIXER)
 		{
 			xmlTextWriterWriteFormatElement(writer, BAD_CAST "channelmixer_red", "%f",
@@ -208,6 +211,11 @@ rs_cache_load_setting(RSSettings *rss, xmlDocPtr doc, xmlNodePtr cur)
 		{
 			mask |= MASK_TCA_KB;
 			target = &rss->tca_kb;
+		}
+		else if ((!xmlStrcmp(cur->name, BAD_CAST "vignetting")))
+		{
+			mask |= MASK_VIGNETTING;
+			target = &rss->vignetting;
 		}
 		else if ((!xmlStrcmp(cur->name, BAD_CAST "channelmixer_red")))
 		{

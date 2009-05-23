@@ -62,8 +62,9 @@ const static BasicSettings channelmixer[] = {
 const static BasicSettings tca[] = {
 	{ "tca_kr",         0.001 },
 	{ "tca_kb",         0.001 },
+	{ "vignetting",     0.01 },
 };
-#define NTCA (2)
+#define NTCA (3)
 
 struct _RSToolbox {
 	GtkScrolledWindow parent;
