@@ -46,6 +46,7 @@ typedef enum {
 	MASK_DENOISE_CHROMA = (1<<9),
 	MASK_TCA_KR         = (1<<10),
 	MASK_TCA_KB         = (1<<11),
+	MASK_TCA            = MASK_TCA_KR | MASK_TCA_KB,
 	MASK_VIGNETTING_K1  = (1<<12),
 	MASK_VIGNETTING_K2  = (1<<13),
 	MASK_VIGNETTING_K3  = (1<<14),
