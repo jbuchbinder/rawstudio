@@ -362,7 +362,7 @@ get_image(RSFilter *filter)
 	{
 		gint effective_flags;
 
-		if (lensfun->tca_kr != 1.0 || lensfun->tca_kb != 1.0) 
+		if (lensfun->tca_kr != 0.0 || lensfun->tca_kb != 0.0) 
 		{
 			/* Set TCA */
 			lfLensCalibTCA tca;
