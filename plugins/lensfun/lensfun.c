@@ -317,7 +317,10 @@ get_image(RSFilter *filter)
 	const gchar *model = NULL;
 
 	/* We need a copy of the image to modify - vignetting, ... */
-	input = rs_image16_copy(rs_filter_get_image(filter->previous), TRUE);
+	if (rs_filter_get_image(filter->previous))
+		input = rs_image16_copy(rs_filter_get_image(filter->previous), TRUE);
+	else
+		input = rs_filter_get_image(filter->previous);
 
 	gint i, j;
 	lfDatabase *ldb = lf_db_new ();
