@@ -224,17 +224,6 @@ rs_new(void)
 
 	rs->filter_end = cache;
 
-	filename = rs_conf_get_cms_profile(CMS_PROFILE_INPUT);
-	if (filename)
-	{
-		profile = rs_icc_profile_new_from_file(filename);
-		g_free(filename);
-	}
-	if (!profile)
-		profile = rs_icc_profile_new_from_file(PACKAGE_DATA_DIR "/" PACKAGE "/profiles/generic_camera_profile.icc");
-	g_object_set(rs->filter_input, "icc-profile", profile, NULL);
-	g_object_unref(profile);
-
 	return(rs);
 }
 
