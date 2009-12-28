@@ -29,7 +29,8 @@ RS_DEFINE_FILTER(rs_dcp, RSDcp)
 enum {
 	PROP_0,
 	PROP_SETTINGS,
-	PROP_PROFILE
+	PROP_PROFILE,
+	PROP_USE_PROFILE
 };
 
 static void get_property (GObject *object, guint property_id, GValue *value, GParamSpec *pspec);
@@ -84,6 +85,12 @@ rs_dcp_class_init(RSDcpClass *klass)
 		PROP_PROFILE, g_param_spec_object(
 			"profile", "profile", "DCP Profile",
 			RS_TYPE_DCP_FILE, G_PARAM_READWRITE)
+	);
+
+	g_object_class_install_property(object_class,
+		PROP_USE_PROFILE, g_param_spec_boolean(
+			"use-profile", "use-profile", "Use DCP profile",
+			FALSE, G_PARAM_READWRITE)
 	);
 
 	filter_class->name = "Adobe DNG camera profile filter";
@@ -260,6 +267,9 @@ set_property(GObject *object, guint property_id, const GValue *value, GParamSpec
 		case PROP_PROFILE:
 			read_profile(dcp, g_value_get_object(value));
 			rs_filter_changed(filter, RS_FILTER_CHANGED_PIXELDATA);
+			break;
+		case PROP_USE_PROFILE:
+			dcp->use_profile = g_value_get_boolean(value);
 			break;
 		default:
 			G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
@@ -751,23 +761,26 @@ render(ThreadInfo* t)
 			g = _F(pixel[G]);
 			b = _F(pixel[B]);
 
-			r = MIN(dcp->camera_white.x, r);
-			g = MIN(dcp->camera_white.y, g);
-			b = MIN(dcp->camera_white.z, b);
+			if (dcp->use_profile)
+			{
+				r = MIN(dcp->camera_white.x, r);
+				g = MIN(dcp->camera_white.y, g);
+				b = MIN(dcp->camera_white.z, b);
 
-			pix.R = r;
-			pix.G = g;
-			pix.B = b;
-			pix = vector3_multiply_matrix(&pix, &dcp->camera_to_prophoto);
+				pix.R = r;
+				pix.G = g;
+				pix.B = b;
+				pix = vector3_multiply_matrix(&pix, &dcp->camera_to_prophoto);
 
-			r = CLAMP(pix.R, 0.0, 1.0);
-			g = CLAMP(pix.G, 0.0, 1.0);
-			b = CLAMP(pix.B, 0.0, 1.0);
+				r = CLAMP(pix.R, 0.0, 1.0);
+				g = CLAMP(pix.G, 0.0, 1.0);
+				b = CLAMP(pix.B, 0.0, 1.0);
+			}
 
 			/* To HSV */
 			RGBtoHSV(r, g, b, &h, &s, &v);
 
-			if (dcp->huesatmap)
+			if (dcp->use_profile && dcp->huesatmap)
 				huesat_map(dcp->huesatmap, &h, &s, &v);
 
 			/* Saturation */
@@ -799,14 +812,14 @@ render(ThreadInfo* t)
 			/* Curve */
 			v = dcp->curve_samples[_S(v)];
 
-			if (dcp->looktable)
+			if (dcp->use_profile && dcp->looktable)
 				huesat_map(dcp->looktable, &h, &s, &v);
 
 			/* Back to RGB */
 			HSVtoRGB(h, s, v, &r, &g, &b);
 
 			/* Apply tone curve */
-			if (dcp->tone_curve_lut) 
+			if (dcp->use_profile && dcp->tone_curve_lut) 
 				rgb_tone(&r, &g, &b, dcp->tone_curve_lut);
 
 			/* Save as gushort */

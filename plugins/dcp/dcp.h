@@ -60,6 +60,8 @@ struct _RSDcp {
 	gfloat temp1;
 	gfloat temp2;
 
+	gboolean use_profile;
+
 	RSSpline *tone_curve;
 	gfloat *tone_curve_lut;
 
