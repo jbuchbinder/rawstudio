@@ -42,7 +42,6 @@ struct _RSDenoise {
 	gint sharpen;
 	gint denoise_luma;
 	gint denoise_chroma;
-	gfloat warmth, tint;
 };
 
 struct _RSDenoiseClass {
@@ -106,22 +105,6 @@ settings_changed(RSSettings *settings, RSSettingsMask mask, RSDenoise *denoise)
 {
 	gboolean changed = FALSE;
 
-	if (mask & MASK_WB)
-	{
-		const gfloat warmth;
-		const gfloat tint;
-
-		g_object_get(settings, 
-			"warmth", &warmth,
-			"tint", &tint, 
-			NULL );
-		if (ABS(warmth-denoise->warmth) > 0.01 || ABS(tint-denoise->tint) > 0.01) {
-			changed = TRUE;
-			denoise->warmth = warmth;
-			denoise->tint = tint;
-		}
-	}
-
 	if (mask & (MASK_SHARPEN|MASK_DENOISE_LUMA|MASK_DENOISE_CHROMA))
 	{
 		const gfloat sharpen;
@@ -156,8 +139,6 @@ rs_denoise_init(RSDenoise *denoise)
 	denoise->sharpen = 0;
 	denoise->denoise_luma = 0;
 	denoise->denoise_chroma = 0;
-	denoise->warmth = 0.23f;        // Default values
-	denoise->tint = 0.07f;
 }
 
 static void
@@ -231,6 +212,10 @@ get_image(RSFilter *filter, const RSFilterRequest *request)
 		return previous_response;
 
 	input = rs_filter_response_get_image(previous_response);
+	
+	if (!input)
+		return previous_response;
+
 	response = rs_filter_response_clone(previous_response);
 	g_object_unref(previous_response);
 
@@ -267,12 +252,8 @@ get_image(RSFilter *filter, const RSFilterRequest *request)
 	denoise->info.sharpenChroma = 0.0f;
 	denoise->info.sharpenMinSigmaLuma = denoise->info.sigmaLuma * 2.0;
 	denoise->info.sharpenMaxSigmaLuma = denoise->info.sharpenMinSigmaLuma + denoise->info.sharpenLuma * 2.0f;
-	denoise->info.redCorrection = (1.0+denoise->warmth)*(2.0-denoise->tint);
-	denoise->info.blueCorrection = (1.0-denoise->warmth)*(2.0-denoise->tint);
-	
-	//TODO: Enable, when DCP is inserted
-//	denoise->info.redCorrection = 1.0f;
-//	denoise->info.blueCorrection = 1.0f;
+	denoise->info.redCorrection = 1.0f;
+	denoise->info.blueCorrection = 1.0f;
 
 	denoiseImage(&denoise->info);
 	g_object_unref(tmp);
