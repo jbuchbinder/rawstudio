@@ -289,3 +289,19 @@ rs_lens_get_description(RSLens *lens)
 
 	return lens->description;
 }
+
+void
+rs_lens_set_lensfun_make(RSLens *lens, gchar *make)
+{
+	g_assert(RS_IS_LENS(lens));
+
+	lens->lensfun_make = make;
+}
+
+void
+rs_lens_set_lensfun_model(RSLens *lens, gchar *model)
+{
+	g_assert(RS_IS_LENS(lens));
+
+	lens->lensfun_model = model;
+}
