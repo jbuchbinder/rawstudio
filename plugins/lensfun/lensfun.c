@@ -418,7 +418,7 @@ get_image(RSFilter *filter, const RSFilterRequest *request)
 			}
 		} else 
 		{
-			g_warning("Lensfun: Camera not found. Using camera from same manufacturer.");
+			g_debug("Lensfun: Camera not found. Using camera from same manufacturer.");
 			/* Try same manufacturer to be able to use CA-correction and vignetting */
 			cameras = lf_db_find_cameras(lensfun->ldb, lensfun->make, NULL);
 			if (cameras)
@@ -431,7 +431,7 @@ get_image(RSFilter *filter, const RSFilterRequest *request)
 		
 		if (!lensfun->selected_lens && lensfun->selected_camera)
 		{
-			g_warning("Lensfun: Lens not found. Using neutral lense.");
+			g_debug("Lensfun: Lens not found. Using neutral lense.");
 			
 			if (ABS(lensfun->tca_kr) + ABS(lensfun->tca_kb) +
 				ABS(lensfun->vignetting_k1) + ABS(lensfun->vignetting_k2) + ABS(lensfun->vignetting_k3)
