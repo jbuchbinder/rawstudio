@@ -189,8 +189,11 @@ execute(RSOutput *output, RSFilter *filter)
 	struct jpeg_error_mgr jerr;
 	FILE * outfile;
 	JSAMPROW row_pointer[1];
-	RSIccProfile *profile = rs_filter_get_icc_profile(filter);
+	const RSIccProfile *profile = NULL;
 	RSFilterResponse *response = rs_filter_get_image8(filter, NULL);
+	RSColorSpace *colorspace = rs_filter_param_get_object_with_type(RS_FILTER_PARAM(response), "colorspace", RS_TYPE_COLOR_SPACE);
+	if (colorspace)
+		profile = rs_color_space_get_icc_profile(colorspace);
 	GdkPixbuf *pixbuf = rs_filter_response_get_image8(response);
 
 	cinfo.err = jpeg_std_error(&jerr);
