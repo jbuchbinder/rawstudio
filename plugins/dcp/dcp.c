@@ -43,7 +43,6 @@ static void set_white_xy(RSDcp *dcp, const RS_xy_COORD *xy);
 static void precalc(RSDcp *dcp);
 static void render(ThreadInfo* t);
 static void read_profile(RSDcp *dcp, RSDcpFile *dcp_file);
-static RSIccProfile *get_icc_profile(RSFilter *filter);
 
 G_MODULE_EXPORT void
 rs_plugin_load(RSPlugin *plugin)
@@ -73,8 +72,6 @@ rs_dcp_class_init(RSDcpClass *klass)
 	object_class->set_property = set_property;
 	object_class->finalize = finalize;
 
-	klass->prophoto_profile = rs_icc_profile_new_from_file(PACKAGE_DATA_DIR "/" PACKAGE "/profiles/prophoto.icc");
-
 	g_object_class_install_property(object_class,
 		PROP_SETTINGS, g_param_spec_object(
 			"settings", "Settings", "Settings to render from",
@@ -95,7 +92,6 @@ rs_dcp_class_init(RSDcpClass *klass)
 
 	filter_class->name = "Adobe DNG camera profile filter";
 	filter_class->get_image = get_image;
-	filter_class->get_icc_profile = get_icc_profile;
 }
 
 static void
@@ -1029,13 +1025,6 @@ read_profile(RSDcp *dcp, RSDcpFile *dcp_file)
 	dcp->huesatmap1 = rs_dcp_file_get_huesatmap1(dcp_file);
 	dcp->huesatmap2 = rs_dcp_file_get_huesatmap2(dcp_file);
 	dcp->huesatmap = 0;
-}
-
-static RSIccProfile *
-get_icc_profile(RSFilter *filter)
-{
-	/* We discard all earlier profiles before returning our own ProPhoto profile */
-	return g_object_ref(RS_DCP_GET_CLASS(filter)->prophoto_profile);
 }
 
 /*
