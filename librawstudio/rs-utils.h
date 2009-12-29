@@ -163,4 +163,7 @@ rs_split_string(const gchar *str, const gchar *delimiter);
 
 gchar * rs_file_checksum(const gchar *photo);
 
+const gchar * rs_human_aperture(gdouble aperture);
+const gchar * rs_human_focal(gdouble min, gdouble max);
+
 #endif /* RS_UTILS_H */

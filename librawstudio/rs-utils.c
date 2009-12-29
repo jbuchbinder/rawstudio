@@ -627,3 +627,26 @@ gchar * rs_file_checksum(const gchar *photo)
 
 	return (gchar *) rs_md5(buffer);
 }
+
+const gchar *
+rs_human_aperture(gdouble aperture)
+{
+	gchar *ret = NULL;
+
+	if (aperture < 8)
+		ret = g_strdup_printf("f/%.1f", aperture);
+	else
+		ret = g_strdup_printf("f/%.0f", aperture);
+}
+
+const gchar *
+rs_human_focal(gdouble min, gdouble max)
+{
+	gchar *ret = NULL;
+
+	if (min == max)
+		ret = g_strdup_printf("%.0fmm", max);
+	else
+		ret = g_strdup_printf("%.0f-%.0fmm", min, max);
+	return ret;
+}
