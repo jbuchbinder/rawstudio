@@ -25,7 +25,6 @@
 #include <emmintrin.h>
 #endif /* __SSE2__ */
 #include <rs-lens.h>
-#include "rs-lensfun-select.h"
 
 #define RS_TYPE_LENSFUN (rs_lensfun_type)
 #define RS_LENSFUN(obj) (G_TYPE_CHECK_INSTANCE_CAST ((obj), RS_TYPE_LENSFUN, RSLensfun))
