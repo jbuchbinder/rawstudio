@@ -181,6 +181,16 @@ save_db(RSLensDb *lens_db)
 	return;
 }
 
+/**
+ * Force save of RSLensDb
+ * @param lens_db the RSLensDb to save
+ */
+void
+rs_lens_db_save(RSLensDb *lens_db)
+{
+	save_db(lens_db);
+}
+
 static void
 open_db(RSLensDb *lens_db)
 {
@@ -376,4 +386,15 @@ RSLens *rs_lens_db_lookup_from_metadata(RSLensDb *lens_db, RSMetadata *metadata)
 	}
 
 	return lens;
+}
+
+/**
+ * Gets the lenses in RSLensDb
+ * @param lens_db A RSLensDb
+ * @return A GList of RSLens'es
+ */
+GList *
+rs_lens_db_get_lenses(RSLensDb *lens_db)
+{
+	return lens_db->lenses;
 }
