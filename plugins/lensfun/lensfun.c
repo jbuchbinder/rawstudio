@@ -57,7 +57,6 @@ struct _RSLensfun {
 	const lfCamera *selected_camera;
 
 	gboolean DIRTY;
-	gboolean selecting;
 };
 
 struct _RSLensfunClass {
@@ -418,20 +417,6 @@ get_image(RSFilter *filter, const RSFilterRequest *request)
 			/* FIXME: selecting first camera */
 			lensfun->selected_camera = cameras [0];
 			lf_free (cameras);
-
-			gchar *lensfun_make = (gchar *) rs_lens_get_lensfun_model(lensfun->lens);
-			gchar *lensfun_model = (gchar *) rs_lens_get_lensfun_model(lensfun->lens);
-
-			if ((!lensfun_make || !lensfun_model) && !lensfun->selecting)
-			{
-				/* Run lens selector dialog */
-				lensfun->selecting = TRUE;
-				GtkWidget *dialog = rs_lensfun_select_lens(lensfun->lens);
-				gtk_widget_show_all(GTK_WIDGET(dialog));
-				gtk_dialog_run(GTK_DIALOG(dialog));
-				gtk_widget_destroy(dialog);
-				lensfun->selecting = FALSE;
-			}
 
 			if (rs_lens_get_lensfun_model(lensfun->lens))
 			{
