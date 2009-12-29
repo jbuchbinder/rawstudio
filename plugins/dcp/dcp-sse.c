@@ -577,18 +577,21 @@ render_SSE2(ThreadInfo* t)
 	SETFLOAT4_SAME(_exposure_slope, dcp->exposure_slope);
 	SETFLOAT4_SAME(_exposure_qscale, dcp->exposure_qscale);
 	SETFLOAT4_SAME(_contrast, dcp->contrast);
+	SETFLOAT4_SAME(_cm_r, dcp->channelmixer_red);
+	SETFLOAT4_SAME(_cm_g, dcp->channelmixer_green);
+	SETFLOAT4_SAME(_cm_b, dcp->channelmixer_blue);
 	
 	float cam_prof[4*4*3] __attribute__ ((aligned (16)));
 	for (x = 0; x < 4; x++ ) {
-		cam_prof[x] = dcp->camera_to_prophoto.coeff[0][0];
-		cam_prof[x+4] = dcp->camera_to_prophoto.coeff[0][1];
-		cam_prof[x+8] = dcp->camera_to_prophoto.coeff[0][2];
-		cam_prof[12+x] = dcp->camera_to_prophoto.coeff[1][0];
-		cam_prof[12+x+4] = dcp->camera_to_prophoto.coeff[1][1];
-		cam_prof[12+x+8] = dcp->camera_to_prophoto.coeff[1][2];
-		cam_prof[24+x] = dcp->camera_to_prophoto.coeff[2][0];
-		cam_prof[24+x+4] = dcp->camera_to_prophoto.coeff[2][1];
-		cam_prof[24+x+8] = dcp->camera_to_prophoto.coeff[2][2];
+		cam_prof[x] = dcp->camera_to_prophoto.coeff[0][0] * dcp->channelmixer_red;
+		cam_prof[x+4] = dcp->camera_to_prophoto.coeff[0][1] * dcp->channelmixer_red;
+		cam_prof[x+8] = dcp->camera_to_prophoto.coeff[0][2] * dcp->channelmixer_red;
+		cam_prof[12+x] = dcp->camera_to_prophoto.coeff[1][0] * dcp->channelmixer_green;
+		cam_prof[12+x+4] = dcp->camera_to_prophoto.coeff[1][1] * dcp->channelmixer_green;
+		cam_prof[12+x+8] = dcp->camera_to_prophoto.coeff[1][2] * dcp->channelmixer_green;
+		cam_prof[24+x] = dcp->camera_to_prophoto.coeff[2][0] * dcp->channelmixer_blue;
+		cam_prof[24+x+4] = dcp->camera_to_prophoto.coeff[2][1] * dcp->channelmixer_blue;
+		cam_prof[24+x+8] = dcp->camera_to_prophoto.coeff[2][2]* dcp->channelmixer_blue;
 	}
 	
 	gint end_x = image->w - (image->w & 3);
@@ -618,27 +621,45 @@ render_SSE2(ThreadInfo* t)
 			p3f = _mm_mul_ps(p3f, rgb_div);
 			p4f = _mm_mul_ps(p4f, rgb_div);
 
-			/* Restric to camera white */
-			__m128 min_cam = _mm_load_ps(_min_cam);
-			p1f = _mm_min_ps(p1f, min_cam);
-			p2f = _mm_min_ps(p2f, min_cam);
-			p3f = _mm_min_ps(p3f, min_cam);
-			p4f = _mm_min_ps(p4f, min_cam);
+			if (dcp->use_profile)
+			{
+				/* Restric to camera white */
+				__m128 min_cam = _mm_load_ps(_min_cam);
+				p1f = _mm_min_ps(p1f, min_cam);
+				p2f = _mm_min_ps(p2f, min_cam);
+				p3f = _mm_min_ps(p3f, min_cam);
+				p4f = _mm_min_ps(p4f, min_cam);
 
-			/* Convert to planar */
-			__m128 g1g0r1r0 = _mm_unpacklo_ps(p1f, p2f);
-			__m128 b1b0 = _mm_unpackhi_ps(p1f, p2f);
-			__m128 g3g2r3r2 = _mm_unpacklo_ps(p3f, p4f);
-			__m128 b3b2 = _mm_unpackhi_ps(p3f, p4f);
-			r = _mm_movelh_ps(g1g0r1r0, g3g2r3r2);
-			g = _mm_movehl_ps(g3g2r3r2, g1g0r1r0);
-			b = _mm_movelh_ps(b1b0, b3b2);
+				/* Convert to planar */
+				__m128 g1g0r1r0 = _mm_unpacklo_ps(p1f, p2f);
+				__m128 b1b0 = _mm_unpackhi_ps(p1f, p2f);
+				__m128 g3g2r3r2 = _mm_unpacklo_ps(p3f, p4f);
+				__m128 b3b2 = _mm_unpackhi_ps(p3f, p4f);
+				r = _mm_movelh_ps(g1g0r1r0, g3g2r3r2);
+				g = _mm_movehl_ps(g3g2r3r2, g1g0r1r0);
+				b = _mm_movelh_ps(b1b0, b3b2);
 
-			/* Convert to Prophoto */
-			r2 = sse_matrix3_mul(cam_prof, r, g, b);
-			g2 = sse_matrix3_mul(&cam_prof[12], r, g, b);
-			b2 = sse_matrix3_mul(&cam_prof[24], r, g, b);
+				/* Convert to Prophoto */
+				r2 = sse_matrix3_mul(cam_prof, r, g, b);
+				g2 = sse_matrix3_mul(&cam_prof[12], r, g, b);
+				b2 = sse_matrix3_mul(&cam_prof[24], r, g, b);
+			} else
+			{
+				/* Convert to planar */
+				__m128 g1g0r1r0 = _mm_unpacklo_ps(p1f, p2f);
+				__m128 b1b0 = _mm_unpackhi_ps(p1f, p2f);
+				__m128 g3g2r3r2 = _mm_unpacklo_ps(p3f, p4f);
+				__m128 b3b2 = _mm_unpackhi_ps(p3f, p4f);
+				r = _mm_movelh_ps(g1g0r1r0, g3g2r3r2);
+				g = _mm_movehl_ps(g3g2r3r2, g1g0r1r0);
+				b = _mm_movelh_ps(b1b0, b3b2);
 
+				/* Multiply channel mixer */
+				r2 = _mm_mul_ps(_mm_load_ps(_cm_r), r);
+				g2 = _mm_mul_ps(_mm_load_ps(_cm_g), g);
+				b2 = _mm_mul_ps(_mm_load_ps(_cm_b), b);
+			}
+			
 			RGBtoHSV_SSE(&r2, &g2, &b2);
 			h = r2; s = g2; v = b2;
 
@@ -1029,13 +1050,6 @@ huesat_map_SSE4(RSHuesatMap *map, const PrecalcHSM* precalc, __m128 *_h, __m128 
 
 #define LOOK_SINGLE(A,B,C,D) A = _mm_insert_epi32( A, *(gint32*)&C[D]->B, D)
 	
-/*
-//#define LOOKUP_FOUR(A, B, C) A = _mm_cvtsi32_si128(*(gint32*)&C[0]->B);\
-		LOOK_SINGLE(A, B, C, 1);\
-		LOOK_SINGLE(A, B, C, 2);\
-		LOOK_SINGLE(A, B, C, 3);
-*/
-
 #define LOOKUP_FOUR(A, B, C) LOOK_SINGLE(A, B, C, 0);\
 			LOOK_SINGLE(A, B, C, 1);\
 			LOOK_SINGLE(A, B, C, 2);\
@@ -1257,18 +1271,21 @@ render_SSE4(ThreadInfo* t)
 	SETFLOAT4_SAME(_exposure_slope, dcp->exposure_slope);
 	SETFLOAT4_SAME(_exposure_qscale, dcp->exposure_qscale);
 	SETFLOAT4_SAME(_contrast, dcp->contrast);
+	SETFLOAT4_SAME(_cm_r, dcp->channelmixer_red);
+	SETFLOAT4_SAME(_cm_g, dcp->channelmixer_green);
+	SETFLOAT4_SAME(_cm_b, dcp->channelmixer_blue);
 	
 	float cam_prof[4*4*3] __attribute__ ((aligned (16)));
 	for (x = 0; x < 4; x++ ) {
-		cam_prof[x] = dcp->camera_to_prophoto.coeff[0][0];
-		cam_prof[x+4] = dcp->camera_to_prophoto.coeff[0][1];
-		cam_prof[x+8] = dcp->camera_to_prophoto.coeff[0][2];
-		cam_prof[12+x] = dcp->camera_to_prophoto.coeff[1][0];
-		cam_prof[12+x+4] = dcp->camera_to_prophoto.coeff[1][1];
-		cam_prof[12+x+8] = dcp->camera_to_prophoto.coeff[1][2];
-		cam_prof[24+x] = dcp->camera_to_prophoto.coeff[2][0];
-		cam_prof[24+x+4] = dcp->camera_to_prophoto.coeff[2][1];
-		cam_prof[24+x+8] = dcp->camera_to_prophoto.coeff[2][2];
+		cam_prof[x] = dcp->camera_to_prophoto.coeff[0][0] * dcp->channelmixer_red;
+		cam_prof[x+4] = dcp->camera_to_prophoto.coeff[0][1] * dcp->channelmixer_red;
+		cam_prof[x+8] = dcp->camera_to_prophoto.coeff[0][2] * dcp->channelmixer_red;
+		cam_prof[12+x] = dcp->camera_to_prophoto.coeff[1][0] * dcp->channelmixer_green;
+		cam_prof[12+x+4] = dcp->camera_to_prophoto.coeff[1][1] * dcp->channelmixer_green;
+		cam_prof[12+x+8] = dcp->camera_to_prophoto.coeff[1][2] * dcp->channelmixer_green;
+		cam_prof[24+x] = dcp->camera_to_prophoto.coeff[2][0] * dcp->channelmixer_blue;
+		cam_prof[24+x+4] = dcp->camera_to_prophoto.coeff[2][1] * dcp->channelmixer_blue;
+		cam_prof[24+x+8] = dcp->camera_to_prophoto.coeff[2][2]* dcp->channelmixer_blue;
 	}
 
 
@@ -1299,26 +1316,44 @@ render_SSE4(ThreadInfo* t)
 			p3f = _mm_mul_ps(p3f, rgb_div);
 			p4f = _mm_mul_ps(p4f, rgb_div);
 
-			/* Restric to camera white */
-			__m128 min_cam = _mm_load_ps(_min_cam);
-			p1f = _mm_min_ps(p1f, min_cam);
-			p2f = _mm_min_ps(p2f, min_cam);
-			p3f = _mm_min_ps(p3f, min_cam);
-			p4f = _mm_min_ps(p4f, min_cam);
+			if (dcp->use_profile)
+			{
+				/* Restric to camera white */
+				__m128 min_cam = _mm_load_ps(_min_cam);
+				p1f = _mm_min_ps(p1f, min_cam);
+				p2f = _mm_min_ps(p2f, min_cam);
+				p3f = _mm_min_ps(p3f, min_cam);
+				p4f = _mm_min_ps(p4f, min_cam);
 
-			/* Convert to planar */
-			__m128 g1g0r1r0 = _mm_unpacklo_ps(p1f, p2f);
-			__m128 b1b0 = _mm_unpackhi_ps(p1f, p2f);
-			__m128 g3g2r3r2 = _mm_unpacklo_ps(p3f, p4f);
-			__m128 b3b2 = _mm_unpackhi_ps(p3f, p4f);
-			r = _mm_movelh_ps(g1g0r1r0, g3g2r3r2);
-			g = _mm_movehl_ps(g3g2r3r2, g1g0r1r0);
-			b = _mm_movelh_ps(b1b0, b3b2);
+				/* Convert to planar */
+				__m128 g1g0r1r0 = _mm_unpacklo_ps(p1f, p2f);
+				__m128 b1b0 = _mm_unpackhi_ps(p1f, p2f);
+				__m128 g3g2r3r2 = _mm_unpacklo_ps(p3f, p4f);
+				__m128 b3b2 = _mm_unpackhi_ps(p3f, p4f);
+				r = _mm_movelh_ps(g1g0r1r0, g3g2r3r2);
+				g = _mm_movehl_ps(g3g2r3r2, g1g0r1r0);
+				b = _mm_movelh_ps(b1b0, b3b2);
 
-			/* Convert to Prophoto */
-			r2 = sse_matrix3_mul(cam_prof, r, g, b);
-			g2 = sse_matrix3_mul(&cam_prof[12], r, g, b);
-			b2 = sse_matrix3_mul(&cam_prof[24], r, g, b);
+				/* Convert to Prophoto */
+				r2 = sse_matrix3_mul(cam_prof, r, g, b);
+				g2 = sse_matrix3_mul(&cam_prof[12], r, g, b);
+				b2 = sse_matrix3_mul(&cam_prof[24], r, g, b);
+			} else
+			{
+				/* Convert to planar */
+				__m128 g1g0r1r0 = _mm_unpacklo_ps(p1f, p2f);
+				__m128 b1b0 = _mm_unpackhi_ps(p1f, p2f);
+				__m128 g3g2r3r2 = _mm_unpacklo_ps(p3f, p4f);
+				__m128 b3b2 = _mm_unpackhi_ps(p3f, p4f);
+				r = _mm_movelh_ps(g1g0r1r0, g3g2r3r2);
+				g = _mm_movehl_ps(g3g2r3r2, g1g0r1r0);
+				b = _mm_movelh_ps(b1b0, b3b2);
+
+				/* Multiply channel mixer */
+				r2 = _mm_mul_ps(_mm_load_ps(_cm_r), r);
+				g2 = _mm_mul_ps(_mm_load_ps(_cm_g), g);
+				b2 = _mm_mul_ps(_mm_load_ps(_cm_b), b);
+			}
 
 			RGBtoHSV_SSE4(&r, &g, &b);
 			h = r; s = g; v = b;

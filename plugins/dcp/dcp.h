@@ -51,6 +51,9 @@ struct _RSDcp {
 	gfloat saturation;
 	gfloat contrast;
 	gfloat hue;
+	gfloat channelmixer_red;
+	gfloat channelmixer_green;
+	gfloat channelmixer_blue;
 
 	RS_xy_COORD white_xy;
 

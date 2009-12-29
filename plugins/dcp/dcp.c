@@ -23,7 +23,6 @@
 #include <math.h> /* pow() */
 #include "dcp.h"
 
-
 RS_DEFINE_FILTER(rs_dcp, RSDcp)
 
 enum {
@@ -124,28 +123,38 @@ settings_changed(RSSettings *settings, RSSettingsMask mask, RSDcp *dcp)
 		changed = TRUE;
 	}
 
-	if ((mask & MASK_WB) || (mask & MASK_CHANNELMIXER))
+	if (mask & MASK_CHANNELMIXER)
 	{
-		const gfloat warmth;
-		gfloat tint;
 		const gfloat channelmixer_red;
 		const gfloat channelmixer_green;
 		const gfloat channelmixer_blue;
+		g_object_get(settings,
+			"channelmixer_red", &channelmixer_red,
+			"channelmixer_green", &channelmixer_green,
+			"channelmixer_blue", &channelmixer_blue,
+			NULL);
+		dcp->channelmixer_red = channelmixer_red / 100.0f;
+		dcp->channelmixer_green = channelmixer_green / 100.0f;
+		dcp->channelmixer_blue = channelmixer_blue / 100.0f;
+		changed = TRUE;
+	}
+
+	if (mask & MASK_WB)
+	{
+		const gfloat warmth;
+		gfloat tint;
 
 		g_object_get(settings,
 			"warmth", &warmth,
 			"tint", &tint,
-			"channelmixer_red", &channelmixer_red,
-			"channelmixer_green", &channelmixer_green,
-			"channelmixer_blue", &channelmixer_blue,
 			NULL);
 
 		RS_xy_COORD whitepoint;
 		RS_VECTOR3 pre_mul;
 		/* This is messy, but we're essentially converting from warmth/tint to cameraneutral */
-        pre_mul.x = (1.0+warmth)*(2.0-tint)*(channelmixer_red/100.0);
-        pre_mul.y = 1.0*(channelmixer_green/100.0);
-        pre_mul.z = (1.0-warmth)*(2.0-tint)*(channelmixer_blue/100.0);
+        pre_mul.x = (1.0+warmth)*(2.0-tint);
+        pre_mul.y = 1.0;
+        pre_mul.z = (1.0-warmth)*(2.0-tint);
 		RS_VECTOR3 neutral;
 		neutral.x = 1.0 / CLAMP(pre_mul.x, 0.001, 100.00);
 		neutral.y = 1.0 / CLAMP(pre_mul.y, 0.001, 100.00);
@@ -198,6 +207,7 @@ rs_dcp_init(RSDcp *dcp)
 
 	dcp->curve_samples = g_new(gfloat, 65536);
 	dcp->huesatmap_interpolated = NULL;
+	dcp->use_profile = FALSE;
 
 	for(i=0;i<65536;i++)
 		dcp->curve_samples[i] = ((gfloat)i)/65536.0;
@@ -266,6 +276,12 @@ set_property(GObject *object, guint property_id, const GValue *value, GParamSpec
 			break;
 		case PROP_USE_PROFILE:
 			dcp->use_profile = g_value_get_boolean(value);
+			if (!dcp->use_profile)
+			{
+				dcp->huesatmap = NULL;
+				dcp->tone_curve = NULL;
+				dcp->looktable = NULL;
+			}
 			break;
 		default:
 			G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
@@ -767,16 +783,20 @@ render(ThreadInfo* t)
 				pix.G = g;
 				pix.B = b;
 				pix = vector3_multiply_matrix(&pix, &dcp->camera_to_prophoto);
-
-				r = CLAMP(pix.R, 0.0, 1.0);
-				g = CLAMP(pix.G, 0.0, 1.0);
-				b = CLAMP(pix.B, 0.0, 1.0);
+				
+				r = pix.R;
+				g = pix.G;
+				b = pix.B;
 			}
+
+			r = CLAMP(r * dcp->channelmixer_red, 0.0, 1.0);
+			g = CLAMP(g * dcp->channelmixer_green, 0.0, 1.0);
+			b = CLAMP(b * dcp->channelmixer_blue, 0.0, 1.0);
 
 			/* To HSV */
 			RGBtoHSV(r, g, b, &h, &s, &v);
 
-			if (dcp->use_profile && dcp->huesatmap)
+			if (dcp->huesatmap)
 				huesat_map(dcp->huesatmap, &h, &s, &v);
 
 			/* Saturation */
@@ -808,14 +828,14 @@ render(ThreadInfo* t)
 			/* Curve */
 			v = dcp->curve_samples[_S(v)];
 
-			if (dcp->use_profile && dcp->looktable)
+			if (dcp->looktable)
 				huesat_map(dcp->looktable, &h, &s, &v);
 
 			/* Back to RGB */
 			HSVtoRGB(h, s, v, &r, &g, &b);
 
 			/* Apply tone curve */
-			if (dcp->use_profile && dcp->tone_curve_lut) 
+			if (dcp->tone_curve_lut) 
 				rgb_tone(&r, &g, &b, dcp->tone_curve_lut);
 
 			/* Save as gushort */
@@ -1025,6 +1045,7 @@ read_profile(RSDcp *dcp, RSDcpFile *dcp_file)
 	dcp->huesatmap1 = rs_dcp_file_get_huesatmap1(dcp_file);
 	dcp->huesatmap2 = rs_dcp_file_get_huesatmap2(dcp_file);
 	dcp->huesatmap = 0;
+	dcp->use_profile = TRUE;
 }
 
 /*
