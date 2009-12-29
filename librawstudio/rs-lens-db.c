@@ -171,6 +171,8 @@ save_db(RSLensDb *lens_db)
 		g_free(identifier);
 		g_free(lensfun_make);
 		g_free(lensfun_model);
+		g_free(camera_make);
+		g_free(camera_model);
 
 		list = g_list_next (list);
 	}
