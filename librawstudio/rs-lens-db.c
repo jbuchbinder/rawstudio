@@ -129,6 +129,8 @@ save_db(RSLensDb *lens_db)
 		gchar *lensfun_make;
 		gchar *lensfun_model;
 		gdouble min_focal, max_focal, min_aperture, max_aperture;
+		gchar *camera_make;
+		gchar *camera_model;
 
 		RSLens *lens = list->data;
 
@@ -141,6 +143,8 @@ save_db(RSLensDb *lens_db)
 			"max-focal", &max_focal,
 			"min-aperture", &min_aperture,
 			"max-aperture", &max_aperture,
+			"camera-make", &camera_make,
+			"camera-model", &camera_model,
 			NULL);
 
 		xmlTextWriterStartElement(writer, BAD_CAST "lens");
@@ -158,6 +162,10 @@ save_db(RSLensDb *lens_db)
 				xmlTextWriterWriteFormatElement(writer, BAD_CAST "min-aperture", "%f", min_aperture);
 			if (max_aperture > 0.0)
 				xmlTextWriterWriteFormatElement(writer, BAD_CAST "max-aperture", "%f", max_aperture);
+			if (camera_make)
+				xmlTextWriterWriteFormatElement(writer, BAD_CAST "camera-make", "%s", camera_make);
+			if (camera_model)
+				xmlTextWriterWriteFormatElement(writer, BAD_CAST "camera-model", "%s", camera_model);
 		xmlTextWriterEndElement(writer);
 
 		g_free(identifier);
@@ -218,6 +226,10 @@ open_db(RSLensDb *lens_db)
 						g_object_set(lens, "min-aperture", rs_atof(val), NULL);
 					else if ((!xmlStrcmp(entry->name, BAD_CAST "max-aperture")))
 						g_object_set(lens, "max-aperture", rs_atof(val), NULL);
+					else if ((!xmlStrcmp(entry->name, BAD_CAST "camera-make")))
+						g_object_set(lens, "camera-make", val, NULL);
+					else if ((!xmlStrcmp(entry->name, BAD_CAST "camera-model")))
+						g_object_set(lens, "camera-model", val, NULL);
 					xmlFree(val);
 					entry = entry->next;
 				}
