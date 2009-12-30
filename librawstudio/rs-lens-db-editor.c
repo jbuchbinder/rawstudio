@@ -379,6 +379,8 @@ rs_lens_db_editor()
 
         gtk_container_add (GTK_CONTAINER (editor), scroller);
 
+	gtk_window_resize(GTK_WINDOW(editor), 400, 400);
+	gtk_window_set_position(GTK_WINDOW(editor), GTK_WIN_POS_CENTER);
 	gtk_widget_show_all(editor);
 }
 
