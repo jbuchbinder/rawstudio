@@ -275,10 +275,40 @@ void row_clicked (GtkTreeView *tree_view, GtkTreePath *path, GtkTreeViewColumn *
 			0, gtk_get_current_event_time ());
 }
 
+toggle_clicked (GtkCellRendererToggle *cell_renderer_toggle, const gchar *path, gpointer user_data)
+{
+	GtkTreeIter iter;
+	gboolean enabled;
+	GtkTreeView *tree_view = GTK_TREE_VIEW(user_data);
+	GtkTreeModel *tree_model = gtk_tree_view_get_model(tree_view);
+	GtkTreePath* tree_path = gtk_tree_path_new_from_string(path);
+
+	gtk_tree_model_get_iter(GTK_TREE_MODEL (tree_model), &iter, tree_path);
+	gtk_tree_model_get(GTK_TREE_MODEL (tree_model), &iter, RS_LENS_DB_EDITOR_ENABLED, &enabled, -1);
+
+	if (enabled)
+		gtk_list_store_set(GTK_LIST_STORE (tree_model), &iter, RS_LENS_DB_EDITOR_ENABLED, FALSE, -1);
+	else
+		gtk_list_store_set(GTK_LIST_STORE (tree_model), &iter, RS_LENS_DB_EDITOR_ENABLED, TRUE, -1);
+
+	RSLens *rs_lens = NULL;
+	gtk_tree_model_get (tree_model, &iter,
+			    RS_LENS_DB_EDITOR_LENS, &rs_lens,
+			    -1);
+
+	/* Set enabled/disabled to the selected RSLens */
+	rs_lens_set_lensfun_enabled(rs_lens, !enabled);
+
+	RSLensDb *lens_db = rs_lens_db_get_default();
+
+	/* Force save of RSLensDb */
+	rs_lens_db_save(lens_db);
+}
+
 void
 rs_lens_db_editor() 
 {
-	GtkTreeModel *tree_model = GTK_TREE_MODEL(gtk_list_store_new(8, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_OBJECT));
+	GtkTreeModel *tree_model = GTK_TREE_MODEL(gtk_list_store_new(9, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_BOOLEAN, G_TYPE_OBJECT));
 
 	RSLensDb *lens_db = rs_lens_db_get_default();
 	fill_model(lens_db, tree_model);
@@ -300,6 +330,7 @@ rs_lens_db_editor()
         GtkCellRenderer *renderer_aperture = gtk_cell_renderer_text_new();
         GtkCellRenderer *renderer_camera_make = gtk_cell_renderer_text_new();
         GtkCellRenderer *renderer_camera_model = gtk_cell_renderer_text_new();
+        GtkCellRenderer *renderer_enabled = gtk_cell_renderer_toggle_new();
 
         GtkTreeViewColumn *column_lens_make = gtk_tree_view_column_new_with_attributes (_("Lens make"),
 								  renderer_lens_make,
@@ -325,9 +356,16 @@ rs_lens_db_editor()
 								  renderer_camera_model,
 								  "text", RS_LENS_DB_EDITOR_CAMERA_MODEL,
 										   NULL);
+        GtkTreeViewColumn *column_enabled = gtk_tree_view_column_new_with_attributes (_("Enabled"),
+								  renderer_enabled,
+								  "active", RS_LENS_DB_EDITOR_ENABLED,
+										   NULL);
 
 	g_signal_connect(G_OBJECT(view), "row-activated",
 			 G_CALLBACK(row_clicked), NULL);
+
+        g_signal_connect (renderer_enabled, "toggled",
+			  G_CALLBACK (toggle_clicked), view);
 
         gtk_tree_view_append_column (GTK_TREE_VIEW (view), column_lens_make);
         gtk_tree_view_append_column (GTK_TREE_VIEW (view), column_lens_model);
@@ -335,6 +373,7 @@ rs_lens_db_editor()
         gtk_tree_view_append_column (GTK_TREE_VIEW (view), column_aperture);
         gtk_tree_view_append_column (GTK_TREE_VIEW (view), column_camera_make);
         gtk_tree_view_append_column (GTK_TREE_VIEW (view), column_camera_model);
+        gtk_tree_view_append_column (GTK_TREE_VIEW (view), column_enabled);
 
         gtk_tree_view_set_headers_visible(GTK_TREE_VIEW (view), TRUE);
 
@@ -356,6 +395,7 @@ fill_model(RSLensDb *lens_db, GtkTreeModel *tree_model)
                 gdouble min_focal, max_focal, min_aperture, max_aperture;
                 gchar *camera_make;
                 gchar *camera_model;
+		gboolean enabled;
 
                 RSLens *lens = list->data;
 
@@ -370,6 +410,7 @@ fill_model(RSLensDb *lens_db, GtkTreeModel *tree_model)
 			     "max-aperture", &max_aperture,
 			     "camera-make", &camera_make,
 			     "camera-model", &camera_model,
+			     "enabled", &enabled,
 			     NULL);
 
 		const gchar *human_focal = rs_human_focal(min_focal, max_focal);
@@ -386,6 +427,7 @@ fill_model(RSLensDb *lens_db, GtkTreeModel *tree_model)
 				    RS_LENS_DB_EDITOR_LENS_MODEL, lensfun_model,
 				    RS_LENS_DB_EDITOR_CAMERA_MAKE, camera_make,
 				    RS_LENS_DB_EDITOR_CAMERA_MODEL, camera_model,
+				    RS_LENS_DB_EDITOR_ENABLED, enabled,
 				    RS_LENS_DB_EDITOR_LENS, lens,
 				    -1);
 		list = g_list_next (list);
