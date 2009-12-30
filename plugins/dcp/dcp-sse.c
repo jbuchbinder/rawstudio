@@ -1405,12 +1405,10 @@ render_SSE4(ThreadInfo* t)
 			__m128 r_mask = _mm_cmpgt_ps(r, black_plus_radius);
 			__m128 g_mask = _mm_cmpgt_ps(g, black_plus_radius);
 			__m128 b_mask = _mm_cmpgt_ps(b, black_plus_radius);
-			y_r = _mm_andnot_ps(r_mask, y_r);
-			y_g = _mm_andnot_ps(g_mask, y_g);
-			y_b = _mm_andnot_ps(b_mask, y_b);
-			y_r = _mm_or_ps(y_r, _mm_and_ps(r_mask, y2_r));
-			y_g = _mm_or_ps(y_g, _mm_and_ps(g_mask, y2_g));
-			y_b = _mm_or_ps(y_b, _mm_and_ps(b_mask, y2_b));
+			
+			y_r = _mm_blendv_ps(y_r, y2_r, r_mask);
+			y_g = _mm_blendv_ps(y_g, y2_g, g_mask);
+			y_b = _mm_blendv_ps(y_b, y2_b, b_mask);
 			black_minus_radius = _mm_load_ps(_black_minus_radius);
 			r_mask = _mm_cmple_ps(r, black_minus_radius);
 			g_mask = _mm_cmple_ps(g, black_minus_radius);
