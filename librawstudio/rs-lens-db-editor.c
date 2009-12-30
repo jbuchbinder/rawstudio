@@ -56,6 +56,7 @@ static void lens_set (lens_data *data, const lfLens *lens)
 			    RS_LENS_DB_EDITOR_LENS_MAKE, lens->Maker,
 			    RS_LENS_DB_EDITOR_LENS_MODEL, lens->Model,
 			    RS_LENS_DB_EDITOR_ENABLED_ACTIVATABLE, TRUE,
+			    RS_LENS_DB_EDITOR_ENABLED, TRUE,
 			    -1);
 
 	RSLens *rs_lens = NULL;
