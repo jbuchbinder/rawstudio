@@ -165,10 +165,10 @@ void ptr_array_insert_index (
 
 
 static void lens_menu_fill (
-	lens_data *data, const lfLens *const *lenslist)
+	lens_data *data, const lfLens *const *lenslist, const lfLens *const *full_lenslist)
 {
 	unsigned i;
-	GPtrArray *makers, *submenus;
+	GPtrArray *makers, *submenus, *allmakers, *allsubmenus;
 
 	if (data->LensMenu)
 	{
@@ -180,27 +180,56 @@ static void lens_menu_fill (
 	/* Count all existing lens makers and create a sorted list */
 	makers = g_ptr_array_new ();
 	submenus = g_ptr_array_new ();
-	for (i = 0; lenslist [i]; i++)
+
+	if (lenslist)
+		for (i = 0; lenslist [i]; i++)
+		{
+			GtkWidget *submenu, *item;
+			const char *m = lf_mlstr_get (lenslist [i]->Maker);
+			int idx = ptr_array_find_sorted (makers, m, (GCompareFunc)g_utf8_collate);
+			if (idx < 0)
+			{
+				/* No such maker yet, insert it into the array */
+				idx = ptr_array_insert_sorted (makers, m, (GCompareFunc)g_utf8_collate);
+				/* Create a submenu for lenses by this maker */
+				submenu = gtk_menu_new ();
+				ptr_array_insert_index (submenus, submenu, idx);
+			}
+			submenu = g_ptr_array_index (submenus, idx);
+			/* Append current lens name to the submenu */
+			item = gtk_menu_item_new_with_label (lf_mlstr_get (lenslist [i]->Model));
+			gtk_widget_show (item);
+			g_object_set_data(G_OBJECT(item), "lfLens", (void *)lenslist [i]);
+			g_signal_connect(G_OBJECT(item), "activate",
+					 G_CALLBACK(lens_menu_select), data);
+			gtk_menu_shell_append (GTK_MENU_SHELL (submenu), item);
+		}
+
+	/* Count all existing lens makers and create a sorted list */
+	allmakers = g_ptr_array_new ();
+	allsubmenus = g_ptr_array_new ();
+
+	for (i = 0; full_lenslist [i]; i++)
 	{
-		GtkWidget *submenu, *item;
-		const char *m = lf_mlstr_get (lenslist [i]->Maker);
-		int idx = ptr_array_find_sorted (makers, m, (GCompareFunc)g_utf8_collate);
-		if (idx < 0)
+		GtkWidget *allsubmenu, *allitem;
+		const char *allm = lf_mlstr_get (full_lenslist [i]->Maker);
+		int allidx = ptr_array_find_sorted (allmakers, allm, (GCompareFunc)g_utf8_collate);
+		if (allidx < 0)
 		{
 			/* No such maker yet, insert it into the array */
-			idx = ptr_array_insert_sorted (makers, m, (GCompareFunc)g_utf8_collate);
+			allidx = ptr_array_insert_sorted (allmakers, allm, (GCompareFunc)g_utf8_collate);
 			/* Create a submenu for lenses by this maker */
-			submenu = gtk_menu_new ();
-			ptr_array_insert_index (submenus, submenu, idx);
+			allsubmenu = gtk_menu_new ();
+			ptr_array_insert_index (allsubmenus, allsubmenu, allidx);
 		}
-		submenu = g_ptr_array_index (submenus, idx);
+		allsubmenu = g_ptr_array_index (allsubmenus, allidx);
 		/* Append current lens name to the submenu */
-		item = gtk_menu_item_new_with_label (lf_mlstr_get (lenslist [i]->Model));
-		gtk_widget_show (item);
-		g_object_set_data(G_OBJECT(item), "lfLens", (void *)lenslist [i]);
-		g_signal_connect(G_OBJECT(item), "activate",
+		allitem = gtk_menu_item_new_with_label (lf_mlstr_get (full_lenslist [i]->Model));
+		gtk_widget_show (allitem);
+		g_object_set_data(G_OBJECT(allitem), "lfLens", (void *)full_lenslist [i]);
+		g_signal_connect(G_OBJECT(allitem), "activate",
 				 G_CALLBACK(lens_menu_select), data);
-		gtk_menu_shell_append (GTK_MENU_SHELL (submenu), item);
+		gtk_menu_shell_append (GTK_MENU_SHELL (allsubmenu), allitem);
 	}
 
 	data->LensMenu = gtk_menu_new ();
@@ -213,8 +242,27 @@ static void lens_menu_fill (
 			GTK_MENU_ITEM (item), (GtkWidget *)g_ptr_array_index (submenus, i));
 	}
 
+	GtkWidget *allmenu = gtk_menu_new ();
+	for (i = 0; i < allmakers->len; i++)
+	{
+		GtkWidget *allitem = gtk_menu_item_new_with_label (g_ptr_array_index (allmakers, i));
+		gtk_widget_show (allitem);
+		gtk_menu_shell_append (GTK_MENU_SHELL (allmenu), allitem);
+		gtk_menu_item_set_submenu (
+			GTK_MENU_ITEM (allitem), (GtkWidget *)g_ptr_array_index (allsubmenus, i));
+	}
+
+	GtkWidget *item = gtk_menu_item_new_with_label (_("All lenses"));
+	gtk_widget_show (item);
+	gtk_menu_shell_append (GTK_MENU_SHELL (data->LensMenu), item);
+	gtk_menu_item_set_submenu (
+		GTK_MENU_ITEM (item), allmenu);
+
 	g_ptr_array_free (submenus, TRUE);
 	g_ptr_array_free (makers, TRUE);
+
+	g_ptr_array_free (allsubmenus, TRUE);
+	g_ptr_array_free (allmakers, TRUE);
 }
 
 void row_clicked (GtkTreeView *tree_view, GtkTreePath *path, GtkTreeViewColumn *column, gpointer user_data)
@@ -242,12 +290,18 @@ void row_clicked (GtkTreeView *tree_view, GtkTreePath *path, GtkTreeViewColumn *
 
 	gchar *camera_make;
 	gchar *camera_model;
+	gdouble min_focal;
+	gdouble max_focal;
 
 	g_assert(RS_IS_LENS(rs_lens));
 	g_object_get(rs_lens,
 		     "camera-make", &camera_make,
 		     "camera-model", &camera_model,
+		     "min-focal", &min_focal,
+		     "max-focal", &max_focal,
 		     NULL);
+
+	gchar *lens_search = g_strdup_printf("%.0f-%.0f", min_focal, max_focal);
 
 	cameras = lf_db_find_cameras(lensdb, camera_make, camera_model);
 	if (cameras)
@@ -256,21 +310,28 @@ void row_clicked (GtkTreeView *tree_view, GtkTreePath *path, GtkTreeViewColumn *
 	if (camera)
 	{
 		const lfLens **lenslist = lf_db_find_lenses_hd (
+			lensdb, camera, NULL, lens_search, 0);
+		const lfLens **full_lenslist = lf_db_find_lenses_hd (
 			lensdb, camera, NULL, NULL, 0);
 
-		if (!lenslist)
+		if (!lenslist && !full_lenslist)
 			return;
-		lens_menu_fill (data, lenslist);
+
+		lens_menu_fill (data, lenslist, full_lenslist);
 		lf_free (lenslist);
 	}
 	else
 	{
-		const lfLens *const *lenslist = lf_db_get_lenses (lensdb);
+		const lfLens **lenslist = lf_db_find_lenses_hd (
+			lensdb, NULL, NULL, lens_search, 0);
+		const lfLens *const *full_lenslist = lf_db_get_lenses (lensdb);
 
 		if (!lenslist)
 			return;
-		lens_menu_fill (data, lenslist);
+		lens_menu_fill (data, lenslist, full_lenslist);
 	}
+
+	g_free(lens_search);
 
 	gtk_menu_popup (GTK_MENU (data->LensMenu), NULL, NULL, NULL, NULL,
 			0, gtk_get_current_event_time ());
