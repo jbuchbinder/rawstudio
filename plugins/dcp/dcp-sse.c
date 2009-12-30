@@ -27,6 +27,11 @@
 #include <emmintrin.h>
 #endif
 
+#pragma GCC diagnostic ignored "-Wstrict-aliasing"
+/* We ignore this pragma, because we are casting a pointer from float to int to pass a float using */
+/* _mm_insert_epi32, since no-one was kind enough to include "insertps xmm, mem32, imm8" */
+/* as a valid intrinsic. So we use the integer equivalent instead */
+
 static gfloat _zero_ps[4] __attribute__ ((aligned (16))) = {0.0f, 0.0f, 0.0f, 0.0f};
 static gfloat _ones_ps[4] __attribute__ ((aligned (16))) = {1.0f, 1.0f, 1.0f, 1.0f};
 static gfloat _two_ps[4] __attribute__ ((aligned (16))) = {2.0f, 2.0f, 2.0f, 2.0f};
@@ -228,7 +233,6 @@ huesat_map_SSE2(RSHuesatMap *map, const PrecalcHSM* precalc, __m128 *_h, __m128 
 	__m128 h = *_h;
 	__m128 s = *_s;
 	__m128 v = *_v;
-	gint i;
 	gint xfer_0[4] __attribute__ ((aligned (16)));
 	gint xfer_1[4] __attribute__ ((aligned (16)));
 
@@ -280,34 +284,26 @@ huesat_map_SSE2(RSHuesatMap *map, const PrecalcHSM* precalc, __m128 *_h, __m128 
 		__m128 hs1 = _mm_set_ps(entry01[3]->fHueShift, entry01[2]->fHueShift, entry01[1]->fHueShift, entry01[0]->fHueShift);
 		__m128 hueShift0 = _mm_add_ps(_mm_mul_ps(hs0, hFract0), _mm_mul_ps(hs1, hFract1));
 		hueShift0 = _mm_mul_ps(hueShift0, sFract0);
-
+		hs0 = _mm_set_ps(entry00[3][1].fHueShift, entry00[2][1].fHueShift, entry00[1][1].fHueShift, entry00[0][1].fHueShift);
+		hs1 = _mm_set_ps(entry01[3][1].fHueShift, entry01[2][1].fHueShift, entry01[1][1].fHueShift, entry01[0][1].fHueShift);
+		__m128 hueShift1 = _mm_add_ps(_mm_mul_ps(hs0, hFract0), _mm_mul_ps(hs1, hFract1));
+		hueShift = _mm_add_ps(hueShift0, _mm_mul_ps(hueShift1, sFract1));
+		
 		__m128 ss0 = _mm_set_ps(entry00[3]->fSatScale, entry00[2]->fSatScale, entry00[1]->fSatScale, entry00[0]->fSatScale);
 		__m128 ss1 = _mm_set_ps(entry01[3]->fSatScale, entry01[2]->fSatScale, entry01[1]->fSatScale, entry01[0]->fSatScale);
 		__m128 satScale0 = _mm_add_ps(_mm_mul_ps(ss0, hFract0), _mm_mul_ps(ss1, hFract1));
 		satScale0 = _mm_mul_ps(satScale0, sFract0);
+		ss0 = _mm_set_ps(entry00[3][1].fSatScale, entry00[2][1].fSatScale, entry00[1][1].fSatScale, entry00[0][1].fSatScale);
+		ss1 = _mm_set_ps(entry01[3][1].fSatScale, entry01[2][1].fSatScale, entry01[1][1].fSatScale, entry01[0][1].fSatScale);
+		__m128 satScale1 = _mm_add_ps(_mm_mul_ps(ss0, hFract0), _mm_mul_ps(ss1, hFract1));
+		satScale = _mm_add_ps(satScale0, _mm_mul_ps(satScale1, sFract1));
 
 		__m128 vs0 = _mm_set_ps(entry00[3]->fValScale, entry00[2]->fValScale, entry00[1]->fValScale, entry00[0]->fValScale);
 		__m128 vs1 = _mm_set_ps(entry01[3]->fValScale, entry01[2]->fValScale, entry01[1]->fValScale, entry01[0]->fValScale);
 		__m128 valScale0 = _mm_add_ps(_mm_mul_ps(vs0, hFract0), _mm_mul_ps(vs1, hFract1));
 		valScale0 = _mm_mul_ps(valScale0, sFract0);
-
-		for (i = 0; i < 4; i++) {
-			entry00[i]++;
-			entry01[i]++;
-		}
-
-		hs0 = _mm_set_ps(entry00[3]->fHueShift, entry00[2]->fHueShift, entry00[1]->fHueShift, entry00[0]->fHueShift);
-		hs1 = _mm_set_ps(entry01[3]->fHueShift, entry01[2]->fHueShift, entry01[1]->fHueShift, entry01[0]->fHueShift);
-		__m128 hueShift1 = _mm_add_ps(_mm_mul_ps(hs0, hFract0), _mm_mul_ps(hs1, hFract1));
-		hueShift = _mm_add_ps(hueShift0, _mm_mul_ps(hueShift1, sFract1));
-
-		ss0 = _mm_set_ps(entry00[3]->fSatScale, entry00[2]->fSatScale, entry00[1]->fSatScale, entry00[0]->fSatScale);
-		ss1 = _mm_set_ps(entry01[3]->fSatScale, entry01[2]->fSatScale, entry01[1]->fSatScale, entry01[0]->fSatScale);
-		__m128 satScale1 = _mm_add_ps(_mm_mul_ps(ss0, hFract0), _mm_mul_ps(ss1, hFract1));
-		satScale = _mm_add_ps(satScale0, _mm_mul_ps(satScale1, sFract1));
-
-		vs0 = _mm_set_ps(entry00[3]->fValScale, entry00[2]->fValScale, entry00[1]->fValScale, entry00[0]->fValScale);
-		vs1 = _mm_set_ps(entry01[3]->fValScale, entry01[2]->fValScale, entry01[1]->fValScale, entry01[0]->fValScale);
+		vs0 = _mm_set_ps(entry00[3][1].fValScale, entry00[2][1].fValScale, entry00[1][1].fValScale, entry00[0][1].fValScale);
+		vs1 = _mm_set_ps(entry01[3][1].fValScale, entry01[2][1].fValScale, entry01[1][1].fValScale, entry01[0][1].fValScale);
 		__m128 valScale1 = _mm_add_ps(_mm_mul_ps(vs0, hFract0), _mm_mul_ps(vs1, hFract1));
 		valScale = _mm_add_ps(valScale0, _mm_mul_ps(valScale1, sFract1));
 
@@ -369,6 +365,7 @@ huesat_map_SSE2(RSHuesatMap *map, const PrecalcHSM* precalc, __m128 *_h, __m128 
 		const RS_VECTOR3 *entry10[4] = { entry00[0] + _valStep, entry00[1] + _valStep, entry00[2] + _valStep, entry00[3] + _valStep};
 		const RS_VECTOR3 *entry11[4] = { entry01[0] + _valStep, entry01[1] + _valStep, entry01[2] + _valStep, entry01[3] + _valStep};
 
+		/* Hue first element */
 		__m128 hs00 = _mm_set_ps(entry00[3]->fHueShift, entry00[2]->fHueShift, entry00[1]->fHueShift, entry00[0]->fHueShift);
 		__m128 hs01 = _mm_set_ps(entry01[3]->fHueShift, entry01[2]->fHueShift, entry01[1]->fHueShift, entry01[0]->fHueShift);
 		__m128 hs10 = _mm_set_ps(entry10[3]->fHueShift, entry10[2]->fHueShift, entry10[1]->fHueShift, entry10[0]->fHueShift);
@@ -377,6 +374,16 @@ huesat_map_SSE2(RSHuesatMap *map, const PrecalcHSM* precalc, __m128 *_h, __m128 
 		__m128 hueShift1 = _mm_mul_ps(vFract1, _mm_add_ps(_mm_mul_ps(hs10, hFract0), _mm_mul_ps(hs11, hFract1)));
 		hueShift = _mm_mul_ps(sFract0, _mm_add_ps(hueShift0, hueShift1));
 
+		/* Hue second element */
+		hs00 = _mm_set_ps(entry00[3][1].fHueShift, entry00[2][1].fHueShift, entry00[1][1].fHueShift, entry00[0][1].fHueShift);
+		hs01 = _mm_set_ps(entry01[3][1].fHueShift, entry01[2][1].fHueShift, entry01[1][1].fHueShift, entry01[0][1].fHueShift);
+		hs10 = _mm_set_ps(entry10[3][1].fHueShift, entry10[2][1].fHueShift, entry10[1][1].fHueShift, entry10[0][1].fHueShift);
+		hs11 = _mm_set_ps(entry11[3][1].fHueShift, entry11[2][1].fHueShift, entry11[1][1].fHueShift, entry11[0][1].fHueShift);
+		hueShift0 = _mm_mul_ps(vFract0, _mm_add_ps(_mm_mul_ps(hs00, hFract0), _mm_mul_ps(hs01, hFract1)));
+		hueShift1 = _mm_mul_ps(vFract1, _mm_add_ps(_mm_mul_ps(hs10, hFract0), _mm_mul_ps(hs11, hFract1)));
+		hueShift = _mm_add_ps(hueShift, _mm_mul_ps(sFract1, _mm_add_ps(hueShift0, hueShift1)));
+
+		/* Sat first element */
 		__m128 ss00 = _mm_set_ps(entry00[3]->fSatScale, entry00[2]->fSatScale, entry00[1]->fSatScale, entry00[0]->fSatScale);
 		__m128 ss01 = _mm_set_ps(entry01[3]->fSatScale, entry01[2]->fSatScale, entry01[1]->fSatScale, entry01[0]->fSatScale);
 		__m128 ss10 = _mm_set_ps(entry10[3]->fSatScale, entry10[2]->fSatScale, entry10[1]->fSatScale, entry10[0]->fSatScale);
@@ -385,6 +392,16 @@ huesat_map_SSE2(RSHuesatMap *map, const PrecalcHSM* precalc, __m128 *_h, __m128 
 		__m128 satScale1 = _mm_mul_ps(vFract1, _mm_add_ps(_mm_mul_ps(ss10, hFract0), _mm_mul_ps(ss11, hFract1)));
 		satScale = _mm_mul_ps(sFract0, _mm_add_ps(satScale0, satScale1));
 
+		/* Sat second element */
+		ss00 = _mm_set_ps(entry00[3][1].fSatScale, entry00[2][1].fSatScale, entry00[1][1].fSatScale, entry00[0][1].fSatScale);
+		ss01 = _mm_set_ps(entry01[3][1].fSatScale, entry01[2][1].fSatScale, entry01[1][1].fSatScale, entry01[0][1].fSatScale);
+		ss10 = _mm_set_ps(entry10[3][1].fSatScale, entry10[2][1].fSatScale, entry10[1][1].fSatScale, entry10[0][1].fSatScale);
+		ss11 = _mm_set_ps(entry11[3][1].fSatScale, entry11[2][1].fSatScale, entry11[1][1].fSatScale, entry11[0][1].fSatScale);
+		satScale0 = _mm_mul_ps(vFract0, _mm_add_ps(_mm_mul_ps(ss00, hFract0), _mm_mul_ps(ss01, hFract1)));
+		satScale1 = _mm_mul_ps(vFract1, _mm_add_ps(_mm_mul_ps(ss10, hFract0), _mm_mul_ps(ss11, hFract1)));
+		satScale = _mm_add_ps(satScale, _mm_mul_ps(sFract1, _mm_add_ps(satScale0, satScale1)));
+
+		/* Val first element */
 		__m128 vs00 = _mm_set_ps(entry00[3]->fValScale, entry00[2]->fValScale, entry00[1]->fValScale, entry00[0]->fValScale);
 		__m128 vs01 = _mm_set_ps(entry01[3]->fValScale, entry01[2]->fValScale, entry01[1]->fValScale, entry01[0]->fValScale);
 		__m128 vs10 = _mm_set_ps(entry10[3]->fValScale, entry10[2]->fValScale, entry10[1]->fValScale, entry10[0]->fValScale);
@@ -393,33 +410,11 @@ huesat_map_SSE2(RSHuesatMap *map, const PrecalcHSM* precalc, __m128 *_h, __m128 
 		__m128 valScale1 = _mm_mul_ps(vFract1, _mm_add_ps(_mm_mul_ps(vs10, hFract0), _mm_mul_ps(vs11, hFract1)));
 		valScale = _mm_mul_ps(sFract0, _mm_add_ps(valScale0, valScale1));
 
-		for (i = 0; i < 4; i++) {
-			entry00[i]++;
-			entry01[i]++;
-			entry10[i]++;
-			entry11[i]++;
-		}
-
-		hs00 = _mm_set_ps(entry00[3]->fHueShift, entry00[2]->fHueShift, entry00[1]->fHueShift, entry00[0]->fHueShift);
-		hs01 = _mm_set_ps(entry01[3]->fHueShift, entry01[2]->fHueShift, entry01[1]->fHueShift, entry01[0]->fHueShift);
-		hs10 = _mm_set_ps(entry10[3]->fHueShift, entry10[2]->fHueShift, entry10[1]->fHueShift, entry10[0]->fHueShift);
-		hs11 = _mm_set_ps(entry11[3]->fHueShift, entry11[2]->fHueShift, entry11[1]->fHueShift, entry11[0]->fHueShift);
-		hueShift0 = _mm_mul_ps(vFract0, _mm_add_ps(_mm_mul_ps(hs00, hFract0), _mm_mul_ps(hs01, hFract1)));
-		hueShift1 = _mm_mul_ps(vFract1, _mm_add_ps(_mm_mul_ps(hs10, hFract0), _mm_mul_ps(hs11, hFract1)));
-		hueShift = _mm_add_ps(hueShift, _mm_mul_ps(sFract1, _mm_add_ps(hueShift0, hueShift1)));
-
-		ss00 = _mm_set_ps(entry00[3]->fSatScale, entry00[2]->fSatScale, entry00[1]->fSatScale, entry00[0]->fSatScale);
-		ss01 = _mm_set_ps(entry01[3]->fSatScale, entry01[2]->fSatScale, entry01[1]->fSatScale, entry01[0]->fSatScale);
-		ss10 = _mm_set_ps(entry10[3]->fSatScale, entry10[2]->fSatScale, entry10[1]->fSatScale, entry10[0]->fSatScale);
-		ss11 = _mm_set_ps(entry11[3]->fSatScale, entry11[2]->fSatScale, entry11[1]->fSatScale, entry11[0]->fSatScale);
-		satScale0 = _mm_mul_ps(vFract0, _mm_add_ps(_mm_mul_ps(ss00, hFract0), _mm_mul_ps(ss01, hFract1)));
-		satScale1 = _mm_mul_ps(vFract1, _mm_add_ps(_mm_mul_ps(ss10, hFract0), _mm_mul_ps(ss11, hFract1)));
-		satScale = _mm_add_ps(satScale, _mm_mul_ps(sFract1, _mm_add_ps(satScale0, satScale1)));
-
-		vs00 = _mm_set_ps(entry00[3]->fValScale, entry00[2]->fValScale, entry00[1]->fValScale, entry00[0]->fValScale);
-		vs01 = _mm_set_ps(entry01[3]->fValScale, entry01[2]->fValScale, entry01[1]->fValScale, entry01[0]->fValScale);
-		vs10 = _mm_set_ps(entry10[3]->fValScale, entry10[2]->fValScale, entry10[1]->fValScale, entry10[0]->fValScale);
-		vs11 = _mm_set_ps(entry11[3]->fValScale, entry11[2]->fValScale, entry11[1]->fValScale, entry11[0]->fValScale);
+		/* Val second element */
+		vs00 = _mm_set_ps(entry00[3][1].fValScale, entry00[2][1].fValScale, entry00[1][1].fValScale, entry00[0][1].fValScale);
+		vs01 = _mm_set_ps(entry01[3][1].fValScale, entry01[2][1].fValScale, entry01[1][1].fValScale, entry01[0][1].fValScale);
+		vs10 = _mm_set_ps(entry10[3][1].fValScale, entry10[2][1].fValScale, entry10[1][1].fValScale, entry10[0][1].fValScale);
+		vs11 = _mm_set_ps(entry11[3][1].fValScale, entry11[2][1].fValScale, entry11[1][1].fValScale, entry11[0][1].fValScale);
 		valScale0 = _mm_mul_ps(vFract0, _mm_add_ps(_mm_mul_ps(vs00, hFract0), _mm_mul_ps(vs01, hFract1)));
 		valScale1 = _mm_mul_ps(vFract1, _mm_add_ps(_mm_mul_ps(vs10, hFract0), _mm_mul_ps(vs11, hFract1)));
 		valScale = _mm_add_ps(valScale, _mm_mul_ps(sFract1, _mm_add_ps(valScale0, valScale1)));
@@ -1002,7 +997,6 @@ huesat_map_SSE4(RSHuesatMap *map, const PrecalcHSM* precalc, __m128 *_h, __m128 
 	__m128 h = *_h;
 	__m128 s = *_s;
 	__m128 v = *_v;
-	gint i;
 
 	const RS_VECTOR3 *tableBase = map->deltas;
 
@@ -1055,53 +1049,47 @@ huesat_map_SSE4(RSHuesatMap *map, const PrecalcHSM* precalc, __m128 *_h, __m128 
 			LOOK_SINGLE(A, B, C, 2);\
 			LOOK_SINGLE(A, B, C, 3);
 
+#define LOOK_SINGLE_ONE(A,B,C,D) A = _mm_insert_epi32( A, *(gint32*)&C[D][1].B, D)
+
+#define LOOKUP_FOUR_ONE(A, B, C) LOOK_SINGLE_ONE(A, B, C, 0);\
+			LOOK_SINGLE_ONE(A, B, C, 1);\
+			LOOK_SINGLE_ONE(A, B, C, 2);\
+			LOOK_SINGLE_ONE(A, B, C, 3);
+
 		/* Initialize to something (will be overwritten) */
-		__m128i h00 = next_offsets;
-		__m128i h01 = next_offsets;
+		__m128i h00 = _mm_setzero_si128();
+		__m128i h01 = _mm_setzero_si128();
 		
 		LOOKUP_FOUR(h00, fHueShift, entry00);
 		LOOKUP_FOUR(h01, fHueShift, entry01);
 		__m128 hueShift0 = _mm_add_ps(_mm_mul_ps(PS(h00), hFract0), _mm_mul_ps(PS(h01), hFract1));
 		hueShift0 = _mm_mul_ps(hueShift0, sFract0);
+		
+		LOOKUP_FOUR_ONE(h00, fHueShift, entry00);
+		LOOKUP_FOUR_ONE(h01, fHueShift, entry01);
+		__m128 hueShift1 = _mm_add_ps(_mm_mul_ps(PS(h00), hFract0), _mm_mul_ps(PS(h01), hFract1));
+		hueShift = _mm_add_ps(hueShift0, _mm_mul_ps(hueShift1, sFract1));
 
-		__m128i s00 = h00;
-		__m128i s01 = h00;
+		__m128i s00 = _mm_setzero_si128();
+		__m128i s01 = _mm_setzero_si128();
 		LOOKUP_FOUR(s00, fSatScale, entry00);
 		LOOKUP_FOUR(s01, fSatScale, entry01);
 		__m128 satScale0 = _mm_add_ps(_mm_mul_ps(PS(s00), hFract0), _mm_mul_ps(PS(s01), hFract1));
 		satScale0 = _mm_mul_ps(satScale0, sFract0);
+		LOOKUP_FOUR_ONE(s00, fSatScale, entry00);
+		LOOKUP_FOUR_ONE(s01, fSatScale, entry01);
+		__m128 satScale1 = _mm_add_ps(_mm_mul_ps(PS(s00), hFract0), _mm_mul_ps(PS(s01), hFract1));
+		satScale = _mm_add_ps(satScale0, _mm_mul_ps(satScale1, sFract1));
 
-		__m128i v00 = h00;
-		__m128i v01 = h00;
+		__m128i v00 = _mm_setzero_si128();
+		__m128i v01 = _mm_setzero_si128();
 		LOOKUP_FOUR(v00, fValScale, entry00);
 		LOOKUP_FOUR(v01, fValScale, entry01);
 		__m128 valScale0 = _mm_add_ps(_mm_mul_ps(PS(v00), hFract0), _mm_mul_ps(PS(v01), hFract1));
 		valScale0 = _mm_mul_ps(valScale0, sFract0);
-
-		for (i = 0; i < 4; i++) {
-			entry00[i]++;
-			entry01[i]++;
-		}
-
-		h00 = v00;
-		h01 = v00;
-
-		LOOKUP_FOUR(h00, fHueShift, entry00);
-		LOOKUP_FOUR(h01, fHueShift, entry01);
-		__m128 hueShift1 = _mm_add_ps(_mm_mul_ps(PS(h00), hFract0), _mm_mul_ps(PS(h01), hFract1));
-		hueShift = _mm_add_ps(hueShift0, _mm_mul_ps(hueShift1, sFract1));
-
-		s00 = v00;
-		s01 = v00;
-		LOOKUP_FOUR(s00, fSatScale, entry00);
-		LOOKUP_FOUR(s01, fSatScale, entry01);
-		__m128 satScale1 = _mm_add_ps(_mm_mul_ps(PS(s00), hFract0), _mm_mul_ps(PS(s01), hFract1));
-		satScale = _mm_add_ps(satScale0, _mm_mul_ps(satScale1, sFract1));
-
-		v00 = s00;
-		v01 = s00;
-		LOOKUP_FOUR(v00, fValScale, entry00);
-		LOOKUP_FOUR(v01, fValScale, entry01);
+		
+		LOOKUP_FOUR_ONE(v00, fValScale, entry00);
+		LOOKUP_FOUR_ONE(v01, fValScale, entry01);
 		__m128 valScale1 = _mm_add_ps(_mm_mul_ps(PS(v00), hFract0), _mm_mul_ps(PS(v01), hFract1));
 		valScale = _mm_add_ps(valScale0, _mm_mul_ps(valScale1, sFract1));
 
@@ -1171,6 +1159,7 @@ huesat_map_SSE4(RSHuesatMap *map, const PrecalcHSM* precalc, __m128 *_h, __m128 
 		__m128i temp_10 = next_offsets;
 		__m128i temp_11 = next_offsets;
 
+		/* Hue first element */
 		LOOKUP_FOUR(temp_00, fHueShift, entry00);
 		LOOKUP_FOUR(temp_01, fHueShift, entry01);
 		LOOKUP_FOUR(temp_10, fHueShift, entry10);
@@ -1180,6 +1169,16 @@ huesat_map_SSE4(RSHuesatMap *map, const PrecalcHSM* precalc, __m128 *_h, __m128 
 		__m128 hueShift1 = _mm_mul_ps(vFract1, _mm_add_ps(_mm_mul_ps(PS(temp_10), hFract0), _mm_mul_ps(PS(temp_11), hFract1)));
 		hueShift = _mm_mul_ps(sFract0, _mm_add_ps(hueShift0, hueShift1));
 
+		/* Huw second element */
+		LOOKUP_FOUR_ONE(temp_00, fHueShift, entry00);
+		LOOKUP_FOUR_ONE(temp_01, fHueShift, entry01);
+		LOOKUP_FOUR_ONE(temp_10, fHueShift, entry10);
+		LOOKUP_FOUR_ONE(temp_11, fHueShift, entry11);
+		hueShift0 = _mm_mul_ps(vFract0, _mm_add_ps(_mm_mul_ps(PS(temp_00), hFract0), _mm_mul_ps(PS(temp_01), hFract1)));
+		hueShift1 = _mm_mul_ps(vFract1, _mm_add_ps(_mm_mul_ps(PS(temp_10), hFract0), _mm_mul_ps(PS(temp_11), hFract1)));
+		hueShift = _mm_add_ps(hueShift, _mm_mul_ps(sFract1, _mm_add_ps(hueShift0, hueShift1)));
+
+		/* Sat first element */
 		LOOKUP_FOUR(temp_00, fSatScale, entry00);
 		LOOKUP_FOUR(temp_01, fSatScale, entry01);
 		LOOKUP_FOUR(temp_10, fSatScale, entry10);
@@ -1188,6 +1187,16 @@ huesat_map_SSE4(RSHuesatMap *map, const PrecalcHSM* precalc, __m128 *_h, __m128 
 		__m128 satScale1 = _mm_mul_ps(vFract1, _mm_add_ps(_mm_mul_ps(PS(temp_10), hFract0), _mm_mul_ps(PS(temp_11), hFract1)));
 		satScale = _mm_mul_ps(sFract0, _mm_add_ps(satScale0, satScale1));
 
+		/* Sat second element */
+		LOOKUP_FOUR_ONE(temp_00, fSatScale, entry00);
+		LOOKUP_FOUR_ONE(temp_01, fSatScale, entry01);
+		LOOKUP_FOUR_ONE(temp_10, fSatScale, entry10);
+		LOOKUP_FOUR_ONE(temp_11, fSatScale, entry11);
+		satScale0 = _mm_mul_ps(vFract0, _mm_add_ps(_mm_mul_ps(PS(temp_00), hFract0), _mm_mul_ps(PS(temp_01), hFract1)));
+		satScale1 = _mm_mul_ps(vFract1, _mm_add_ps(_mm_mul_ps(PS(temp_10), hFract0), _mm_mul_ps(PS(temp_11), hFract1)));
+		satScale = _mm_add_ps(satScale, _mm_mul_ps(sFract1, _mm_add_ps(satScale0, satScale1)));
+		
+		/* Val first element */
 		LOOKUP_FOUR(temp_00, fValScale, entry00);
 		LOOKUP_FOUR(temp_01, fValScale, entry01);
 		LOOKUP_FOUR(temp_10, fValScale, entry10);
@@ -1196,36 +1205,15 @@ huesat_map_SSE4(RSHuesatMap *map, const PrecalcHSM* precalc, __m128 *_h, __m128 
 		__m128 valScale1 = _mm_mul_ps(vFract1, _mm_add_ps(_mm_mul_ps(PS(temp_10), hFract0), _mm_mul_ps(PS(temp_11), hFract1)));
 		valScale = _mm_mul_ps(sFract0, _mm_add_ps(valScale0, valScale1));
 
-		for (i = 0; i < 4; i++) {
-			entry00[i]++;
-			entry01[i]++;
-			entry10[i]++;
-			entry11[i]++;
-		}
-
-		LOOKUP_FOUR(temp_00, fHueShift, entry00);
-		LOOKUP_FOUR(temp_01, fHueShift, entry01);
-		LOOKUP_FOUR(temp_10, fHueShift, entry10);
-		LOOKUP_FOUR(temp_11, fHueShift, entry11);
-		hueShift0 = _mm_mul_ps(vFract0, _mm_add_ps(_mm_mul_ps(PS(temp_00), hFract0), _mm_mul_ps(PS(temp_01), hFract1)));
-		hueShift1 = _mm_mul_ps(vFract1, _mm_add_ps(_mm_mul_ps(PS(temp_10), hFract0), _mm_mul_ps(PS(temp_11), hFract1)));
-		hueShift = _mm_add_ps(hueShift, _mm_mul_ps(sFract1, _mm_add_ps(hueShift0, hueShift1)));
-
-		LOOKUP_FOUR(temp_00, fSatScale, entry00);
-		LOOKUP_FOUR(temp_01, fSatScale, entry01);
-		LOOKUP_FOUR(temp_10, fSatScale, entry10);
-		LOOKUP_FOUR(temp_11, fSatScale, entry11);
-		satScale0 = _mm_mul_ps(vFract0, _mm_add_ps(_mm_mul_ps(PS(temp_00), hFract0), _mm_mul_ps(PS(temp_01), hFract1)));
-		satScale1 = _mm_mul_ps(vFract1, _mm_add_ps(_mm_mul_ps(PS(temp_10), hFract0), _mm_mul_ps(PS(temp_11), hFract1)));
-		satScale = _mm_add_ps(satScale, _mm_mul_ps(sFract1, _mm_add_ps(satScale0, satScale1)));
-
-		LOOKUP_FOUR(temp_00, fValScale, entry00);
-		LOOKUP_FOUR(temp_01, fValScale, entry01);
-		LOOKUP_FOUR(temp_10, fValScale, entry10);
-		LOOKUP_FOUR(temp_11, fValScale, entry11);
+		/* Val second element */
+		LOOKUP_FOUR_ONE(temp_00, fValScale, entry00);
+		LOOKUP_FOUR_ONE(temp_01, fValScale, entry01);
+		LOOKUP_FOUR_ONE(temp_10, fValScale, entry10);
+		LOOKUP_FOUR_ONE(temp_11, fValScale, entry11);
 		valScale0 = _mm_mul_ps(vFract0, _mm_add_ps(_mm_mul_ps(PS(temp_00), hFract0), _mm_mul_ps(PS(temp_01), hFract1)));
 		valScale1 = _mm_mul_ps(vFract1, _mm_add_ps(_mm_mul_ps(PS(temp_10), hFract0), _mm_mul_ps(PS(temp_11), hFract1)));
 		valScale = _mm_add_ps(valScale, _mm_mul_ps(sFract1, _mm_add_ps(valScale0, valScale1)));
+
 	}
 
 	__m128 mul_hue = _mm_load_ps(_mul_hue_ps);

@@ -1,7 +1,7 @@
 plugindir = $(libdir)/rawstudio/plugins
 
 AM_CFLAGS = -O4 -Wall -ffast-math -ffinite-math-only \
-	-funsafe-math-optimizations
+	-funsafe-math-optimizations -funroll-loops
 
 AM_CXXFLAGS = $(AM_CFLAGS)
 
