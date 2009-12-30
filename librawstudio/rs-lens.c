@@ -33,6 +33,7 @@ struct _RSLens {
 	gchar *lensfun_model;
 	gchar *camera_make;
 	gchar *camera_model;
+	gboolean enabled;
 };
 
 G_DEFINE_TYPE (RSLens, rs_lens, G_TYPE_OBJECT)
@@ -48,7 +49,8 @@ enum {
 	PROP_LENSFUN_MAKE,
 	PROP_LENSFUN_MODEL,
 	PROP_CAMERA_MAKE,
-	PROP_CAMERA_MODEL
+	PROP_CAMERA_MODEL,
+	PROP_ENABLED
 };
 
 static void
@@ -87,6 +89,9 @@ get_property(GObject *object, guint property_id, GValue *value, GParamSpec *pspe
 			break;
 		case PROP_CAMERA_MODEL:
 			g_value_set_string(value, lens->camera_model);
+			break;
+		case PROP_ENABLED:
+			g_value_set_boolean(value, lens->enabled);
 			break;
 		default:
 			G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
@@ -131,6 +136,9 @@ set_property(GObject *object, guint property_id, const GValue *value, GParamSpec
 		case PROP_CAMERA_MODEL:
 			g_free(lens->camera_model);
 			lens->camera_model = g_value_dup_string(value);
+			break;
+		case PROP_ENABLED:
+			lens->enabled = g_value_get_boolean(value);
 			break;
 		default:
 			G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
@@ -210,6 +218,11 @@ rs_lens_class_init(RSLensClass *klass)
 		PROP_CAMERA_MODEL, g_param_spec_string(
 		"camera-model", "camera-model", "String helping Lensfun to identify the camera model",
 		"", G_PARAM_READWRITE));
+
+	g_object_class_install_property(object_class,
+		PROP_ENABLED, g_param_spec_boolean(
+		"enabled", "enabled", "Specify whether the lens should be corrected or not",
+		TRUE, G_PARAM_READWRITE));
 }
 
 static void
@@ -226,6 +239,7 @@ rs_lens_init(RSLens *lens)
 	lens->lensfun_model = NULL;
 	lens->camera_make = NULL;
 	lens->camera_model = NULL;
+	lens->enabled = TRUE;
 }
 
 /**
