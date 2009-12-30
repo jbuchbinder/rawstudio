@@ -32,7 +32,6 @@
 /* _mm_insert_epi32, since no-one was kind enough to include "insertps xmm, mem32, imm8" */
 /* as a valid intrinsic. So we use the integer equivalent instead */
 
-static gfloat _zero_ps[4] __attribute__ ((aligned (16))) = {0.0f, 0.0f, 0.0f, 0.0f};
 static gfloat _ones_ps[4] __attribute__ ((aligned (16))) = {1.0f, 1.0f, 1.0f, 1.0f};
 static gfloat _two_ps[4] __attribute__ ((aligned (16))) = {2.0f, 2.0f, 2.0f, 2.0f};
 static gfloat _six_ps[4] __attribute__ ((aligned (16))) = {6.0f-1e-15, 6.0f-1e-15, 6.0f-1e-15, 6.0f-1e-15};
@@ -42,7 +41,7 @@ static inline void
 RGBtoHSV_SSE(__m128 *c0, __m128 *c1, __m128 *c2)
 {
 
-	__m128 zero_ps = _mm_load_ps(_zero_ps);
+	__m128 zero_ps = _mm_setzero_ps();
 	__m128 small_ps = _mm_load_ps(_very_small_ps);
 	__m128 ones_ps = _mm_load_ps(_ones_ps);
 	
@@ -66,7 +65,7 @@ RGBtoHSV_SSE(__m128 *c0, __m128 *c1, __m128 *c2)
 	__m128 v_mask = _mm_cmpeq_ps(gap, zero_ps);
 	v = _mm_add_ps(v, _mm_and_ps(add_v, v_mask));
 
-	h = _mm_xor_ps(r,r);
+	h = _mm_setzero_ps();
 
 	/* Set gap to one where sat = 0, this will avoid divisions by zero, these values will not be used */
 	ones_ps = _mm_and_ps(ones_ps, v_mask);
@@ -110,6 +109,7 @@ RGBtoHSV_SSE(__m128 *c0, __m128 *c1, __m128 *c2)
 	s = _mm_andnot_ps(v_mask, val );
 
 	/* Check if h < 0 */
+	zero_ps = _mm_setzero_ps();
 	__m128 six_ps = _mm_load_ps(_six_ps);
 	mask = _mm_cmplt_ps(h, zero_ps);
 	h = _mm_add_ps(h, _mm_and_ps(mask, six_ps));
@@ -355,7 +355,6 @@ huesat_map_SSE2(RSHuesatMap *map, const PrecalcHSM* precalc, __m128 *_h, __m128 
 		next_offsets = _mm_add_epi32(next_offsets, table_offsets);
 		table_offsets = _mm_add_epi32(table_offsets, _mm_mullo_epi16(hIndex0, hueStep));
 
-		// TODO: This will result in a store->load forward size mismatch penalty, if possible, avoid.
 		_mm_store_si128((__m128i*)xfer_0, table_offsets);
 		_mm_store_si128((__m128i*)xfer_1, next_offsets);
 		gint _valStep = precalc->valStep[0];
@@ -559,7 +558,7 @@ render_SSE2(ThreadInfo* t)
 	__m128i p1,p2;
 	__m128 p1f, p2f, p3f, p4f;
 	__m128 r, g, b, r2, g2, b2;
-	__m128i zero = _mm_load_si128((__m128i*)_15_bit_epi32);
+	__m128i zero;
 
 	__m128 hue_add = _mm_set_ps(dcp->hue, dcp->hue, dcp->hue, dcp->hue);
 	__m128 sat = _mm_set_ps(dcp->saturation, dcp->saturation, dcp->saturation, dcp->saturation);
@@ -597,7 +596,7 @@ render_SSE2(ThreadInfo* t)
 		{
 			__m128i* pixel = (__m128i*)GET_PIXEL(image, x, y);
 
-			zero = _mm_xor_si128(zero,zero);
+			zero = _mm_setzero_si128();
 
 			/* Convert to float */
 			p1 = _mm_load_si128(pixel);
@@ -670,7 +669,7 @@ render_SSE2(ThreadInfo* t)
 
 			/* Hue */
 			__m128 six_ps = _mm_load_ps(_six_ps);
-			__m128 zero_ps = _mm_load_ps(_zero_ps);
+			__m128 zero_ps = _mm_setzero_ps();
 			h = _mm_add_ps(h, hue_add);
 
 			/* Check if hue > 6 or < 0*/
@@ -757,7 +756,8 @@ render_SSE2(ThreadInfo* t)
 				huesat_map_SSE2(dcp->looktable, &dcp->looktable_precalc, &h, &s, &v);
 			}
 			
-			/* Ensure that hue is within range */	
+			/* Ensure that hue is within range */
+			zero_ps = _mm_setzero_ps();
 			h_mask_gt = _mm_cmpgt_ps(h, six_ps);
 			h_mask_lt = _mm_cmplt_ps(h, zero_ps);
 			six_masked_gt = _mm_and_ps(six_ps, h_mask_gt);
@@ -827,7 +827,7 @@ static inline void
 RGBtoHSV_SSE4(__m128 *c0, __m128 *c1, __m128 *c2)
 {
 
-	__m128 zero_ps = _mm_load_ps(_zero_ps);
+	__m128 zero_ps = _mm_setzero_ps();
 	__m128 small_ps = _mm_load_ps(_very_small_ps);
 	__m128 ones_ps = _mm_load_ps(_ones_ps);
 	
@@ -895,6 +895,7 @@ RGBtoHSV_SSE4(__m128 *c0, __m128 *c1, __m128 *c2)
 	s = _mm_andnot_ps(v_mask, val );
 
 	/* Check if h < 0 */
+	zero_ps = _mm_setzero_ps();
 	__m128 six_ps = _mm_load_ps(_six_ps);
 	mask = _mm_cmplt_ps(h, zero_ps);
 	h = _mm_add_ps(h, _mm_and_ps(mask, six_ps));
@@ -1247,7 +1248,7 @@ render_SSE4(ThreadInfo* t)
 	__m128i p1,p2;
 	__m128 p1f, p2f, p3f, p4f;
 	__m128 r, g, b, r2, g2, b2;
-	__m128i zero = _mm_load_si128((__m128i*)_15_bit_epi32);
+	__m128i zero;
 
 	__m128 hue_add = _mm_set_ps(dcp->hue, dcp->hue, dcp->hue, dcp->hue);
 	__m128 sat = _mm_set_ps(dcp->saturation, dcp->saturation, dcp->saturation, dcp->saturation);
@@ -1285,7 +1286,7 @@ render_SSE4(ThreadInfo* t)
 		{
 			__m128i* pixel = (__m128i*)GET_PIXEL(image, x, y);
 
-			zero = _mm_xor_si128(zero,zero);
+			zero = _mm_setzero_si128();
 
 			/* Convert to float */
 			p1 = _mm_load_si128(pixel);
@@ -1358,7 +1359,7 @@ render_SSE4(ThreadInfo* t)
 
 			/* Hue */
 			__m128 six_ps = _mm_load_ps(_six_ps);
-			__m128 zero_ps = _mm_load_ps(_zero_ps);
+			__m128 zero_ps = _mm_setzero_ps();
 			h = _mm_add_ps(h, hue_add);
 
 			/* Check if hue > 6 or < 0*/
@@ -1445,6 +1446,7 @@ render_SSE4(ThreadInfo* t)
 			}
 			
 			/* Ensure that hue is within range */	
+			zero_ps = _mm_setzero_ps();
 			h_mask_gt = _mm_cmpgt_ps(h, six_ps);
 			h_mask_lt = _mm_cmplt_ps(h, zero_ps);
 			six_masked_gt = _mm_and_ps(six_ps, h_mask_gt);
