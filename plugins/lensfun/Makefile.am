@@ -1,8 +1,15 @@
 plugindir = $(libdir)/rawstudio/plugins
 
+if CAN_COMPILE_SSE2
+SSE_FLAG=-msse2
+else
+SSE_FLAG=
+endif
+
 AM_CFLAGS =\
 	-Wall\
-	-O4
+	-O4\
+	$(SSE_FLAG)
 
 AM_CXXFLAGS = $(AM_CFLAGS)
 

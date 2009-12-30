@@ -304,6 +304,7 @@ set_property(GObject *object, guint property_id, const GValue *value, GParamSpec
 			rs_filter_changed(RS_FILTER(lensfun), RS_FILTER_CHANGED_PIXELDATA);
 			break;
 		case PROP_DISTORTION_ENABLED:
+			lensfun->DIRTY = TRUE;
 			lensfun->distortion_enabled = g_value_get_boolean(value);
 			rs_filter_changed(RS_FILTER(lensfun), RS_FILTER_CHANGED_PIXELDATA);
 			break;
@@ -342,6 +343,7 @@ thread_func(gpointer _thread_info)
 		}
 	}
 
+	gboolean sse2_available = !!(rs_detect_cpu_features() & RS_CPU_FLAG_SSE2);
 	if (t->stage == 3) 
 	{
 		/* Do TCA and distortion */
@@ -354,14 +356,21 @@ thread_func(gpointer _thread_info)
 			lf_modifier_apply_subpixel_geometry_distortion(t->mod, t->roi->x, (gfloat) y, t->roi->width, 1, pos);
 			target = GET_PIXEL(t->output, t->roi->x, y);
 			gfloat* l_pos = pos;
-
+#if defined (__SSE2__)
+			if (sse2_available)
+			{
+				for(x = 0; x < t->roi->width ; x++)
+				{
+					rs_image16_bilinear_full_sse2(t->input, target, l_pos);
+					target += pixelsize;
+					l_pos += 6;
+				}
+			} else 
+#endif
 			for(x = 0; x < t->roi->width ; x++)
 			{
-#if defined (__SSE2__)
 				rs_image16_bilinear_full_sse2(t->input, target, l_pos);
-#else
 				rs_image16_bilinear_full(t->input, target, l_pos);
-#endif
 				target += pixelsize;
 				l_pos += 6;
 			}
