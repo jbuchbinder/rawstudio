@@ -51,6 +51,7 @@ struct _RSLensfun {
 	gfloat vignetting_k1;
 	gfloat vignetting_k2;
 	gfloat vignetting_k3;
+	gboolean distortion_enabled;
 
 	lfLens *selected_lens;
 	const lfCamera *selected_camera;
@@ -78,6 +79,7 @@ enum {
 	PROP_VIGNETTING_K1,
 	PROP_VIGNETTING_K2,
 	PROP_VIGNETTING_K3,
+	PROP_DISTORTION_ENABLED,
 };
 
 static void get_property (GObject *object, guint property_id, GValue *value, GParamSpec *pspec);
@@ -167,7 +169,12 @@ rs_lensfun_class_init(RSLensfunClass *klass)
 			"vignetting_k3", "vignetting_k3", "vignetting_k3",
 			-1, 2, 0.0, G_PARAM_READWRITE)
 	);
-
+	g_object_class_install_property(object_class,
+		PROP_DISTORTION_ENABLED, g_param_spec_boolean(
+			"distortion_enabled", "distortion_enabled", "distortion_enabled",
+		   FALSE, G_PARAM_READWRITE)
+	);
+	
 	filter_class->name = "Lensfun filter";
 	filter_class->get_image = get_image;
 }
@@ -187,6 +194,7 @@ rs_lensfun_init(RSLensfun *lensfun)
 	lensfun->vignetting_k1 = 0.0;
 	lensfun->vignetting_k2 = 0.0;
 	lensfun->vignetting_k3 = 0.0;
+	lensfun->distortion_enabled = FALSE;
 
 	/* Initialize Lensfun database */
 	lensfun->ldb = lf_db_new ();
@@ -235,6 +243,9 @@ get_property(GObject *object, guint property_id, GValue *value, GParamSpec *pspe
 			break;
 		case PROP_VIGNETTING_K3:
 			g_value_set_float(value, lensfun->vignetting_k3);
+			break;
+		case PROP_DISTORTION_ENABLED:
+			g_value_set_boolean(value, lensfun->distortion_enabled);
 			break;
 		default:
 			G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
@@ -290,6 +301,10 @@ set_property(GObject *object, guint property_id, const GValue *value, GParamSpec
 			break;
 		case PROP_VIGNETTING_K3:
 			lensfun->vignetting_k3 = g_value_get_float(value);
+			rs_filter_changed(RS_FILTER(lensfun), RS_FILTER_CHANGED_PIXELDATA);
+			break;
+		case PROP_DISTORTION_ENABLED:
+			lensfun->distortion_enabled = g_value_get_boolean(value);
 			rs_filter_changed(RS_FILTER(lensfun), RS_FILTER_CHANGED_PIXELDATA);
 			break;
 		default:
