@@ -359,3 +359,11 @@ rs_lens_set_lensfun_enabled(RSLens *lens, gboolean enabled)
 
 	lens->enabled = enabled;
 }
+
+gboolean
+rs_lens_get_lensfun_enabled(RSLens *lens)
+{
+	g_assert(RS_IS_LENS(lens));
+
+	return lens->enabled;
+}
