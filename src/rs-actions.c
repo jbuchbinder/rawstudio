@@ -37,6 +37,7 @@
 #include "rs-batch.h"
 #include "rs-save-dialog.h"
 #include "rs-library.h"
+#include "rs-lens-db-editor.h"
 
 static GtkActionGroup *core_action_group = NULL;
 GStaticMutex rs_actions_spinlock = G_STATIC_MUTEX_INIT;
@@ -864,6 +865,11 @@ ACTION(ProcessBatch)
 	rs_batch_process(rs->queue);
 }
 
+ACTION(lens_db_editor)
+{
+	rs_lens_db_editor();
+}
+
 ACTION(filter_graph)
 {
 	rs_filter_graph(rs->filter_input);
@@ -968,6 +974,7 @@ rs_get_core_action_group(RS_BLOB *rs)
 	/* View menu */
 	{ "PreviousPhoto", GTK_STOCK_GO_BACK, _("_Previous photo"), "<control>Left", NULL, ACTION_CB(previous_photo) },
 	{ "NextPhoto", GTK_STOCK_GO_FORWARD, _("_Next Photo"), "<control>Right", NULL, ACTION_CB(next_photo) },
+	{ "LensDbEditor", NULL, _("_Lens Editor"), "<control>L", NULL, ACTION_CB(lens_db_editor) },
 
 	/* Batch menu */
 	{ "AddToBatch", GTK_STOCK_ADD, _("_Add to batch queue"), "<control>B", NULL, ACTION_CB(add_to_batch) },
