@@ -351,3 +351,11 @@ rs_lens_set_lensfun_model(RSLens *lens, gchar *model)
 
 	lens->lensfun_model = model;
 }
+
+void
+rs_lens_set_lensfun_enabled(RSLens *lens, gboolean enabled)
+{
+	g_assert(RS_IS_LENS(lens));
+
+	lens->enabled = enabled;
+}
