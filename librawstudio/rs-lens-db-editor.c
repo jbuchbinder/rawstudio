@@ -275,6 +275,45 @@ void row_clicked (GtkTreeView *tree_view, GtkTreePath *path, GtkTreeViewColumn *
 			0, gtk_get_current_event_time ());
 }
 
+gboolean
+view_onButtonPressed (GtkWidget *treeview, GdkEventButton *event, gpointer userdata)
+{
+	/* single click with the right mouse button? */
+	if (event->type == GDK_BUTTON_PRESS  &&  event->button == 3)
+	{
+		g_print ("Single right click on the tree view.\n");
+
+		GtkTreeSelection *selection;
+
+		selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(treeview));
+
+        /* Note: gtk_tree_selection_count_selected_rows() does not
+		*   exist in gtk+-2.0, only in gtk+ >= v2.2 ! */
+		GtkTreePath *path;
+
+		/* Get tree path for row that was clicked */
+		if (gtk_tree_view_get_path_at_pos(GTK_TREE_VIEW(treeview),
+			(gint) event->x, 
+			 (gint) event->y,
+			  &path, NULL, NULL, NULL))
+		{
+			gtk_tree_selection_unselect_all(selection);
+			gtk_tree_selection_select_path(selection, path);
+			gtk_tree_path_free(path);
+		}
+		selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(treeview));
+
+		GtkTreeModel *tree_model = gtk_tree_view_get_model(GTK_TREE_VIEW(treeview));
+
+		GList* selected = gtk_tree_selection_get_selected_rows (selection, &tree_model);
+
+		row_clicked(GTK_TREE_VIEW(treeview), path, selected->data, NULL);
+		return TRUE; /* we handled this */
+	}
+	return FALSE; /* we did not handle this */
+}
+
+void
 toggle_clicked (GtkCellRendererToggle *cell_renderer_toggle, const gchar *path, gpointer user_data)
 {
 	GtkTreeIter iter;
@@ -366,7 +405,8 @@ rs_lens_db_editor()
 
         g_signal_connect (renderer_enabled, "toggled",
 			  G_CALLBACK (toggle_clicked), view);
-
+		g_signal_connect(G_OBJECT(view), "button-press-event", G_CALLBACK(view_onButtonPressed), NULL);
+		
         gtk_tree_view_append_column (GTK_TREE_VIEW (view), column_lens_make);
         gtk_tree_view_append_column (GTK_TREE_VIEW (view), column_lens_model);
         gtk_tree_view_append_column (GTK_TREE_VIEW (view), column_focal);
