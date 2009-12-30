@@ -55,6 +55,7 @@ static void lens_set (lens_data *data, const lfLens *lens)
 	gtk_list_store_set (GTK_LIST_STORE(model), &iter,
 			    RS_LENS_DB_EDITOR_LENS_MAKE, lens->Maker,
 			    RS_LENS_DB_EDITOR_LENS_MODEL, lens->Model,
+			    RS_LENS_DB_EDITOR_ENABLED_ACTIVATABLE, TRUE,
 			    -1);
 
 	RSLens *rs_lens = NULL;
@@ -347,7 +348,7 @@ toggle_clicked (GtkCellRendererToggle *cell_renderer_toggle, const gchar *path, 
 void
 rs_lens_db_editor() 
 {
-	GtkTreeModel *tree_model = GTK_TREE_MODEL(gtk_list_store_new(9, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_BOOLEAN, G_TYPE_OBJECT));
+	GtkTreeModel *tree_model = GTK_TREE_MODEL(gtk_list_store_new(10, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_BOOLEAN, G_TYPE_BOOLEAN, G_TYPE_OBJECT));
 
 	RSLensDb *lens_db = rs_lens_db_get_default();
 	fill_model(lens_db, tree_model);
@@ -398,6 +399,7 @@ rs_lens_db_editor()
         GtkTreeViewColumn *column_enabled = gtk_tree_view_column_new_with_attributes (_("Enabled"),
 								  renderer_enabled,
 								  "active", RS_LENS_DB_EDITOR_ENABLED,
+								  "activatable", RS_LENS_DB_EDITOR_ENABLED_ACTIVATABLE,
 										   NULL);
 
 	g_signal_connect(G_OBJECT(view), "row-activated",
@@ -460,6 +462,10 @@ fill_model(RSLensDb *lens_db, GtkTreeModel *tree_model)
 
 		GtkTreeIter iter;
 
+		gboolean enabled_activatable = FALSE;
+		if (lensfun_make && lensfun_model)
+			enabled_activatable = TRUE;
+
 		gtk_list_store_append (GTK_LIST_STORE(tree_model), &iter);
 		gtk_list_store_set (GTK_LIST_STORE(tree_model), &iter,
 				    RS_LENS_DB_EDITOR_IDENTIFIER, identifier,
@@ -470,6 +476,7 @@ fill_model(RSLensDb *lens_db, GtkTreeModel *tree_model)
 				    RS_LENS_DB_EDITOR_CAMERA_MAKE, camera_make,
 				    RS_LENS_DB_EDITOR_CAMERA_MODEL, camera_model,
 				    RS_LENS_DB_EDITOR_ENABLED, enabled,
+				    RS_LENS_DB_EDITOR_ENABLED_ACTIVATABLE, enabled_activatable,
 				    RS_LENS_DB_EDITOR_LENS, lens,
 				    -1);
 		list = g_list_next (list);
