@@ -67,6 +67,7 @@ static void lens_set (lens_data *data, const lfLens *lens)
 	/* Set Maker and Model to the selected RSLens */
 	rs_lens_set_lensfun_make(rs_lens, lens->Maker);
 	rs_lens_set_lensfun_model(rs_lens, lens->Model);
+	rs_lens_set_lensfun_enable(rs_lens, TRUE);
 
 	RSLensDb *lens_db = rs_lens_db_get_default();
 
