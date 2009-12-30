@@ -277,13 +277,11 @@ void row_clicked (GtkTreeView *tree_view, GtkTreePath *path, GtkTreeViewColumn *
 }
 
 gboolean
-view_onButtonPressed (GtkWidget *treeview, GdkEventButton *event, gpointer userdata)
+view_on_button_pressed (GtkWidget *treeview, GdkEventButton *event, gpointer userdata)
 {
 	/* single click with the right mouse button? */
 	if (event->type == GDK_BUTTON_PRESS  &&  event->button == 3)
 	{
-		g_print ("Single right click on the tree view.\n");
-
 		GtkTreeSelection *selection;
 
 		selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(treeview));
@@ -302,16 +300,25 @@ view_onButtonPressed (GtkWidget *treeview, GdkEventButton *event, gpointer userd
 			gtk_tree_selection_select_path(selection, path);
 			gtk_tree_path_free(path);
 		}
-		selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(treeview));
-
-		GtkTreeModel *tree_model = gtk_tree_view_get_model(GTK_TREE_VIEW(treeview));
-
-		GList* selected = gtk_tree_selection_get_selected_rows (selection, &tree_model);
-
-		row_clicked(GTK_TREE_VIEW(treeview), path, selected->data, NULL);
+		row_clicked(GTK_TREE_VIEW(treeview), path, NULL, userdata);
 		return TRUE; /* we handled this */
 	}
 	return FALSE; /* we did not handle this */
+}
+
+gboolean
+view_popupmenu (GtkWidget *treeview, gpointer userdata)
+{
+	GtkTreePath *path;
+
+	GtkTreeSelection *selection;
+	selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(treeview));
+	GtkTreeModel *tree_model = gtk_tree_view_get_model(GTK_TREE_VIEW(treeview));
+	GList* selected = gtk_tree_selection_get_selected_rows (selection, &tree_model);
+
+	row_clicked(GTK_TREE_VIEW(treeview), selected->data, NULL, userdata);
+
+	return TRUE; /* we handled this */
 }
 
 void
@@ -407,8 +414,9 @@ rs_lens_db_editor()
 
         g_signal_connect (renderer_enabled, "toggled",
 			  G_CALLBACK (toggle_clicked), view);
-		g_signal_connect(G_OBJECT(view), "button-press-event", G_CALLBACK(view_onButtonPressed), NULL);
-		
+		g_signal_connect(G_OBJECT(view), "button-press-event", G_CALLBACK(view_on_button_pressed), NULL);
+		g_signal_connect(view, "popup-menu", (GCallback) view_popupmenu, NULL);
+
         gtk_tree_view_append_column (GTK_TREE_VIEW (view), column_lens_make);
         gtk_tree_view_append_column (GTK_TREE_VIEW (view), column_lens_model);
         gtk_tree_view_append_column (GTK_TREE_VIEW (view), column_focal);
