@@ -1,15 +1,8 @@
 plugindir = $(libdir)/rawstudio/plugins
 
-if CAN_COMPILE_SSE2
-SSE_FLAG=-msse2
-else
-SSE_FLAG=
-endif
-
 AM_CFLAGS =\
 	-Wall\
-	-O4\
-	$(SSE_FLAG)
+	-O4
 
 AM_CXXFLAGS = $(AM_CFLAGS)
 
@@ -23,6 +16,16 @@ lib_LTLIBRARIES = resample.la
 
 libdir = $(datadir)/rawstudio/plugins/
 
-resample_la_LIBADD = @PACKAGE_LIBS@
+resample_la_LIBADD = @PACKAGE_LIBS@ resample-sse2.lo
 resample_la_LDFLAGS = -module -avoid-version
-resample_la_SOURCES = resample.c
+resample.lo: resample.c
+	$(LTCOMPILE) -DEXIT_CODE=0 -c resample.c
+
+resample-sse2.lo: resample-sse2.c
+if CAN_COMPILE_SSE2
+SSE_FLAG=-msse2
+else
+SSE_FLAG=
+endif
+	$(LTCOMPILE) $(SSE_FLAG) -DEXIT_CODE=1 -c resample-sse2.c
+
