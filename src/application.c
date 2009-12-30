@@ -43,6 +43,7 @@
 #include "rs-exif.h"
 #include "rs-preload.h"
 #include "rs-library.h"                                                                                                                                    
+#include "lensfun.h"
 
 static void photo_spatial_changed(RS_PHOTO *photo, RS_BLOB *rs);
 
@@ -290,7 +291,10 @@ test()
 	GIOChannel *io = g_io_channel_new_file("testimages", "r", NULL);
 	gint sum, good = 0, bad = 0;
 
-	printf("basename, load, filetype, thumb, meta, make, a-make, a-model, aperture, iso, s-speed, wb, f-length\n");
+	struct lfDatabase *lensdb = lf_db_new ();
+	lf_db_load (lensdb);
+
+	printf("basename, load, filetype, thumb, meta, make, a-make, a-model, aperture, iso, s-speed, wb, f-length, lensfun camera\n");
 	status = g_io_channel_read_line(io, &filename, NULL, NULL, NULL);
 	g_strstrip(filename);
 
@@ -312,6 +316,7 @@ test()
 		gboolean shutterspeed_ok = FALSE;
 		gboolean wb_ok = FALSE;
 		gboolean focallength_ok = FALSE;
+		gboolean lensfun_camera_ok = FALSE;
 
 		if (rs_filetype_can_load(filename))
 		{
@@ -352,12 +357,18 @@ test()
 				thumbnail_ok = TRUE;
 				g_object_unref(pixbuf);
 			}
+
+			/* Test if camera is known in Lensfun */
+			const lfCamera **cameras = lf_db_find_cameras(lensdb, metadata->make_ascii, metadata->model_ascii);
+			if (cameras)
+				lensfun_camera_ok = TRUE;
+
 			g_object_unref(metadata);
 
 		}
 
 		basename = g_path_get_basename(filename);
-		printf("%s, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n",
+		printf("%s, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n",
 			basename,
 			load_ok,
 			filetype_ok,
@@ -370,7 +381,8 @@ test()
 			iso_ok,
 			shutterspeed_ok,
 			wb_ok,
-			focallength_ok
+			focallength_ok,
+			lensfun_camera_ok
 		);
 		sum = load_ok
 			+filetype_ok
@@ -383,10 +395,11 @@ test()
 			+iso_ok
 			+shutterspeed_ok
 			+wb_ok
-			+focallength_ok;
+			+focallength_ok
+			+lensfun_camera_ok;
 
 		good += sum;
-		bad += (12-sum);
+		bad += (13-sum);
 
 		g_free(basename);
 
