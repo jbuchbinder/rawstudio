@@ -222,7 +222,7 @@ rs_lens_class_init(RSLensClass *klass)
 	g_object_class_install_property(object_class,
 		PROP_ENABLED, g_param_spec_boolean(
 		"enabled", "enabled", "Specify whether the lens should be corrected or not",
-		TRUE, G_PARAM_READWRITE));
+		FALSE, G_PARAM_READWRITE));
 }
 
 static void
@@ -239,7 +239,7 @@ rs_lens_init(RSLens *lens)
 	lens->lensfun_model = NULL;
 	lens->camera_make = NULL;
 	lens->camera_model = NULL;
-	lens->enabled = TRUE;
+	lens->enabled = FALSE;
 }
 
 /**
