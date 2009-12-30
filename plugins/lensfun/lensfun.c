@@ -458,9 +458,9 @@ get_image(RSFilter *filter, const RSFilterRequest *request)
 		}
 
 		
-		if (!lensfun->selected_lens && lensfun->selected_camera)
+		if ((!lensfun->selected_lens || !lensfun->distortion_enabled) && lensfun->selected_camera)
 		{
-			g_debug("Lensfun: Lens not found. Using neutral lense.");
+			g_debug("Lensfun: Lens not found or lens is disabled. Using neutral lense.");
 			
 			if (ABS(lensfun->tca_kr) + ABS(lensfun->tca_kb) +
 				ABS(lensfun->vignetting_k1) + ABS(lensfun->vignetting_k2) + ABS(lensfun->vignetting_k3)
