@@ -278,6 +278,12 @@ rs_white_black_point(RS_BLOB *rs)
 void
 test()
 {
+	if (!g_file_test("testimages", G_FILE_TEST_EXISTS))
+	{
+		printf("File: testimages is missing.\n");
+		return;
+	}
+
 	gchar *filename, *basename, *next_filename;
 	GdkPixbuf *pixbuf;
 	GIOStatus status = G_IO_STATUS_NORMAL;
