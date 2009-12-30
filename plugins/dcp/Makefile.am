@@ -19,4 +19,13 @@ dcp.lo: dcp.c
 	$(LTCOMPILE) -DEXIT_CODE=0 -c dcp.c
 
 dcp-sse.lo: dcp-sse.c
-	$(LTCOMPILE) -DEXIT_CODE=1 -msse2 -c dcp-sse.c
+if CAN_COMPILE_SSE4_1
+SSE_FLAG=-msse4.1
+else
+if CAN_COMPILE_SSE2
+SSE_FLAG=-msse2
+else
+SSE_FLAG=
+endif
+endif
+	$(LTCOMPILE) $(SSE_FLAG) -DEXIT_CODE=1 -c dcp-sse.c
