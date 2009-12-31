@@ -372,8 +372,6 @@ view_on_button_pressed (GtkWidget *treeview, GdkEventButton *event, gpointer use
 gboolean
 view_popupmenu (GtkWidget *treeview, gpointer userdata)
 {
-	GtkTreePath *path;
-
 	GtkTreeSelection *selection;
 	selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(treeview));
 	GtkTreeModel *tree_model = gtk_tree_view_get_model(GTK_TREE_VIEW(treeview));

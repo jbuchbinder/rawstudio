@@ -222,9 +222,6 @@ open_db(RSLensDb *lens_db)
 			{
 				RSLens *lens = rs_lens_new();
 
-				xmlChar *filename = NULL;
-				gint setting_id = -1;
-
 				entry = cur->xmlChildrenNode;
 
 				while (entry)
@@ -237,13 +234,13 @@ open_db(RSLensDb *lens_db)
 					else if ((!xmlStrcmp(entry->name, BAD_CAST "lensfun-model")))
 						g_object_set(lens, "lensfun-model", val, NULL);
 					else if ((!xmlStrcmp(entry->name, BAD_CAST "min-focal")))
-						g_object_set(lens, "min-focal", rs_atof(val), NULL);
+						g_object_set(lens, "min-focal", rs_atof((gchar *) val), NULL);
 					else if ((!xmlStrcmp(entry->name, BAD_CAST "max-focal")))
-						g_object_set(lens, "max-focal", rs_atof(val), NULL);
+						g_object_set(lens, "max-focal", rs_atof((gchar *) val), NULL);
 					else if ((!xmlStrcmp(entry->name, BAD_CAST "min-aperture")))
-						g_object_set(lens, "min-aperture", rs_atof(val), NULL);
+						g_object_set(lens, "min-aperture", rs_atof((gchar *) val), NULL);
 					else if ((!xmlStrcmp(entry->name, BAD_CAST "max-aperture")))
-						g_object_set(lens, "max-aperture", rs_atof(val), NULL);
+						g_object_set(lens, "max-aperture", rs_atof((gchar *) val), NULL);
 					else if ((!xmlStrcmp(entry->name, BAD_CAST "camera-make")))
 						g_object_set(lens, "camera-make", val, NULL);
 					else if ((!xmlStrcmp(entry->name, BAD_CAST "camera-model")))
@@ -251,7 +248,7 @@ open_db(RSLensDb *lens_db)
 					else if ((!xmlStrcmp(entry->name, BAD_CAST "enabled")))
 					{
 						gboolean enabled = FALSE;
-						if (g_strcmp0(val, "TRUE") == 0)
+						if (g_strcmp0((gchar *) val, "TRUE") == 0)
 							enabled = TRUE;
 						g_object_set(lens, "enabled", enabled, NULL);
 					}
@@ -348,7 +345,7 @@ rs_lens_db_get_from_identifier(RSLensDb *lens_db, const gchar *identifier)
  * @param lens_db A RSLensDb
  * @param lens A RSLens to add
  */
-void *
+void
 rs_lens_db_add_lens(RSLensDb *lens_db, RSLens *lens)
 {
 	gchar *rs_identifier = NULL;
