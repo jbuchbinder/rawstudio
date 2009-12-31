@@ -65,8 +65,7 @@ rs_image16_bilinear_full_sse2(RS_IMAGE16 *in, gushort *out, gfloat *pos)
 	__m128i x_gt, y_gt;
 	
 	/* If positions from lensfun is properly clamped this should not be needed */
-	/* Enable, if crashes begin occuring here here */
-#if 0
+	/* Clamping */
 	x_gt = _mm_cmpgt_epi32(x, _m_w);
 	y_gt = _mm_cmpgt_epi32(y, _m_h);
 	
@@ -78,11 +77,11 @@ rs_image16_bilinear_full_sse2(RS_IMAGE16 *in, gushort *out, gfloat *pos)
 	__m128i y_lt = _mm_cmplt_epi32(y, zero);
 	x = _mm_andnot_si128(x_lt, x);
 	y = _mm_andnot_si128(y_lt, y);
-#endif
 	__m128i one = _mm_set1_epi32(1);
 	__m128i nx = _mm_add_epi32(one, _mm_srai_epi32(x, 8));
 	__m128i ny = _mm_add_epi32(one, _mm_srai_epi32(y, 8));
 
+	/* Check that 'next' pixels are in bounds */
 	_m_w = _mm_srai_epi32(_m_w, 8);
 	_m_h = _mm_srai_epi32(_m_h, 8);
 
