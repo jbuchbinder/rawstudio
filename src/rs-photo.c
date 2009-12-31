@@ -386,7 +386,12 @@ rs_photo_set_dcp_profile(RS_PHOTO *photo, RSDcpFile *dcp)
  * @param photo A RS_PHOTO
  * @return A DCP profile or NULL
  */
-extern void rs_photo_get_dcp_profile(RS_PHOTO *photo);
+extern RSDcpFile *rs_photo_get_dcp_profile(RS_PHOTO *photo)
+{
+	g_assert(RS_IS_PHOTO(photo));
+
+	return photo->dcp;
+}
 
 /**
  * Sets the white balance of a RS_PHOTO using warmth and tint variables
