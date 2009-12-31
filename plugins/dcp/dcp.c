@@ -330,7 +330,10 @@ get_image(RSFilter *filter, const RSFilterRequest *request)
 	RS_IMAGE16 *output;
 	RS_IMAGE16 *tmp;
 
-	previous_response = rs_filter_get_image(filter->previous, request);
+	RSFilterRequest *request_clone = rs_filter_request_clone(request);
+	rs_filter_param_set_object(RS_FILTER_PARAM(request_clone), "colorspace", klass->prophoto);
+	previous_response = rs_filter_get_image(filter->previous, request_clone);
+	g_object_unref(request_clone);
 
 	if (!RS_IS_FILTER(filter->previous))
 		return previous_response;
