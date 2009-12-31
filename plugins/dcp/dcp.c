@@ -463,7 +463,7 @@ exposure_ramp (RSDcp *dcp, gfloat x)
 		return 0.0;
 		
 	if (x >= dcp->exposure_black + dcp->exposure_radius)
-		return MIN((x - dcp->exposure_black) * dcp->exposure_slope, 1.0);
+		return (x - dcp->exposure_black) * dcp->exposure_slope;
 		
 	gfloat y = x - (dcp->exposure_black - dcp->exposure_radius);
 	
