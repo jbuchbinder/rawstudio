@@ -663,21 +663,24 @@ render_SSE4(ThreadInfo* t)
 			RGBtoHSV_SSE4(&r, &g, &b);
 			h = r; s = g; v = b;
 
-			/* Convert v to lookup values */
-			/* TODO: Use 8 bit fraction as interpolation, for interpolating
-			* a more precise lookup using linear interpolation. Maybe use less than
-			* 16 bits for lookup for speed, 10 bits with interpolation should be enough */
-			__m128 v_mul = _mm_load_ps(_16_bit_ps);
-			v = _mm_mul_ps(v, v_mul);
-			__m128i lookup = _mm_cvtps_epi32(v);
+			if (!dcp->curve_is_flat)			
+			{
+				/* Convert v to lookup values */
+				/* TODO: Use 8 bit fraction as interpolation, for interpolating
+				* a more precise lookup using linear interpolation. Maybe use less than
+				* 16 bits for lookup for speed, 10 bits with interpolation should be enough */
+				__m128 v_mul = _mm_load_ps(_16_bit_ps);
+				v = _mm_mul_ps(v, v_mul);
+				__m128i lookup = _mm_cvtps_epi32(v);
 
-			__m128i v_curved = lookup;
-			v_curved = _mm_insert_epi32(v_curved, ((gint32*)dcp->curve_samples)[_mm_extract_epi32(lookup,0)], 0);
-			v_curved = _mm_insert_epi32(v_curved, ((gint32*)dcp->curve_samples)[_mm_extract_epi32(lookup,1)], 1);
-			v_curved = _mm_insert_epi32(v_curved, ((gint32*)dcp->curve_samples)[_mm_extract_epi32(lookup,2)], 2);
-			v_curved = _mm_insert_epi32(v_curved, ((gint32*)dcp->curve_samples)[_mm_extract_epi32(lookup,3)], 3);
+				__m128i v_curved = lookup;
+				v_curved = _mm_insert_epi32(v_curved, ((gint32*)dcp->curve_samples)[_mm_extract_epi32(lookup,0)], 0);
+				v_curved = _mm_insert_epi32(v_curved, ((gint32*)dcp->curve_samples)[_mm_extract_epi32(lookup,1)], 1);
+				v_curved = _mm_insert_epi32(v_curved, ((gint32*)dcp->curve_samples)[_mm_extract_epi32(lookup,2)], 2);
+				v_curved = _mm_insert_epi32(v_curved, ((gint32*)dcp->curve_samples)[_mm_extract_epi32(lookup,3)], 3);
 
-			v = PS(v_curved);
+				v = PS(v_curved);
+			}
 
 			/* Apply looktable */
 			if (dcp->looktable) {

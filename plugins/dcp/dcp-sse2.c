@@ -742,20 +742,23 @@ render_SSE2(ThreadInfo* t)
 			RGBtoHSV_SSE(&r, &g, &b);
 			h = r; s = g; v = b;
 
-			/* Convert v to lookup values */
-			/* TODO: Use 8 bit fraction as interpolation, for interpolating
-			* a more precise lookup using linear interpolation. Maybe use less than
-			* 16 bits for lookup for speed, 10 bits with interpolation should be enough */
-			__m128 v_mul = _mm_load_ps(_16_bit_ps);
-			v = _mm_mul_ps(v, v_mul);
-			__m128i lookup = _mm_cvtps_epi32(v);
-			gfloat* v_p = (gfloat*)&v;
-			_mm_store_si128((__m128i*)&xfer[0], lookup);
+			if (!dcp->curve_is_flat)			
+			{
+				/* Convert v to lookup values */
+				/* TODO: Use 8 bit fraction as interpolation, for interpolating
+				* a more precise lookup using linear interpolation. Maybe use less than
+				* 16 bits for lookup for speed, 10 bits with interpolation should be enough */
+				__m128 v_mul = _mm_load_ps(_16_bit_ps);
+				v = _mm_mul_ps(v, v_mul);
+				__m128i lookup = _mm_cvtps_epi32(v);
+				gfloat* v_p = (gfloat*)&v;
+				_mm_store_si128((__m128i*)&xfer[0], lookup);
 
-			v_p[0] = dcp->curve_samples[xfer[0]];
-			v_p[1] = dcp->curve_samples[xfer[1]];
-			v_p[2] = dcp->curve_samples[xfer[2]];
-			v_p[3] = dcp->curve_samples[xfer[3]];
+				v_p[0] = dcp->curve_samples[xfer[0]];
+				v_p[1] = dcp->curve_samples[xfer[1]];
+				v_p[2] = dcp->curve_samples[xfer[2]];
+				v_p[3] = dcp->curve_samples[xfer[3]];
+			}
 
 			/* Apply looktable */
 			if (dcp->looktable) {

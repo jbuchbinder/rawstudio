@@ -21,7 +21,9 @@
 
 #include "config.h"
 #include <math.h> /* pow() */
+#define INCLUDE_TONE_CURVE
 #include "dcp.h"
+#undef INCLUDE_TONE_CURVE
 
 RS_DEFINE_FILTER(rs_dcp, RSDcp)
 
@@ -172,6 +174,7 @@ settings_changed(RSSettings *settings, RSSettingsMask mask, RSDcp *dcp)
 	if (mask & MASK_CURVE)
 	{
 		const gint nknots = rs_settings_get_curve_nknots(settings);
+		gint i;
 
 		if (nknots > 1)
 		{
@@ -184,13 +187,14 @@ settings_changed(RSSettings *settings, RSSettingsMask mask, RSDcp *dcp)
 				g_object_unref(spline);
 				g_free(knots);
 			}
+			dcp->curve_is_flat = FALSE;
 		}
 		else
-		{
-			gint i;
-			for(i=0;i<65536;i++)
-				dcp->curve_samples[i] = ((gfloat)i)/65536.0;
-		}
+			dcp->curve_is_flat = TRUE;
+
+		for(i=0;i<65536;i++)
+			dcp->curve_samples[i] = MIN(1.0f, MAX(0.0f, dcp->curve_samples[i]));
+
 		changed = TRUE;
 	}
 
@@ -227,14 +231,11 @@ static void
 rs_dcp_init(RSDcp *dcp)
 {
 	RSDcpClass *klass = RS_DCP_GET_CLASS(dcp);
-	gint i;
 
 	dcp->curve_samples = g_new(gfloat, 65536);
 	dcp->huesatmap_interpolated = NULL;
 	dcp->use_profile = FALSE;
-
-	for(i=0;i<65536;i++)
-		dcp->curve_samples[i] = ((gfloat)i)/65536.0;
+	dcp->curve_is_flat = TRUE;
 
 	/* We cannot initialize this in class init, the RSProphoto plugin may not
 	 * be loaded yet at that time :( */
@@ -316,7 +317,7 @@ start_single_dcp_thread(gpointer _thread_info)
 	ThreadInfo* t = _thread_info;
 	RS_IMAGE16 *tmp = t->tmp;
 
-	if (tmp->pixelsize == 4  && (rs_detect_cpu_features() & RS_CPU_FLAG_SSE2))
+	if (t->start_y && tmp->pixelsize == 4  && (rs_detect_cpu_features() & RS_CPU_FLAG_SSE2))
 	{
 		if (render_SSE2(t))
 		{
@@ -859,7 +860,8 @@ render(ThreadInfo* t)
 			RGBtoHSV(r, g, b, &h, &s, &v);
 
 			/* Curve */
-			v = dcp->curve_samples[_S(v)];
+			if (!dcp->curve_is_flat)
+				v = dcp->curve_samples[_S(v)];
 
 			if (dcp->looktable)
 				huesat_map(dcp->looktable, &h, &s, &v);
