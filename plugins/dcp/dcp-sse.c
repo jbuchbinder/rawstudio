@@ -699,7 +699,12 @@ render_SSE2(ThreadInfo* t)
 			__m128 y2_r = _mm_mul_ps(exposure_slope, _mm_sub_ps(r, exposure_black));
 			__m128 y2_g = _mm_mul_ps(exposure_slope, _mm_sub_ps(g, exposure_black));
 			__m128 y2_b = _mm_mul_ps(exposure_slope, _mm_sub_ps(b, exposure_black));
-
+			
+			/* x = MIN(1.0, x) */
+			max_val = _mm_load_ps(_ones_ps);
+			y2_r = _mm_min_ps(y2_r, max_val);
+			y2_g = _mm_min_ps(y2_g, max_val);
+			y2_b = _mm_min_ps(y2_b, max_val);
 			__m128 black_plus_radius = _mm_load_ps(_black_plus_radius);
 			__m128 r_mask = _mm_cmpgt_ps(r, black_plus_radius);
 			__m128 g_mask = _mm_cmpgt_ps(g, black_plus_radius);
@@ -710,6 +715,8 @@ render_SSE2(ThreadInfo* t)
 			y_r = _mm_or_ps(y_r, _mm_and_ps(r_mask, y2_r));
 			y_g = _mm_or_ps(y_g, _mm_and_ps(g_mask, y2_g));
 			y_b = _mm_or_ps(y_b, _mm_and_ps(b_mask, y2_b));
+
+			/* if (x <= dcp->exposure_black - dcp->exposure_radius) x = 0; */
 			black_minus_radius = _mm_load_ps(_black_minus_radius);
 			r_mask = _mm_cmple_ps(r, black_minus_radius);
 			g_mask = _mm_cmple_ps(g, black_minus_radius);
@@ -1389,6 +1396,12 @@ render_SSE4(ThreadInfo* t)
 			__m128 y2_r = _mm_mul_ps(exposure_slope, _mm_sub_ps(r, exposure_black));
 			__m128 y2_g = _mm_mul_ps(exposure_slope, _mm_sub_ps(g, exposure_black));
 			__m128 y2_b = _mm_mul_ps(exposure_slope, _mm_sub_ps(b, exposure_black));
+
+			/* x = MIN(1.0, x) */
+			max_val = _mm_load_ps(_ones_ps);
+			y2_r = _mm_min_ps(y2_r, max_val);
+			y2_g = _mm_min_ps(y2_g, max_val);
+			y2_b = _mm_min_ps(y2_b, max_val);
 
 			__m128 black_plus_radius = _mm_load_ps(_black_plus_radius);
 			__m128 r_mask = _mm_cmpgt_ps(r, black_plus_radius);
