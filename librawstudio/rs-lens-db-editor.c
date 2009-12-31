@@ -423,8 +423,15 @@ rs_lens_db_editor()
 	RSLensDb *lens_db = rs_lens_db_get_default();
 	fill_model(lens_db, tree_model);
 
-	GtkWidget *editor = gtk_window_new(GTK_WINDOW_TOPLEVEL);
-	gtk_window_set_title(GTK_WINDOW(editor), "Rawstudio Lens Editor");
+	GtkWidget *editor = gtk_dialog_new();
+	gtk_window_set_title(GTK_WINDOW(editor), _("Rawstudio Lens Editor"));
+	gtk_dialog_set_has_separator (GTK_DIALOG(editor), FALSE);
+	g_signal_connect_swapped(editor, "delete_event",
+				 G_CALLBACK (gtk_widget_destroy), editor);
+	g_signal_connect_swapped(editor, "response",
+				 G_CALLBACK (gtk_widget_destroy), editor);
+
+	GtkWidget *frame = gtk_frame_new("");
 
         GtkWidget *scroller = gtk_scrolled_window_new (NULL, NULL);
         gtk_scrolled_window_set_policy (GTK_SCROLLED_WINDOW (scroller),
@@ -490,11 +497,20 @@ rs_lens_db_editor()
 
         gtk_tree_view_set_headers_visible(GTK_TREE_VIEW (view), TRUE);
 
-        gtk_container_add (GTK_CONTAINER (editor), scroller);
+        gtk_container_add (GTK_CONTAINER (frame), scroller);
 
 	gtk_window_resize(GTK_WINDOW(editor), 400, 400);
-	gtk_window_set_position(GTK_WINDOW(editor), GTK_WIN_POS_CENTER);
-	gtk_widget_show_all(editor);
+
+        gtk_container_set_border_width (GTK_CONTAINER (frame), 6);
+        gtk_container_set_border_width (GTK_CONTAINER (scroller), 6);
+
+        gtk_box_pack_start (GTK_BOX (GTK_DIALOG(editor)->vbox), frame, TRUE, TRUE, 0);
+
+        GtkWidget *button_close = gtk_button_new_from_stock(GTK_STOCK_CLOSE);
+        gtk_dialog_add_action_widget (GTK_DIALOG (editor), button_close, GTK_RESPONSE_CLOSE);
+
+        gtk_widget_show_all(GTK_WIDGET(editor));
+
 }
 
 static void
