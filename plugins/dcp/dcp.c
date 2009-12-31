@@ -42,6 +42,7 @@ static void set_white_xy(RSDcp *dcp, const RS_xy_COORD *xy);
 static void precalc(RSDcp *dcp);
 static void render(ThreadInfo* t);
 static void read_profile(RSDcp *dcp, RSDcpFile *dcp_file);
+static void free_dcp_profile(RSDcp *dcp);
 
 G_MODULE_EXPORT void
 rs_plugin_load(RSPlugin *plugin)
@@ -56,9 +57,7 @@ finalize(GObject *object)
 
 	g_free(dcp->curve_samples);
 
-	if (dcp->huesatmap_interpolated)
-		g_object_unref(dcp->huesatmap_interpolated);
-	
+	free_dcp_profile(dcp);	
 }
 
 static void
@@ -199,6 +198,31 @@ settings_changed(RSSettings *settings, RSSettingsMask mask, RSDcp *dcp)
 		rs_filter_changed(RS_FILTER(dcp), RS_FILTER_CHANGED_PIXELDATA);
 }
 
+/* This will free all ressources that are related to a DCP profile */
+static void 
+free_dcp_profile(RSDcp *dcp)
+{
+	if (dcp->tone_curve)
+		g_object_unref(dcp->tone_curve);
+	if (dcp->looktable)
+		g_object_unref(dcp->looktable);
+	if (dcp->huesatmap_interpolated)
+		g_object_unref(dcp->huesatmap_interpolated);
+	if (dcp->huesatmap1)
+		g_object_unref(dcp->huesatmap1);
+	if (dcp->huesatmap2)
+		g_object_unref(dcp->huesatmap2);
+	if (dcp->tone_curve_lut)
+		g_free(dcp->tone_curve_lut);
+	dcp->huesatmap1 = NULL;
+	dcp->huesatmap2 = NULL;
+	dcp->huesatmap_interpolated = NULL;
+	dcp->tone_curve = NULL;
+	dcp->looktable = NULL;
+	dcp->looktable = NULL;
+	dcp->tone_curve_lut = NULL;
+}
+
 static void
 rs_dcp_init(RSDcp *dcp)
 {
@@ -242,6 +266,7 @@ init_exposure(RSDcp *dcp)
 		dcp->exposure_qscale = 0.0;
 }
 
+
 static void
 get_property(GObject *object, guint property_id, GValue *value, GParamSpec *pspec)
 {
@@ -277,16 +302,13 @@ set_property(GObject *object, guint property_id, const GValue *value, GParamSpec
 		case PROP_USE_PROFILE:
 			dcp->use_profile = g_value_get_boolean(value);
 			if (!dcp->use_profile)
-			{
-				dcp->huesatmap = NULL;
-				dcp->tone_curve = NULL;
-				dcp->looktable = NULL;
-			}
+				free_dcp_profile(dcp);
 			break;
 		default:
 			G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
 	}
 }
+
 
 gpointer
 start_single_dcp_thread(gpointer _thread_info)
@@ -1028,6 +1050,8 @@ precalc(RSDcp *dcp)
 static void
 read_profile(RSDcp *dcp, RSDcpFile *dcp_file)
 {
+	free_dcp_profile(dcp);
+	
 	/* ColorMatrix */
 	dcp->has_color_matrix1 = rs_dcp_file_get_color_matrix1(dcp_file, &dcp->color_matrix1);
 	dcp->has_color_matrix2 = rs_dcp_file_get_color_matrix2(dcp_file, &dcp->color_matrix2);
@@ -1039,6 +1063,8 @@ read_profile(RSDcp *dcp, RSDcpFile *dcp_file)
 
 	/* ProfileToneCurve */
 	dcp->tone_curve = rs_dcp_file_get_tonecurve(dcp_file);
+	if (!dcp->tone_curve)
+		dcp->tone_curve = rs_spline_new(adobe_default_table, adobe_default_table_size, NATURAL);
 	if (dcp->tone_curve)
 		dcp->tone_curve_lut = rs_spline_sample(dcp->tone_curve, NULL, 65536);
 	/* FIXME: Free these at some point! */
