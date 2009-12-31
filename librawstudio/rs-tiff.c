@@ -153,6 +153,14 @@ rs_tiff_new_from_file(const gchar *filename)
 	return g_object_new(RS_TYPE_TIFF, "filename", filename, NULL);
 }
 
+const gchar *
+rs_tiff_get_filename(RSTiff *tiff)
+{
+	g_assert(RS_IS_TIFF(tiff));
+
+	return tiff->filename;
+}
+
 RSTiffIfdEntry *
 rs_tiff_get_ifd_entry(RSTiff *tiff, guint ifd_num, gushort tag)
 {
