@@ -68,6 +68,9 @@ const static BasicSettings lens[] = {
 
 struct _RSToolbox {
 	GtkScrolledWindow parent;
+
+	RSProfileSelector *selector;
+
 	GtkWidget *notebook;
 	GtkBox *toolbox;
 	GtkRange *ranges[3][NBASICS];
@@ -96,6 +99,8 @@ enum {
 };
 static guint signals[LAST_SIGNAL] = { 0 };
 
+static void dcp_profile_selected(RSProfileSelector *selector, RSDcpFile *dcp, RSToolbox *toolbox);
+static void icc_profile_selected(RSProfileSelector *selector, RSIccProfile *icc, RSToolbox *toolbox);
 static void conf_histogram_height_changed(GConfClient *client, guint cnxn_id, GConfEntry *entry, gpointer user_data);
 static void notebook_switch_page(GtkNotebook *notebook, GtkNotebookPage *page, guint page_num, RSToolbox *toolbox);
 static void basic_range_value_changed(GtkRange *range, gpointer user_data);
@@ -149,6 +154,14 @@ rs_toolbox_init (RSToolbox *self)
 	GtkWidget *viewport;
 	gint height;
 
+	/* A box to hold everything */
+	self->toolbox = GTK_BOX(gtk_vbox_new (FALSE, 1));
+
+	self->selector = rs_profile_selector_new();
+	g_signal_connect(self->selector, "dcp-selected", G_CALLBACK(dcp_profile_selected), self);
+	g_signal_connect(self->selector, "icc-selected", G_CALLBACK(icc_profile_selected), self);
+	gtk_box_pack_start(self->toolbox, GTK_WIDGET(self->selector), FALSE, FALSE, 0);
+
 	for(page=0;page<3;page++)
 		self->settings[page] = NULL;
 
@@ -168,9 +181,6 @@ rs_toolbox_init (RSToolbox *self)
 	/* A notebook for the snapshots */
 	self->notebook = gtk_notebook_new();
 	g_signal_connect(self->notebook, "switch-page", G_CALLBACK(notebook_switch_page), self);
-
-	/* A box to hold everything */
-	self->toolbox = GTK_BOX(gtk_vbox_new (FALSE, 1));
 
 	/* Iterate over 3 snapshots */
 	for(page=0;page<3;page++)
@@ -204,6 +214,21 @@ rs_toolbox_init (RSToolbox *self)
 
 	self->mute_from_sliders = FALSE;
 	self->mute_from_photo = FALSE;
+}
+
+static void
+dcp_profile_selected(RSProfileSelector *selector, RSDcpFile *dcp, RSToolbox *toolbox)
+{
+	if (toolbox->photo)
+		rs_photo_set_dcp_profile(toolbox->photo, dcp);
+}
+
+static void
+icc_profile_selected(RSProfileSelector *selector, RSIccProfile *icc, RSToolbox *toolbox)
+{
+	/* FIXME: stub */
+//	if (toolbox->photo)
+//		rs_photo_set_icc_profile(toolbox->photo, icc);
 }
 
 static void
@@ -822,6 +847,16 @@ rs_toolbox_set_photo(RSToolbox *toolbox, RS_PHOTO *photo)
 		photo_finalized(toolbox, NULL);
 
 	toolbox->mute_from_sliders = FALSE;
+
+	/* Update profile selector */
+	GList *dcp_profiles = NULL;
+	if (photo && photo->metadata)
+	{
+		RSDcpFactory *factory = rs_dcp_factory_new_default();
+		dcp_profiles = rs_dcp_factory_get_compatible(factory, photo->metadata->make_ascii, photo->metadata->model_ascii);
+	}
+
+	rs_profile_selector_set_profiles_steal(toolbox->selector, dcp_profiles);
 }
 
 GtkWidget *
