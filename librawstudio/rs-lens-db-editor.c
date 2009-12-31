@@ -477,6 +477,8 @@ rs_lens_db_editor()
 								  "activatable", RS_LENS_DB_EDITOR_ENABLED_ACTIVATABLE,
 										   NULL);
 
+	gtk_tree_sortable_set_sort_column_id(GTK_TREE_SORTABLE(tree_model), RS_LENS_DB_EDITOR_LENS_MODEL, GTK_SORT_DESCENDING);
+
 	g_signal_connect(G_OBJECT(view), "row-activated",
 			 G_CALLBACK(row_clicked), NULL);
 
