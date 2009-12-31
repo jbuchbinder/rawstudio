@@ -1,4 +1,5 @@
 #include "rs-profile-selector.h"
+#include "rs-icc-profile.h"
 
 G_DEFINE_TYPE(RSProfileSelector, rs_profile_selector, GTK_TYPE_COMBO_BOX)
 

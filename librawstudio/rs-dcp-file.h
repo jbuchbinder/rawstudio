@@ -20,7 +20,9 @@
 #ifndef RS_DCP_FILE_H
 #define RS_DCP_FILE_H
 
-#include <rawstudio.h>
+#include <rs-tiff.h>
+#include <rs-huesat-map.h>
+#include <rs-spline.h>
 #include <glib-object.h>
 
 G_BEGIN_DECLS

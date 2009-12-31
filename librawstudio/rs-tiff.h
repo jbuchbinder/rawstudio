@@ -1,6 +1,8 @@
 #ifndef RS_TIFF_H
 #define RS_TIFF_H
 
+#include "rs-types.h"
+#include "rs-tiff-ifd-entry.h"
 #include <glib-object.h>
 
 G_BEGIN_DECLS

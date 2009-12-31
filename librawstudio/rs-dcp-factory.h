@@ -2,6 +2,7 @@
 #define RS_DCP_FACTORY_H
 
 #include <glib-object.h>
+#include "rs-dcp-file.h"
 
 G_BEGIN_DECLS
 
