@@ -1,4 +1,5 @@
 #include "rs-tiff-ifd-entry.h"
+#include "rs-tiff.h"
 
 G_DEFINE_TYPE (RSTiffIfdEntry, rs_tiff_ifd_entry, G_TYPE_OBJECT)
 
