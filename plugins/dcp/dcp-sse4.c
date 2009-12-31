@@ -228,11 +228,16 @@ HSVtoRGB_SSE4(__m128 *c0, __m128 *c1, __m128 *c2)
 static void
 huesat_map_SSE4(RSHuesatMap *map, const PrecalcHSM* precalc, __m128 *_h, __m128 *_s, __m128 *_v)
 {
-	g_assert(RS_IS_HUESAT_MAP(map));
-
+	__m128 zero_ps = _mm_setzero_ps();
+	__m128 ones_ps = _mm_load_ps(_ones_ps);
+	
 	__m128 h = *_h;
 	__m128 s = *_s;
 	__m128 v = *_v;
+	
+	/* Clamp - H must be pre-clamped*/
+	s =  _mm_min_ps(_mm_max_ps(s, zero_ps),ones_ps);
+	v =  _mm_min_ps(_mm_max_ps(v, zero_ps),ones_ps);
 
 	const RS_VECTOR3 *tableBase = map->deltas;
 
@@ -453,7 +458,7 @@ huesat_map_SSE4(RSHuesatMap *map, const PrecalcHSM* precalc, __m128 *_h, __m128 
 	}
 
 	__m128 mul_hue = _mm_load_ps(_mul_hue_ps);
-	__m128 ones_ps = _mm_load_ps(_ones_ps);
+	ones_ps = _mm_load_ps(_ones_ps);
 	hueShift = _mm_mul_ps(hueShift, mul_hue);
 	s = _mm_min_ps(ones_ps, _mm_mul_ps(s, satScale));
 	v = _mm_min_ps(ones_ps, _mm_mul_ps(v, valScale));

@@ -317,7 +317,7 @@ start_single_dcp_thread(gpointer _thread_info)
 	ThreadInfo* t = _thread_info;
 	RS_IMAGE16 *tmp = t->tmp;
 
-	if (t->start_y && tmp->pixelsize == 4  && (rs_detect_cpu_features() & RS_CPU_FLAG_SSE2))
+	if (tmp->pixelsize == 4  && (rs_detect_cpu_features() & RS_CPU_FLAG_SSE2))
 	{
 		if (render_SSE2(t))
 		{
@@ -1066,7 +1066,7 @@ read_profile(RSDcp *dcp, RSDcpFile *dcp_file)
 	/* ProfileToneCurve */
 	dcp->tone_curve = rs_dcp_file_get_tonecurve(dcp_file);
 	if (!dcp->tone_curve)
-		dcp->tone_curve = rs_spline_new(adobe_default_table, adobe_default_table_size, NATURAL);
+		dcp->tone_curve = rs_spline_new(adobe_default_table, adobe_default_table_size / 2, NATURAL);
 	if (dcp->tone_curve)
 		dcp->tone_curve_lut = rs_spline_sample(dcp->tone_curve, NULL, 65536);
 	/* FIXME: Free these at some point! */

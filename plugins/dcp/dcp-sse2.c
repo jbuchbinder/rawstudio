@@ -224,11 +224,17 @@ static gint _ones_epi32[4] __attribute__ ((aligned (16))) = {1,1,1,1};
 static void
 huesat_map_SSE2(RSHuesatMap *map, const PrecalcHSM* precalc, __m128 *_h, __m128 *_s, __m128 *_v)
 {
-	g_assert(RS_IS_HUESAT_MAP(map));
-
+	__m128 zero_ps = _mm_setzero_ps();
+	__m128 ones_ps = _mm_load_ps(_ones_ps);
+	
 	__m128 h = *_h;
 	__m128 s = *_s;
 	__m128 v = *_v;
+	
+	/* Clamp - H must be pre-clamped*/
+	s =  _mm_min_ps(_mm_max_ps(s, zero_ps),ones_ps);
+	v =  _mm_min_ps(_mm_max_ps(v, zero_ps),ones_ps);
+	
 	gint xfer_0[4] __attribute__ ((aligned (16)));
 	gint xfer_1[4] __attribute__ ((aligned (16)));
 
@@ -416,7 +422,7 @@ huesat_map_SSE2(RSHuesatMap *map, const PrecalcHSM* precalc, __m128 *_h, __m128 
 	}
 
 	__m128 mul_hue = _mm_load_ps(_mul_hue_ps);
-	__m128 ones_ps = _mm_load_ps(_ones_ps);
+	ones_ps = _mm_load_ps(_ones_ps);
 	hueShift = _mm_mul_ps(hueShift, mul_hue);
 	s = _mm_min_ps(ones_ps, _mm_mul_ps(s, satScale));
 	v = _mm_min_ps(ones_ps, _mm_mul_ps(v, valScale));
@@ -727,6 +733,9 @@ render_SSE2(ThreadInfo* t)
 				__m128 half_ps = _mm_load_ps(_half_ps);
 				__m128 contrast = _mm_load_ps(_contrast);
 				min_val = _mm_load_ps(_very_small_ps);
+				r = _mm_max_ps(r, min_val);
+				g = _mm_max_ps(g, min_val);
+				b = _mm_max_ps(b, min_val);
 				r = _mm_add_ps(_mm_mul_ps(contrast, _mm_sub_ps(_mm_sqrt_ps(r), half_ps)), half_ps);
 				g = _mm_add_ps(_mm_mul_ps(contrast, _mm_sub_ps(_mm_sqrt_ps(g), half_ps)), half_ps);
 				b = _mm_add_ps(_mm_mul_ps(contrast, _mm_sub_ps(_mm_sqrt_ps(b), half_ps)), half_ps);
