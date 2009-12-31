@@ -21,6 +21,7 @@
 
 #include <rawstudio.h>
 #include <lcms.h>
+#include "rs-cmm.h"
 
 #define RS_TYPE_COLORSPACE_TRANSFORM (rs_colorspace_transform_type)
 #define RS_COLORSPACE_TRANSFORM(obj) (G_TYPE_CHECK_INSTANCE_CAST ((obj), RS_TYPE_COLORSPACE_TRANSFORM, RSColorspaceTransform))
@@ -33,6 +34,7 @@ typedef struct _RSColorspaceTransformClass RSColorspaceTransformClass;
 struct _RSColorspaceTransform {
 	RSFilter parent;
 
+	RSCmm *cmm;
 };
 
 struct _RSColorspaceTransformClass {
@@ -74,6 +76,9 @@ rs_colorspace_transform_class_init(RSColorspaceTransformClass *klass)
 static void
 rs_colorspace_transform_init(RSColorspaceTransform *colorspace_transform)
 {
+	/* FIXME: unref this at some point */
+	colorspace_transform->cmm = rs_cmm_new();
+	rs_cmm_set_num_threads(colorspace_transform->cmm, rs_get_number_of_processor_cores());
 }
 
 static RSFilterResponse *
@@ -94,18 +99,28 @@ get_image(RSFilter *filter, const RSFilterRequest *request)
 	RSColorSpace *output_space = rs_filter_param_get_object_with_type(RS_FILTER_PARAM(request), "colorspace", RS_TYPE_COLOR_SPACE);
 
 	response = rs_filter_response_clone(previous_response);
-	g_object_unref(previous_response);
-	output = rs_image16_copy(input, FALSE);
 
-	convert_colorspace16(colorspace_transform, input, output, input_space, output_space);
+	printf("\033[33m16 input_space: %s\033[0m\n", (input_space) ? G_OBJECT_TYPE_NAME(input_space) : "none");
+	printf("\033[33m16 output_space: %s\n\033[0m", (output_space) ? G_OBJECT_TYPE_NAME(output_space) : "none");
+	if (input_space && output_space)
+	{
+		g_object_unref(previous_response);
+		output = rs_image16_copy(input, FALSE);
 
-	rs_filter_response_set_image(response, output);
-	g_object_unref(output);
+		convert_colorspace16(colorspace_transform, input, output, input_space, output_space);
 
-	/* Process output */
+		rs_filter_response_set_image(response, output);
+		g_object_unref(output);
+		g_object_unref(input);
 
-	g_object_unref(input);
-	return response;
+		return response;
+	}
+	else
+	{
+		g_debug("No conversion done");
+		return previous_response;
+	}
+
 }
 
 static RSFilterResponse *
@@ -125,6 +140,9 @@ get_image8(RSFilter *filter, const RSFilterRequest *request)
 	RSColorSpace *input_space = rs_filter_param_get_object_with_type(RS_FILTER_PARAM(previous_response), "colorspace", RS_TYPE_COLOR_SPACE);
 	RSColorSpace *output_space = rs_filter_param_get_object_with_type(RS_FILTER_PARAM(request), "colorspace", RS_TYPE_COLOR_SPACE);
 
+	printf("\033[33m8 input_space: %s\033[0m\n", (input_space) ? G_OBJECT_TYPE_NAME(input_space) : "none");
+	printf("\033[33m8 output_space: %s\n\033[0m", (output_space) ? G_OBJECT_TYPE_NAME(output_space) : "none");
+
 	response = rs_filter_response_clone(previous_response);
 	g_object_unref(previous_response);
 	output = gdk_pixbuf_new(GDK_COLORSPACE_RGB, FALSE, 8, input->w, input->h);
@@ -139,11 +157,6 @@ get_image8(RSFilter *filter, const RSFilterRequest *request)
 	g_object_unref(input);
 	return response;
 }
-
-//static cmsHTRANSFORM
-//get_lcms_transform16(RSColorspaceTransform *colorspace_transform, RSIccProfile *input_profile, RSIccProfile *output_profile)
-//{
-//}
 
 static void
 transform8_c(RS_IMAGE16 *input, GdkPixbuf *output, RS_MATRIX3 *matrix, guchar *table8)
@@ -266,8 +279,15 @@ convert_colorspace16(RSColorspaceTransform *colorspace_transform, RS_IMAGE16 *in
 	/* If a CMS is needed, do the transformation using LCMS */
 	else if (RS_COLOR_SPACE_REQUIRES_CMS(input_space) || RS_COLOR_SPACE_REQUIRES_CMS(output_space))
 	{
-		g_warning("FIXME: (stub) LCMS support is not implemented yet");
-		memcpy(output_image->pixels, input_image->pixels, input_image->rowstride*input_image->h*2);
+		const RSIccProfile *i, *o;
+
+		i = rs_color_space_get_icc_profile(input_space);
+		o = rs_color_space_get_icc_profile(output_space);
+
+		rs_cmm_set_input_profile(colorspace_transform->cmm, i);
+		rs_cmm_set_output_profile(colorspace_transform->cmm, o);
+
+		rs_cmm_transform16(colorspace_transform->cmm, input_image, output_image);
 	}
 
 	/* If we get here, we can transform using simple vector math */
@@ -304,11 +324,19 @@ convert_colorspace8(RSColorspaceTransform *colorspace_transform, RS_IMAGE16 *inp
 	/* If a CMS is needed, do the transformation using LCMS */
 	if (RS_COLOR_SPACE_REQUIRES_CMS(input_space) || RS_COLOR_SPACE_REQUIRES_CMS(output_space))
 	{
-		g_warning("FIXME: (stub) LCMS support is not implemented yet");
+		const RSIccProfile *i, *o;
+
+		i = rs_color_space_get_icc_profile(input_space);
+		o = rs_color_space_get_icc_profile(output_space);
+
+		rs_cmm_set_input_profile(colorspace_transform->cmm, i);
+		rs_cmm_set_output_profile(colorspace_transform->cmm, o);
+
+		rs_cmm_transform8(colorspace_transform->cmm, input_image, output_image);
 	}
 
 	/* If we get here, we can transform using simple vector math and a lookup table */
-//	else
+	else
 	{
 		const RS_MATRIX3 a = rs_color_space_get_matrix_from_pcs(input_space);
 		const RS_MATRIX3 b = rs_color_space_get_matrix_to_pcs(output_space);

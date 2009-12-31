@@ -18,4 +18,4 @@ libdir = $(datadir)/rawstudio/plugins/
 
 colorspace_transform_la_LIBADD = @PACKAGE_LIBS@
 colorspace_transform_la_LDFLAGS = -module -avoid-version
-colorspace_transform_la_SOURCES = colorspace_transform.c
+colorspace_transform_la_SOURCES = colorspace_transform.c rs-cmm.c rs-cmm.h
