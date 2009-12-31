@@ -146,7 +146,9 @@ struct _RSPreviewWidget
 	RSFilter *filter_cache1[MAX_VIEWS];
 	RSFilter *filter_denoise[MAX_VIEWS];
 	RSFilter *filter_cache2[MAX_VIEWS];
-	RSFilter *filter_render[MAX_VIEWS];
+	RSFilter *filter_transform_input[MAX_VIEWS];
+	RSFilter *filter_dcp[MAX_VIEWS];
+	RSFilter *filter_transform_display[MAX_VIEWS];
 	RSFilter *filter_mask[MAX_VIEWS];
 	RSFilter *filter_cache3[MAX_VIEWS];
 	RSFilter *filter_end[MAX_VIEWS]; /* For convenience */
@@ -212,6 +214,7 @@ static void adjustment_changed(GtkAdjustment *adjustment, gpointer user_data);
 static gboolean button(GtkWidget *widget, GdkEventButton *event, RSPreviewWidget *preview);
 static gboolean motion(GtkWidget *widget, GdkEventMotion *event, gpointer user_data);
 static gboolean leave(GtkWidget *widget, GdkEventCrossing *event, gpointer user_data);
+static void dcp_profile_changed(RS_PHOTO *photo, RSDcpFile *dcp, RSPreviewWidget *preview);
 static void settings_changed(RS_PHOTO *photo, RSSettingsMask mask, RSPreviewWidget *preview);
 static void filter_changed(RSFilter *filter, RSFilterChangedMask mask, RSPreviewWidget *preview);
 static gboolean get_image_coord(RSPreviewWidget *preview, gint view, const gint x, const gint y, gint *scaled_x, gint *scaled_y, gint *real_x, gint *real_y, gint *max_w, gint *max_h);
@@ -338,8 +341,10 @@ rs_preview_widget_init(RSPreviewWidget *preview)
 		preview->filter_cache1[i] = rs_filter_new("RSCache", preview->filter_resample[i]);
 		preview->filter_denoise[i] = rs_filter_new("RSDenoise", preview->filter_cache1[i]);
 		preview->filter_cache2[i] = rs_filter_new("RSCache", preview->filter_denoise[i]);
-		preview->filter_render[i] = rs_filter_new("RSBasicRender", preview->filter_cache2[i]);
-		preview->filter_mask[i] = rs_filter_new("RSExposureMask", preview->filter_render[i]);
+		preview->filter_transform_input[i] = rs_filter_new("RSColorspaceTransform", preview->filter_cache2[i]);
+		preview->filter_dcp[i] = rs_filter_new("RSDcp", preview->filter_transform_input[i]);
+		preview->filter_transform_display[i] = rs_filter_new("RSColorspaceTransform", preview->filter_dcp[i]);
+		preview->filter_mask[i] = rs_filter_new("RSExposureMask", preview->filter_transform_display[i]);
 		preview->filter_cache3[i] = rs_filter_new("RSCache", preview->filter_mask[i]);
 		preview->filter_end[i] = preview->filter_cache3[i];
 		g_signal_connect(preview->filter_end[i], "changed", G_CALLBACK(filter_changed), preview);
@@ -577,6 +582,7 @@ rs_preview_widget_set_photo(RSPreviewWidget *preview, RS_PHOTO *photo)
 	if (preview->photo)
 	{
 		g_signal_connect(G_OBJECT(preview->photo), "settings-changed", G_CALLBACK(settings_changed), preview);
+		g_signal_connect(G_OBJECT(preview->photo), "profile-changed", G_CALLBACK(dcp_profile_changed), preview);
 		for(view=0;view<MAX_VIEWS;view++) 
 		{
 			rs_filter_request_set_quick(preview->request[view], TRUE);
@@ -2209,6 +2215,18 @@ settings_changed(RS_PHOTO *photo, RSSettingsMask mask, RSPreviewWidget *preview)
 							NULL);
 			}
 		}
+	}
+}
+
+static void
+dcp_profile_changed(RS_PHOTO *photo, RSDcpFile *dcp, RSPreviewWidget *preview)
+{
+	gint view;
+
+	if (photo == preview->photo)
+	{
+		for(view=0;view<MAX_VIEWS;view++)
+		g_object_set(preview->filter_dcp[view], "profile", dcp, NULL);
 	}
 }
 

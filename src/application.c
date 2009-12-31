@@ -223,6 +223,7 @@ rs_new(void)
 	/* We need this for 100% zoom */
 	g_object_set(cache, "ignore-roi", TRUE, NULL);
 
+	rs_filter_set_recursive(rs->filter_input, "color-space", rs_color_space_new_singleton("RSProphoto"), NULL);
 	rs->filter_end = cache;
 
 	return(rs);
