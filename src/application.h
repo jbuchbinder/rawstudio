@@ -50,6 +50,7 @@ typedef struct _photo {
 	RS_RECT *crop;
 	gdouble angle;
 	gboolean exported;
+	RSDcpFile *dcp;
 	gboolean dispose_has_run;
 } RS_PHOTO;
 

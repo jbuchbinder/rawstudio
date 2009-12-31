@@ -28,6 +28,7 @@ G_DEFINE_TYPE (RS_PHOTO, rs_photo, G_TYPE_OBJECT);
 enum {
 	SPATIAL_CHANGED,
 	SETTINGS_CHANGED,
+	PROFILE_CHANGED,
 	LAST_SIGNAL
 };
 
@@ -98,6 +99,14 @@ rs_photo_class_init (RS_PHOTOClass *klass)
 		NULL,
 		NULL,
 		g_cclosure_marshal_VOID__VOID,
+		G_TYPE_NONE, 0);
+	signals[PROFILE_CHANGED] = g_signal_new ("profile-changed",
+		G_TYPE_FROM_CLASS (klass),
+		G_SIGNAL_RUN_FIRST | G_SIGNAL_ACTION,
+		0, /* Is this right? */
+		NULL,
+		NULL,
+		g_cclosure_marshal_VOID__OBJECT,
 		G_TYPE_NONE, 0);
 
 	parent_class = g_type_class_peek_parent (klass);
@@ -356,6 +365,28 @@ rs_photo_mirror(RS_PHOTO *photo)
 
 	g_signal_emit(photo, signals[SPATIAL_CHANGED], 0, NULL);
 }
+
+/**
+ * Assign a DCP profile to a photo
+ * @param photo A RS_PHOTO
+ * @param dcp A DCP profile
+ */
+void
+rs_photo_set_dcp_profile(RS_PHOTO *photo, RSDcpFile *dcp)
+{
+	g_assert(RS_IS_PHOTO(photo));
+
+	photo->dcp = dcp;
+
+	g_signal_emit(photo, signals[PROFILE_CHANGED], 0, photo->dcp);
+}
+
+/**
+ * Get the assigned DCP profile for a RS_PHOTO
+ * @param photo A RS_PHOTO
+ * @return A DCP profile or NULL
+ */
+extern void rs_photo_get_dcp_profile(RS_PHOTO *photo);
 
 /**
  * Sets the white balance of a RS_PHOTO using warmth and tint variables
