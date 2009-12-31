@@ -44,6 +44,8 @@ library_include_HEADERS = rawstudio.h rs-types.h rs-macros.h \
 	rs-tiff-ifd-entry.h \
 	rs-huesat-map.h \
 	rs-dcp-file.h \
+	rs-dcp-factory.h \
+	rs-profile-selector.h \
 	x86-cpu.h \
 	md5.h
 
@@ -83,6 +85,8 @@ librawstudio_1_1_la_SOURCES = \
 	rs-tiff-ifd-entry.c rs-tiff-ifd-entry.h \
 	rs-huesat-map.c rs-huesat-map.h \
 	rs-dcp-file.c rs-dcp-file.h \
+	rs-dcp-factory.c rs-dcp-factory.h \
+	rs-profile-selector.c rs-profile-selector.h \
 	rs-stock.c rs-stock.h \
 	md5.c md5.h
 
