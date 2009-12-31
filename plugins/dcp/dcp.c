@@ -1066,10 +1066,20 @@ read_profile(RSDcp *dcp, RSDcpFile *dcp_file)
 	/* ProfileToneCurve */
 	dcp->tone_curve = rs_dcp_file_get_tonecurve(dcp_file);
 	if (!dcp->tone_curve)
-		dcp->tone_curve = rs_spline_new(adobe_default_table, adobe_default_table_size / 2, NATURAL);
-	if (dcp->tone_curve)
-		dcp->tone_curve_lut = rs_spline_sample(dcp->tone_curve, NULL, 65536);
-	/* FIXME: Free these at some point! */
+	{
+		gint i;
+		gint num_knots = adobe_default_table_size;
+		gfloat *knots = g_new0(gfloat, adobe_default_table_size * 2);
+
+		for(i = 0; i < adobe_default_table_size; i++)
+		{
+			knots[i*2] = (gfloat)i / (gfloat)adobe_default_table_size;
+			knots[i*2+1] = adobe_default_table[i];
+		}
+		dcp->tone_curve = rs_spline_new(knots, num_knots, NATURAL);
+		g_free(knots);
+	}
+	dcp->tone_curve_lut = rs_spline_sample(dcp->tone_curve, NULL, 65536);
 
 	/* ForwardMatrix */
 	dcp->has_forward_matrix1 = rs_dcp_file_get_forward_matrix1(dcp_file, &dcp->forward_matrix1);
