@@ -107,7 +107,7 @@ rs_photo_class_init (RS_PHOTOClass *klass)
 		NULL,
 		NULL,
 		g_cclosure_marshal_VOID__OBJECT,
-		G_TYPE_NONE, 0);
+		G_TYPE_NONE, 1, RS_TYPE_DCP_FILE);
 
 	parent_class = g_type_class_peek_parent (klass);
 }
