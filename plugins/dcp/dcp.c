@@ -761,7 +761,8 @@ render(ThreadInfo* t)
 	gfloat h, s, v;
 	gfloat r, g, b;
 	RS_VECTOR3 pix;
-
+	gboolean do_contrast = (ABS(1.0f - dcp->contrast) > 0.001f);
+	
 	for(y = t->start_y ; y < t->end_y; y++)
 	{
 		for(x=t->start_x; x < image->w; x++)
@@ -815,14 +816,21 @@ render(ThreadInfo* t)
 			b = exposure_ramp(dcp, b);
 			
 			/* Contrast in gamma 2.0 */
-			r = MAX((sqrtf(r) - 0.5) * dcp->contrast + 0.5, 0.0f);
-			r *= r;
-			g = MAX((sqrtf(g) - 0.5) * dcp->contrast + 0.5, 0.0f);
-			g *= g;
-			b = MAX((sqrtf(b) - 0.5) * dcp->contrast + 0.5, 0.0f);
-			b *= b;
+			if (do_contrast)
+			{
+				r = MAX((sqrtf(r) - 0.5) * dcp->contrast + 0.5, 0.0f);
+				r *= r;
+				g = MAX((sqrtf(g) - 0.5) * dcp->contrast + 0.5, 0.0f);
+				g *= g;
+				b = MAX((sqrtf(b) - 0.5) * dcp->contrast + 0.5, 0.0f);
+				b *= b;
+			}
 
 			/* To HSV */
+			r = MIN(r, 1.0f);
+			g = MIN(g, 1.0f);
+			b = MIN(b, 1.0f);
+			
 			RGBtoHSV(r, g, b, &h, &s, &v);
 
 			/* Curve */

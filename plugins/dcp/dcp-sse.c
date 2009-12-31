@@ -562,6 +562,7 @@ render_SSE2(ThreadInfo* t)
 
 	__m128 hue_add = _mm_set_ps(dcp->hue, dcp->hue, dcp->hue, dcp->hue);
 	__m128 sat = _mm_set_ps(dcp->saturation, dcp->saturation, dcp->saturation, dcp->saturation);
+	gboolean do_contrast = (ABS(1.0f - dcp->contrast) > 0.001f);
 
 	int xfer[4] __attribute__ ((aligned (16)));
 	SETFLOAT4(_min_cam, 0.0f, dcp->camera_white.z, dcp->camera_white.y, dcp->camera_white.x);
@@ -684,6 +685,8 @@ render_SSE2(ThreadInfo* t)
 			r = h; g = s; b = v;
 			
 			/* Exposure */
+			/* y = x - (dcp->exposure_black - dcp->exposure_radius);	*/
+			/* x = dcp->exposure_qscale * y * y;						*/
 			__m128 black_minus_radius = _mm_load_ps(_black_minus_radius);
 			__m128 y_r = _mm_sub_ps(r, black_minus_radius);
 			__m128 y_g = _mm_sub_ps(g, black_minus_radius);
@@ -694,12 +697,14 @@ render_SSE2(ThreadInfo* t)
 			y_g = _mm_mul_ps(exposure_qscale,_mm_mul_ps(y_g, y_g));
 			y_b = _mm_mul_ps(exposure_qscale,_mm_mul_ps(y_b, y_b));
 
+			/* if (x >= dcp->exposure_black + dcp->exposure_radius)			*/
+			/*		x =  (x - dcp->exposure_black) * dcp->exposure_slope; 	*/			
 			__m128 exposure_slope = _mm_load_ps(_exposure_slope);
 			__m128 exposure_black = _mm_load_ps(_exposure_black);
 			__m128 y2_r = _mm_mul_ps(exposure_slope, _mm_sub_ps(r, exposure_black));
 			__m128 y2_g = _mm_mul_ps(exposure_slope, _mm_sub_ps(g, exposure_black));
 			__m128 y2_b = _mm_mul_ps(exposure_slope, _mm_sub_ps(b, exposure_black));
-			
+						
 			__m128 black_plus_radius = _mm_load_ps(_black_plus_radius);
 			__m128 r_mask = _mm_cmpgt_ps(r, black_plus_radius);
 			__m128 g_mask = _mm_cmpgt_ps(g, black_plus_radius);
@@ -721,18 +726,21 @@ render_SSE2(ThreadInfo* t)
 			b = _mm_andnot_ps(b_mask, y_b);
 
 			/* Contrast in gamma 2.0 */
-			__m128 half_ps = _mm_load_ps(_half_ps);
-			__m128 contrast = _mm_load_ps(_contrast);
-			min_val = _mm_load_ps(_very_small_ps);
-			r = _mm_add_ps(_mm_mul_ps(contrast, _mm_sub_ps(_mm_sqrt_ps(r), half_ps)), half_ps);
-			g = _mm_add_ps(_mm_mul_ps(contrast, _mm_sub_ps(_mm_sqrt_ps(g), half_ps)), half_ps);
-			b = _mm_add_ps(_mm_mul_ps(contrast, _mm_sub_ps(_mm_sqrt_ps(b), half_ps)), half_ps);
-			r = _mm_max_ps(r, min_val);
-			g = _mm_max_ps(g, min_val);
-			b = _mm_max_ps(b, min_val);
-			r = _mm_mul_ps(r,r);
-			g = _mm_mul_ps(g,g);
-			b = _mm_mul_ps(b,b);
+			if (do_contrast)
+			{
+				__m128 half_ps = _mm_load_ps(_half_ps);
+				__m128 contrast = _mm_load_ps(_contrast);
+				min_val = _mm_load_ps(_very_small_ps);
+				r = _mm_add_ps(_mm_mul_ps(contrast, _mm_sub_ps(_mm_sqrt_ps(r), half_ps)), half_ps);
+				g = _mm_add_ps(_mm_mul_ps(contrast, _mm_sub_ps(_mm_sqrt_ps(g), half_ps)), half_ps);
+				b = _mm_add_ps(_mm_mul_ps(contrast, _mm_sub_ps(_mm_sqrt_ps(b), half_ps)), half_ps);
+				r = _mm_max_ps(r, min_val);
+				g = _mm_max_ps(g, min_val);
+				b = _mm_max_ps(b, min_val);
+				r = _mm_mul_ps(r,r);
+				g = _mm_mul_ps(g,g);
+				b = _mm_mul_ps(b,b);
+			}
 
 			/* Convert to HSV */
 			RGBtoHSV_SSE(&r, &g, &b);
@@ -1251,7 +1259,8 @@ render_SSE4(ThreadInfo* t)
 	__m128 p1f, p2f, p3f, p4f;
 	__m128 r, g, b, r2, g2, b2;
 	__m128i zero;
-
+	
+	gboolean do_contrast = (ABS(1.0f - dcp->contrast) > 0.001f);
 	__m128 hue_add = _mm_set_ps(dcp->hue, dcp->hue, dcp->hue, dcp->hue);
 	__m128 sat = _mm_set_ps(dcp->saturation, dcp->saturation, dcp->saturation, dcp->saturation);
 
@@ -1409,18 +1418,21 @@ render_SSE4(ThreadInfo* t)
 			b = _mm_andnot_ps(b_mask, y_b);
 
 			/* Contrast in gamma 2.0 */
-			__m128 half_ps = _mm_load_ps(_half_ps);
-			__m128 contrast = _mm_load_ps(_contrast);
-			min_val = _mm_load_ps(_very_small_ps);
-			r = _mm_add_ps(_mm_mul_ps(contrast, _mm_sub_ps(_mm_sqrt_ps(r), half_ps)), half_ps);
-			g = _mm_add_ps(_mm_mul_ps(contrast, _mm_sub_ps(_mm_sqrt_ps(g), half_ps)), half_ps);
-			b = _mm_add_ps(_mm_mul_ps(contrast, _mm_sub_ps(_mm_sqrt_ps(b), half_ps)), half_ps);
-			r = _mm_max_ps(r, min_val);
-			g = _mm_max_ps(g, min_val);
-			b = _mm_max_ps(b, min_val);
-			r = _mm_mul_ps(r,r);
-			g = _mm_mul_ps(g,g);
-			b = _mm_mul_ps(b,b);
+			if (do_contrast)
+			{
+				__m128 half_ps = _mm_load_ps(_half_ps);
+				__m128 contrast = _mm_load_ps(_contrast);
+				min_val = _mm_load_ps(_very_small_ps);
+				r = _mm_add_ps(_mm_mul_ps(contrast, _mm_sub_ps(_mm_sqrt_ps(r), half_ps)), half_ps);
+				g = _mm_add_ps(_mm_mul_ps(contrast, _mm_sub_ps(_mm_sqrt_ps(g), half_ps)), half_ps);
+				b = _mm_add_ps(_mm_mul_ps(contrast, _mm_sub_ps(_mm_sqrt_ps(b), half_ps)), half_ps);
+				r = _mm_max_ps(r, min_val);
+				g = _mm_max_ps(g, min_val);
+				b = _mm_max_ps(b, min_val);
+				r = _mm_mul_ps(r,r);
+				g = _mm_mul_ps(g,g);
+				b = _mm_mul_ps(b,b);
+			}
 
 			/* Convert to HSV */
 			RGBtoHSV_SSE4(&r, &g, &b);
