@@ -415,6 +415,13 @@ toggle_clicked (GtkCellRendererToggle *cell_renderer_toggle, const gchar *path, 
 }
 
 void
+update_lensfun(GtkButton *button, gpointer user_data)
+{
+	rs_lens_db_editor_update_lensfun();
+	rs_lens_db_editor();
+}
+
+void
 rs_lens_db_editor() 
 {
 	GtkTreeModel *tree_model = GTK_TREE_MODEL(gtk_list_store_new(10, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_BOOLEAN, G_TYPE_BOOLEAN, G_TYPE_OBJECT));
@@ -506,6 +513,10 @@ rs_lens_db_editor()
         gtk_container_set_border_width (GTK_CONTAINER (scroller), 6);
 
         gtk_box_pack_start (GTK_BOX (GTK_DIALOG(editor)->vbox), frame, TRUE, TRUE, 0);
+
+	GtkWidget *button_update_lensfun = gtk_button_new_with_label(_("Update lensfun database"));
+	g_signal_connect(button_update_lensfun, "clicked", G_CALLBACK(update_lensfun), NULL);
+	gtk_dialog_add_action_widget (GTK_DIALOG (editor), button_update_lensfun, GTK_RESPONSE_NONE);
 
         GtkWidget *button_close = gtk_button_new_from_stock(GTK_STOCK_CLOSE);
         gtk_dialog_add_action_widget (GTK_DIALOG (editor), button_close, GTK_RESPONSE_CLOSE);
