@@ -1207,6 +1207,8 @@ rs_store_load_directory(RSStore *store, const gchar *path)
 
 	rs_conf_get_boolean(CONF_LOAD_GDK, &load_8bit);
 	rs_conf_get_boolean(CONF_LOAD_RECURSIVE, &load_recursive);
+	if (!rs_conf_get_string(CONF_LWD))
+		load_recursive = FALSE;
 
 	/* Block the priority count */
 	g_signal_handler_block(store->store, store->counthandler);
