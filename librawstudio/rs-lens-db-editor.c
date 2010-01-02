@@ -35,6 +35,7 @@
 #include "rs-lens-db-editor.h"
 
 static void fill_model(RSLensDb *lens_db, GtkTreeModel *tree_model);
+static gboolean rs_lens_db_editor_update_lensfun();
 
 typedef struct {
 	/* The menu used to choose lens - either full or limited by search criteria */
@@ -568,4 +569,66 @@ fill_model(RSLensDb *lens_db, GtkTreeModel *tree_model)
 				    -1);
 		list = g_list_next (list);
 	}
+}
+
+static gboolean
+rs_lens_db_editor_update_lensfun()
+{
+	gchar *stdout = NULL;
+	gchar *stderr = NULL;
+	gint exit_status;
+
+	if (!g_spawn_command_line_sync("svn --version", &stdout, &stderr, &exit_status, NULL))
+	{
+		g_debug("Missing subversion");
+		g_free(stdout);
+		g_free(stderr);
+		return FALSE;
+	}
+
+	const gchar *url = "http://svn.berlios.de/svnroot/repos/lensfun/trunk/data/db";
+	const gchar *target = g_strdup_printf("/tmp/.%u-rawstudio_lensfun/", g_random_int());
+	const gchar *cmd = g_strdup_printf("svn checkout %s %s\n", url, target);
+
+	if (!g_spawn_command_line_sync(cmd, &stdout, &stderr, &exit_status, NULL))
+	{
+		g_debug("Error running subversion checkout");
+		g_free(stdout);
+		g_free(stderr);
+		return FALSE;
+	}
+
+	if (!g_file_test(target, G_FILE_TEST_IS_DIR))
+	{
+		g_debug("Missing lensfun database directory after svn checkout");
+		return FALSE;
+	}
+
+	GDir *dir = g_dir_open(target, 0, NULL);
+	const gchar *fn = NULL;
+
+	while (fn = g_dir_read_name (dir))
+	{
+		GPatternSpec *ps = g_pattern_spec_new ("*.xml");
+		if (g_pattern_match (ps, strlen(fn), fn, NULL))
+		{
+			gchar *ffn = g_build_filename (target, fn, NULL);
+			GFile *source = g_file_new_for_path(ffn);
+			GFile *destination = g_file_new_for_path(g_build_filename(g_get_user_data_dir(), "lensfun", fn, NULL));
+
+			if (!g_file_copy(source, destination, G_FILE_COPY_OVERWRITE, NULL, NULL, NULL, NULL))
+			{
+				g_debug("Error copying file %s to %s\n", g_file_get_parse_name(source), g_file_get_parse_name(destination));
+				return FALSE;
+			}
+			g_free(ffn);
+		}
+		g_free(ps);
+	}
+
+	/* FIXME: remove 'target' */
+
+	g_dir_close(dir);
+
+	return TRUE;
 }
