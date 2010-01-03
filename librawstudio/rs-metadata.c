@@ -95,7 +95,6 @@ rs_metadata_init (RSMetadata *metadata)
 	metadata->focallength = -1;
 	for(i=0;i<4;i++)
 		metadata->cam_mul[i] = 1.0f;
-	matrix4_identity(&metadata->adobe_coeff);
 	metadata->thumbnail = NULL;
 
 	/* Lens info */

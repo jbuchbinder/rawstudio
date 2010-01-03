@@ -1332,8 +1332,6 @@ tiff_load_meta(const gchar *service, RAWFILE *rawfile, guint offset, RSMetadata 
 	} while (next>0);
 
 	rs_metadata_normalize_wb(meta);
-
-	rs_adobe_coeff_set(&meta->adobe_coeff, meta->make_ascii, meta->model_ascii);
 }
 
 /**
