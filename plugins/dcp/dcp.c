@@ -21,9 +21,8 @@
 
 #include "config.h"
 #include <math.h> /* pow() */
-#define INCLUDE_TONE_CURVE
 #include "dcp.h"
-#undef INCLUDE_TONE_CURVE
+#include "adobe-camera-raw-tone.h"
 
 RS_DEFINE_FILTER(rs_dcp, RSDcp)
 
