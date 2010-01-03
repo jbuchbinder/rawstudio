@@ -34,7 +34,6 @@ library_include_HEADERS = rawstudio.h rs-types.h rs-macros.h \
 	rs-math.h \
 	rs-color.h \
 	rs-settings.h \
-	rs-adobe-coeff.h \
 	rs-color-transform.h \
 	rs-spline.h \
 	rs-curve.h \
@@ -76,7 +75,6 @@ librawstudio_1_1_la_SOURCES = \
 	rs-math.c rs-math.h \
 	rs-color.c rs-color.h \
 	rs-settings.c rs-settings.h \
-	rs-adobe-coeff.c rs-adobe-coeff.h \
 	rs-color-transform.c rs-color-transform.h \
 	rs-spline.c rs-spline.h \
 	rs-curve.c rs-curve.h \
