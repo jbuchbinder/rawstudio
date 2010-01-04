@@ -338,15 +338,15 @@ rs_preview_widget_init(RSPreviewWidget *preview)
 	for(i=0;i<MAX_VIEWS;i++)
 	{
 		preview->filter_resample[i] = rs_filter_new("RSResample", NULL);
-		preview->filter_cache1[i] = rs_filter_new("RSCache", preview->filter_resample[i]);
-		preview->filter_denoise[i] = rs_filter_new("RSDenoise", preview->filter_cache1[i]);
-		preview->filter_cache2[i] = rs_filter_new("RSCache", preview->filter_denoise[i]);
-		preview->filter_transform_input[i] = rs_filter_new("RSColorspaceTransform", preview->filter_cache2[i]);
-		preview->filter_dcp[i] = rs_filter_new("RSDcp", preview->filter_transform_input[i]);
-		preview->filter_transform_display[i] = rs_filter_new("RSColorspaceTransform", preview->filter_dcp[i]);
-		preview->filter_mask[i] = rs_filter_new("RSExposureMask", preview->filter_transform_display[i]);
-		preview->filter_cache3[i] = rs_filter_new("RSCache", preview->filter_mask[i]);
-		preview->filter_end[i] = preview->filter_cache3[i];
+		preview->filter_transform_input[i] = rs_filter_new("RSColorspaceTransform", preview->filter_resample[i]);
+		preview->filter_cache1[i] = rs_filter_new("RSCache", preview->filter_transform_input[i]);
+		preview->filter_dcp[i] = rs_filter_new("RSDcp", preview->filter_cache1[i]);
+		preview->filter_cache2[i] = rs_filter_new("RSCache", preview->filter_dcp[i]);
+		preview->filter_denoise[i] = rs_filter_new("RSDenoise", preview->filter_cache2[i]);
+		preview->filter_transform_display[i] = rs_filter_new("RSColorspaceTransform", preview->filter_denoise[i]);
+		preview->filter_cache3[i] = rs_filter_new("RSCache", preview->filter_transform_display[i]);
+		preview->filter_mask[i] = rs_filter_new("RSExposureMask", preview->filter_cache3[i]);
+		preview->filter_end[i] = preview->filter_mask[i];
 		g_signal_connect(preview->filter_end[i], "changed", G_CALLBACK(filter_changed), preview);
 
 		rs_filter_set_recursive(preview->filter_end[i], "bounding-box", TRUE, NULL);
@@ -2226,7 +2226,10 @@ dcp_profile_changed(RS_PHOTO *photo, RSDcpFile *dcp, RSPreviewWidget *preview)
 	if (photo == preview->photo)
 	{
 		for(view=0;view<MAX_VIEWS;view++)
-		g_object_set(preview->filter_dcp[view], "profile", dcp, NULL);
+		{
+			g_object_set(preview->filter_dcp[view], "profile", dcp, NULL);
+			rs_filter_set_recursive(preview->filter_end[view], "settings", preview->photo->settings[preview->snapshot[view]], NULL);
+		}
 	}
 }
 
