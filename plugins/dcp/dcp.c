@@ -235,6 +235,9 @@ rs_dcp_init(RSDcp *dcp)
 	dcp->huesatmap_interpolated = NULL;
 	dcp->use_profile = FALSE;
 	dcp->curve_is_flat = TRUE;
+	/* Standard D65, this default should really not be used */
+	dcp->white_xy.x = 0.31271f;
+	dcp->white_xy.y = 0.32902f;
 
 	/* We cannot initialize this in class init, the RSProphoto plugin may not
 	 * be loaded yet at that time :( */
@@ -1094,6 +1097,8 @@ read_profile(RSDcp *dcp, RSDcpFile *dcp_file)
 	dcp->huesatmap2 = rs_dcp_file_get_huesatmap2(dcp_file);
 	dcp->huesatmap = 0;
 	dcp->use_profile = TRUE;
+	set_white_xy(dcp, &dcp->white_xy);
+	precalc(dcp);
 }
 
 /*
