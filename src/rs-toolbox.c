@@ -79,6 +79,7 @@ struct _RSToolbox {
 	RSSettings *settings[3];
 	GtkWidget *curve[3];
 
+	GtkWidget *transforms;
 	gint selected_snapshot;
 	RS_PHOTO *photo;
 	GtkWidget *histogram;
@@ -188,7 +189,8 @@ rs_toolbox_init (RSToolbox *self)
 
 	gtk_box_pack_start(self->toolbox, self->notebook, FALSE, FALSE, 0);
 
-	gtk_box_pack_start(self->toolbox, new_transform(self, TRUE), FALSE, FALSE, 0);
+	self->transforms = new_transform(self, TRUE);
+	gtk_box_pack_start(self->toolbox, self->transforms, FALSE, FALSE, 0);
 
 	/* Initialize this to some dummy image to keep it simple */
 	self->histogram_dataset = rs_image16_new(1,1,4,4);
@@ -857,6 +859,8 @@ rs_toolbox_set_photo(RSToolbox *toolbox, RS_PHOTO *photo)
 	}
 
 	rs_profile_selector_set_profiles_steal(toolbox->selector, dcp_profiles);
+
+	gtk_widget_set_sensitive(toolbox->transforms, !!(toolbox->photo));
 }
 
 GtkWidget *
