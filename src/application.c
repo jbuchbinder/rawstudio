@@ -214,14 +214,15 @@ rs_new(void)
 	/* Build basic filter chain */
 	rs->filter_input = rs_filter_new("RSInputImage16", NULL);
 	rs->filter_demosaic = rs_filter_new("RSDemosaic", rs->filter_input);
-	rs->filter_lensfun = rs_filter_new("RSLensfun", rs->filter_demosaic);
-	cache = rs_filter_new("RSCache", rs->filter_lensfun);
-	rs->filter_rotate = rs_filter_new("RSRotate", cache);
-	rs->filter_crop = rs_filter_new("RSCrop", rs->filter_rotate);
-	cache = rs_filter_new("RSCache", rs->filter_crop);
+	cache = rs_filter_new("RSCache", rs->filter_demosaic);
 
 	/* We need this for 100% zoom */
 	g_object_set(cache, "ignore-roi", TRUE, NULL);
+
+	rs->filter_lensfun = rs_filter_new("RSLensfun", cache);
+	rs->filter_rotate = rs_filter_new("RSRotate", rs->filter_lensfun);
+	rs->filter_crop = rs_filter_new("RSCrop", rs->filter_rotate);
+	cache = rs_filter_new("RSCache", rs->filter_crop);
 
 	rs_filter_set_recursive(rs->filter_input, "color-space", rs_color_space_new_singleton("RSProphoto"), NULL);
 	rs->filter_end = cache;
