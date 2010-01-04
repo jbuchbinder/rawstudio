@@ -171,8 +171,10 @@ struct _RSPreviewWidget
 	gboolean loupe_enabled;
 	RSLoupe *loupe;
 	RSFilter *loupe_filter_cache;
+	RSFilter *loupe_transform_input;
+	RSFilter *loupe_filter_dcp;
 	RSFilter *loupe_filter_denoise;
-	RSFilter *loupe_filter_render;
+	RSFilter *loupe_transform_display;
 	RSFilter *loupe_filter_end;
 
 	RSFilter *navigator_filter_scale;
@@ -367,9 +369,11 @@ rs_preview_widget_init(RSPreviewWidget *preview)
 	rs_filter_set_label(preview->filter_resample[1], "RSPreviewWidget-1");
 
 	preview->loupe_filter_cache = rs_filter_new("RSCache", NULL);
-	preview->loupe_filter_denoise = rs_filter_new("RSDenoise", preview->loupe_filter_cache);
-	preview->loupe_filter_render = rs_filter_new("RSBasicRender", preview->loupe_filter_denoise);
-	preview->loupe_filter_end = preview->loupe_filter_render;
+	preview->loupe_transform_input = rs_filter_new("RSColorspaceTransform", preview->loupe_filter_cache);
+	preview->loupe_filter_dcp = rs_filter_new("RSDcp", preview->loupe_transform_input);
+	preview->loupe_filter_denoise = rs_filter_new("RSDenoise", preview->loupe_filter_dcp);
+	preview->loupe_transform_display = rs_filter_new("RSColorspaceTransform", preview->loupe_filter_denoise);
+	preview->loupe_filter_end = preview->loupe_transform_display;
 	preview->loupe = rs_loupe_new();
 	g_object_set(preview->loupe_filter_cache, "ignore-roi", TRUE, NULL);
 	preview->photo = NULL;
@@ -544,7 +548,9 @@ rs_preview_widget_set_loupe_enabled(RSPreviewWidget *preview, gboolean enabled)
 
 			rs_filter_set_previous(preview->loupe_filter_cache, preview->filter_input);
 			/* FIXME: view is hardcoded to 0 */
+			g_object_set(preview->loupe_filter_dcp, "profile", rs_photo_get_dcp_profile(preview->photo), NULL);
 			rs_filter_set_recursive(preview->loupe_filter_end, "settings", preview->photo->settings[preview->snapshot[0]], NULL);
+			rs_loupe_set_colorspace(preview->loupe, preview->display_color_space);
 
 			gtk_widget_show_all(GTK_WIDGET(preview->loupe));
 		}
