@@ -187,6 +187,10 @@ settings_changed(RSSettings *settings, RSSettingsMask mask, RSDcp *dcp)
 				g_free(knots);
 			}
 			dcp->curve_is_flat = FALSE;
+			if (nknots == 2)
+				if (ABS(knots[0]) < 0.0001 && ABS(knots[1]) < 0.0001)
+					if (ABS(1.0 - knots[2]) < 0.0001 && ABS(1.0 - knots[3]) < 0.0001)
+						dcp->curve_is_flat = TRUE;
 		}
 		else
 			dcp->curve_is_flat = TRUE;
@@ -224,6 +228,7 @@ free_dcp_profile(RSDcp *dcp)
 	dcp->looktable = NULL;
 	dcp->looktable = NULL;
 	dcp->tone_curve_lut = NULL;
+	dcp->use_profile = FALSE;
 }
 
 static void
