@@ -178,8 +178,14 @@ struct _RSPreviewWidget
 	RSFilter *loupe_filter_end;
 
 	RSFilter *navigator_filter_scale;
+	RSFilter *navigator_transform_input;
+	RSFilter *navigator_filter_rotate;
+	RSFilter *navigator_filter_crop;
 	RSFilter *navigator_filter_cache;
-	RSFilter *navigator_filter_render;
+	RSFilter *navigator_filter_cache2;
+	RSFilter *navigator_filter_scale2;
+	RSFilter *navigator_filter_dcp;
+	RSFilter *navigator_transform_display;
 	RSFilter *navigator_filter_end;
 	GtkWidget *navigator;
 
@@ -380,9 +386,15 @@ rs_preview_widget_init(RSPreviewWidget *preview)
 
 	preview->navigator_filter_scale = rs_filter_new("RSResample", NULL);
 	preview->navigator_filter_cache = rs_filter_new("RSCache", preview->navigator_filter_scale);
-	preview->navigator_filter_render = rs_filter_new("RSBasicRender", preview->navigator_filter_cache);
-	preview->navigator_filter_end = preview->navigator_filter_render;
-
+	preview->navigator_transform_input = rs_filter_new("RSColorspaceTransform", preview->navigator_filter_cache);
+	preview->navigator_filter_crop = rs_filter_new("RSCrop", preview->navigator_transform_input);
+	preview->navigator_filter_rotate = rs_filter_new("RSRotate", preview->navigator_filter_crop);
+	preview->navigator_filter_scale2 = rs_filter_new("RSResample", preview->navigator_filter_rotate);
+	preview->navigator_filter_cache2 = rs_filter_new("RSCache", preview->navigator_filter_scale2);
+	preview->navigator_filter_dcp = rs_filter_new("RSDcp", preview->navigator_filter_cache2);
+	preview->navigator_transform_display = rs_filter_new("RSColorspaceTransform", preview->navigator_filter_dcp);
+	preview->navigator_filter_end = preview->navigator_transform_display;
+	
 	/* We'll take care of double buffering ourself */
 	gtk_widget_set_double_buffered(GTK_WIDGET(preview), TRUE);
 
@@ -512,6 +524,9 @@ rs_preview_widget_set_zoom_to_fit(RSPreviewWidget *preview, gboolean zoom_to_fit
 			"bounding-box", TRUE,
 			"width", NAVIGATOR_WIDTH,
 			"height", NAVIGATOR_HEIGHT,
+			"orientation", preview->photo->orientation,
+			"rectangle", rs_photo_get_crop(preview->photo),
+			"angle", rs_photo_get_angle(preview->photo),
 			"settings", preview->photo->settings[preview->snapshot[0]],
 			NULL);
 
@@ -522,6 +537,7 @@ rs_preview_widget_set_zoom_to_fit(RSPreviewWidget *preview, gboolean zoom_to_fit
 
 		preview->navigator = rs_toolbox_add_widget(preview->toolbox, GTK_WIDGET(navigator), _("Display Navigation"));
 		rs_navigator_set_preview_widget(navigator, preview);
+		rs_navigator_set_colorspace(navigator, preview->display_color_space);
 		gtk_widget_show_all(GTK_WIDGET(preview->navigator));
 	}
 
@@ -603,7 +619,7 @@ rs_preview_widget_set_photo(RSPreviewWidget *preview, RS_PHOTO *photo)
  * @param filter A filter to listen for
  */
 void
-rs_preview_widget_set_filter(RSPreviewWidget *preview, RSFilter *filter)
+rs_preview_widget_set_filter(RSPreviewWidget *preview, RSFilter *filter, RSFilter *fast_filter)
 {
 	g_assert(RS_IS_PREVIEW_WIDGET(preview));
 	g_assert(RS_IS_FILTER(filter));
@@ -611,7 +627,12 @@ rs_preview_widget_set_filter(RSPreviewWidget *preview, RSFilter *filter)
 	preview->filter_input = filter;
 	rs_filter_set_previous(preview->filter_resample[0], preview->filter_input);
 	rs_filter_set_previous(preview->filter_resample[1], preview->filter_input);
-	rs_filter_set_previous(preview->navigator_filter_scale, preview->filter_input);
+	if (fast_filter)
+	{
+		g_assert(RS_IS_FILTER(fast_filter));
+		rs_filter_set_previous(preview->navigator_filter_scale, fast_filter);
+	} else
+		rs_filter_set_previous(preview->navigator_filter_scale, preview->filter_input);
 }
 
 /**
@@ -2231,11 +2252,15 @@ dcp_profile_changed(RS_PHOTO *photo, RSDcpFile *dcp, RSPreviewWidget *preview)
 
 	if (photo == preview->photo)
 	{
+		/* Set view profile */
 		for(view=0;view<MAX_VIEWS;view++)
 		{
 			g_object_set(preview->filter_dcp[view], "profile", dcp, NULL);
 			rs_filter_set_recursive(preview->filter_end[view], "settings", preview->photo->settings[preview->snapshot[view]], NULL);
 		}
+		/* Set navigator profile, uses view 0 */
+		g_object_set(preview->navigator_filter_dcp, "profile", dcp, NULL);
+		rs_filter_set_recursive(preview->navigator_filter_end, "settings", preview->photo->settings[preview->snapshot[0]], NULL);
 	}
 }
 
