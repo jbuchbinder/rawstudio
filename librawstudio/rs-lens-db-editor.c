@@ -36,16 +36,50 @@
 
 static void fill_model(RSLensDb *lens_db, GtkTreeModel *tree_model);
 static gboolean rs_lens_db_editor_update_lensfun();
+void rs_lens_db_editor_single_lens(RSLens *lens);
+
+typedef struct {
+	GtkWidget *lensfun_make;
+	GtkWidget *lensfun_model;
+	GtkWidget *button;
+	RSLens *lens;
+} SingleLensData;
 
 typedef struct {
 	/* The menu used to choose lens - either full or limited by search criteria */
 	GtkWidget *LensMenu;
 	/* The GtkTreeView */
 	GtkTreeView *tree_view;
+	SingleLensData *single_lens_data;
 } lens_data;
 
 static void lens_set (lens_data *data, const lfLens *lens)
 {
+	if (data->single_lens_data)
+	{
+		/* Set Maker and Model to the selected RSLens */
+		rs_lens_set_lensfun_make(data->single_lens_data->lens, lens->Maker);
+		rs_lens_set_lensfun_model(data->single_lens_data->lens, lens->Model);
+		rs_lens_set_lensfun_enabled(data->single_lens_data->lens, TRUE);
+
+		gtk_label_set_text(GTK_LABEL(data->single_lens_data->lensfun_make), lens->Maker);
+		gtk_label_set_text(GTK_LABEL(data->single_lens_data->lensfun_model), lens->Model);
+
+		gtk_widget_show(data->single_lens_data->lensfun_make);
+		gtk_widget_show(data->single_lens_data->lensfun_model);
+		gtk_widget_hide(data->single_lens_data->button);
+
+		RSLensDb *lens_db = rs_lens_db_get_default();
+
+		/* Force save of RSLensDb */
+		rs_lens_db_save(lens_db);
+
+		if (data)
+			g_free(data);
+
+		return;
+	}
+
 	GtkTreeSelection *selection = gtk_tree_view_get_selection(data->tree_view);
 	GtkTreeModel *model = NULL;
 	GtkTreeIter iter;
@@ -276,6 +310,7 @@ void row_clicked (GtkTreeView *tree_view, GtkTreePath *path, GtkTreeViewColumn *
 
 	lens_data *data = g_malloc(sizeof(lens_data));
 	data->tree_view = tree_view;
+	data->single_lens_data = NULL;
 
 	lensdb = lf_db_new ();
 	lf_db_load (lensdb);
@@ -642,4 +677,218 @@ rs_lens_db_editor_update_lensfun()
 	g_dir_close(dir);
 
 	return TRUE;
+}
+
+void set_lens (GtkButton *button, SingleLensData *single_lens_data)
+{
+	struct lfDatabase *lensdb = NULL;
+	const lfCamera *camera = NULL;
+	const lfCamera **cameras = NULL;
+
+	lens_data *data = g_malloc(sizeof(lens_data));
+	data->single_lens_data = single_lens_data;
+
+	lensdb = lf_db_new ();
+	lf_db_load (lensdb);
+
+	RSLens *rs_lens = RS_LENS(single_lens_data->lens);
+
+	gchar *camera_make;
+	gchar *camera_model;
+	gdouble min_focal;
+	gdouble max_focal;
+
+	g_assert(RS_IS_LENS(rs_lens));
+	g_object_get(rs_lens,
+		     "camera-make", &camera_make,
+		     "camera-model", &camera_model,
+		     "min-focal", &min_focal,
+		     "max-focal", &max_focal,
+		     NULL);
+
+	gchar *lens_search = g_strdup_printf("%.0f-%.0f", min_focal, max_focal);
+
+	cameras = lf_db_find_cameras(lensdb, camera_make, camera_model);
+	if (cameras)
+		camera = cameras[0];
+
+	if (camera)
+	{
+		const lfLens **lenslist = lf_db_find_lenses_hd (
+			lensdb, camera, NULL, lens_search, 0);
+		const lfLens **full_lenslist = lf_db_find_lenses_hd (
+			lensdb, camera, NULL, NULL, 0);
+
+		if (!lenslist && !full_lenslist)
+			return;
+
+		lens_menu_fill (data, lenslist, full_lenslist);
+		lf_free (lenslist);
+	}
+	else
+	{
+		const lfLens **lenslist = lf_db_find_lenses_hd (
+			lensdb, NULL, NULL, lens_search, 0);
+		const lfLens *const *full_lenslist = lf_db_get_lenses (lensdb);
+
+		if (!lenslist)
+			return;
+		lens_menu_fill (data, lenslist, full_lenslist);
+	}
+
+	g_free(lens_search);
+
+	gtk_menu_popup (GTK_MENU (data->LensMenu), NULL, NULL, NULL, NULL,
+			0, gtk_get_current_event_time ());
+}
+
+
+void
+rs_lens_db_editor_single_lens(RSLens *lens)
+{
+
+	gchar *identifier;
+	gchar *lensfun_make;
+	gchar *lensfun_model;
+	gdouble min_focal, max_focal, min_aperture, max_aperture;
+	gchar *camera_make;
+	gchar *camera_model;
+	gboolean enabled;
+
+	g_assert(RS_IS_LENS(lens));
+	g_object_get(lens,
+		     "identifier", &identifier,
+		     "lensfun-make", &lensfun_make,
+		     "lensfun-model", &lensfun_model,
+		     "min-focal", &min_focal,
+		     "max-focal", &max_focal,
+		     "min-aperture", &min_aperture,
+		     "max-aperture", &max_aperture,
+		     "camera-make", &camera_make,
+		     "camera-model", &camera_model,
+		     "enabled", &enabled,
+		     NULL);
+	
+	GtkWidget *editor = gtk_dialog_new();
+	gtk_window_set_title(GTK_WINDOW(editor), _("Rawstudio Lens Editor"));
+	gtk_dialog_set_has_separator (GTK_DIALOG(editor), FALSE);
+	g_signal_connect_swapped(editor, "delete_event",
+				 G_CALLBACK (gtk_widget_destroy), editor);
+	g_signal_connect_swapped(editor, "response",
+				 G_CALLBACK (gtk_widget_destroy), editor);
+
+	GtkWidget *frame = gtk_frame_new("");
+	GtkWidget *table = gtk_table_new(2, 8, FALSE);
+
+	GtkWidget *label1 = gtk_label_new("");
+	gtk_label_set_markup(GTK_LABEL(label1), "<b>Lens make</b>");
+	gtk_misc_set_alignment(GTK_MISC(label1), 0, 0);
+
+	GtkWidget *label2 = gtk_label_new("");
+	gtk_label_set_markup(GTK_LABEL(label2), "<b>Lens model</b>");
+	gtk_misc_set_alignment(GTK_MISC(label2), 0, 0);
+
+	GtkWidget *label3 = gtk_label_new("");
+	gtk_label_set_markup(GTK_LABEL(label3), "<b>Focal</b>");
+	gtk_misc_set_alignment(GTK_MISC(label3), 0, 0);
+
+	GtkWidget *label4 = gtk_label_new("");
+	gtk_label_set_markup(GTK_LABEL(label4), "<b>Aperture</b>");
+	gtk_misc_set_alignment(GTK_MISC(label4), 0, 0);
+
+	GtkWidget *label5 = gtk_label_new("");
+	gtk_label_set_markup(GTK_LABEL(label5), "<b>Camera make</b>");
+	gtk_misc_set_alignment(GTK_MISC(label5), 0, 0);
+
+	GtkWidget *label6 = gtk_label_new("");
+	gtk_label_set_markup(GTK_LABEL(label6), "<b>Camera model</b>");
+	gtk_misc_set_alignment(GTK_MISC(label6), 0, 0);
+
+//	GtkWidget *label7 = gtk_label_new("");
+//	gtk_label_set_markup(GTK_LABEL(label7), "<b>Enabled</b>");
+//	gtk_misc_set_alignment(GTK_MISC(label7), 0, 0);
+
+	gtk_table_attach_defaults(GTK_TABLE(table), label5, 0,1,0,1);
+	gtk_table_attach_defaults(GTK_TABLE(table), label6, 0,1,1,2);
+	gtk_table_attach_defaults(GTK_TABLE(table), label3, 0,1,2,3);
+	gtk_table_attach_defaults(GTK_TABLE(table), label4, 0,1,3,4);
+//	gtk_table_attach_defaults(GTK_TABLE(table), label7, 0,1,4,5);
+	gtk_table_attach_defaults(GTK_TABLE(table), label1, 0,1,6,7);
+	gtk_table_attach_defaults(GTK_TABLE(table), label2, 0,1,7,8);
+
+	GtkWidget *label_lensfun_make = gtk_label_new(lensfun_make);
+	GtkWidget *label_lensfun_model = gtk_label_new(lensfun_model);
+	GtkWidget *label_focal;
+	if (min_focal == max_focal)
+		label_focal = gtk_label_new(g_strdup_printf("%.0fmm", min_focal));
+	else
+		label_focal = gtk_label_new(g_strdup_printf("%.0f-%.0fmm", min_focal, max_focal));
+	GtkWidget *label_aperture = gtk_label_new(g_strdup_printf("f/%.1f", max_aperture));
+	GtkWidget *label_camera_make = gtk_label_new(camera_make);
+	GtkWidget *label_camera_model = gtk_label_new(camera_model);
+//	GtkWidget *checkbutton_enabled = gtk_toggle_button_new();
+
+	GtkWidget *button_set_lens = gtk_button_new_with_label("Set lens");
+
+	GtkWidget *sep = gtk_hseparator_new();
+
+	SingleLensData *single_lens_data = g_malloc(sizeof(SingleLensData));
+	single_lens_data->lensfun_make = label_lensfun_make;
+	single_lens_data->lensfun_model = label_lensfun_model;
+	single_lens_data->lens = lens;
+	single_lens_data->button = button_set_lens;
+
+	g_signal_connect(button_set_lens, "clicked", G_CALLBACK(set_lens), single_lens_data);
+
+	gtk_misc_set_alignment(GTK_MISC(label_lensfun_make), 1, 0);
+	gtk_misc_set_alignment(GTK_MISC(label_lensfun_model), 1, 0);
+	gtk_misc_set_alignment(GTK_MISC(label_focal), 1, 0);
+	gtk_misc_set_alignment(GTK_MISC(label_aperture), 1, 0);
+	gtk_misc_set_alignment(GTK_MISC(label_camera_make), 1, 0);
+	gtk_misc_set_alignment(GTK_MISC(label_camera_model), 1, 0);
+//	gtk_button_set_alignment(GTK_BUTTON(checkbutton_enabled), 1, 0);
+
+	gtk_table_attach_defaults(GTK_TABLE(table), label_camera_make, 1,2,0,1);
+	gtk_table_attach_defaults(GTK_TABLE(table), label_camera_model, 1,2,1,2);
+	gtk_table_attach_defaults(GTK_TABLE(table), label_focal, 1,2,2,3);
+	gtk_table_attach_defaults(GTK_TABLE(table), label_aperture, 1,2,3,4);
+//	gtk_table_attach_defaults(GTK_TABLE(table), checkbutton_enabled, 1,2,4,5);
+	gtk_table_attach_defaults(GTK_TABLE(table), sep, 0,2,5,6);
+	gtk_table_attach_defaults(GTK_TABLE(table), label_lensfun_make, 1,2,6,7);
+	gtk_table_attach_defaults(GTK_TABLE(table), label_lensfun_model, 1,2,7,8);
+	gtk_table_attach_defaults(GTK_TABLE(table), button_set_lens, 1,2,6,8);
+
+	/* Set spacing around separator in table */
+	gtk_table_set_row_spacing(GTK_TABLE(table), 4, 10);
+	gtk_table_set_row_spacing(GTK_TABLE(table), 5, 10);
+
+	gtk_window_resize(GTK_WINDOW(editor), 300, 1);
+
+        gtk_container_set_border_width (GTK_CONTAINER (frame), 6);
+        gtk_container_set_border_width (GTK_CONTAINER (table), 6);
+
+        gtk_box_pack_start (GTK_BOX (GTK_DIALOG(editor)->vbox), frame, TRUE, TRUE, 0);
+	gtk_container_add (GTK_CONTAINER (frame), table);
+
+	/* FIXME: Put lensfun update button in editor - for this to work, we cannot close the window when updating */
+//	GtkWidget *button_update_lensfun = gtk_button_new_with_label(_("Update lensfun database"));
+//	g_signal_connect(button_update_lensfun, "clicked", G_CALLBACK(update_lensfun), NULL);
+//	gtk_dialog_add_action_widget (GTK_DIALOG (editor), button_update_lensfun, GTK_RESPONSE_NONE);
+
+        GtkWidget *button_close = gtk_button_new_from_stock(GTK_STOCK_CLOSE);
+        gtk_dialog_add_action_widget (GTK_DIALOG (editor), button_close, GTK_RESPONSE_CLOSE);
+
+        gtk_widget_show_all(GTK_WIDGET(editor));
+	if (!rs_lens_get_lensfun_model(lens) || !rs_lens_get_lensfun_make(lens))
+	{
+		gtk_widget_hide(label_lensfun_make);
+		gtk_widget_hide(label_lensfun_model);
+		gtk_widget_show(button_set_lens);
+	}
+	else
+	{
+		gtk_widget_show(label_lensfun_make);
+		gtk_widget_show(label_lensfun_model);
+		gtk_widget_hide(button_set_lens);
+	}
 }
