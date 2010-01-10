@@ -105,6 +105,13 @@ rs_profile_selector_new(void)
 }
 
 void
+rs_profile_selector_select_profile(RSProfileSelector *selector, gint index)
+{
+	g_assert(RS_IS_PROFILE_SELECTOR(selector));
+	gtk_combo_box_set_active (&selector->parent, index);
+}
+
+void
 rs_profile_selector_set_dcp_profile(RSProfileSelector *selector, RSDcpFile *dcp)
 {
 	GtkTreeIter iter;
@@ -141,5 +148,4 @@ rs_profile_selector_set_profiles_steal(RSProfileSelector *selector, GList *profi
 {
 	rs_profile_selector_set_profiles(selector, profiles);
 
-	g_list_free(profiles);
 }
