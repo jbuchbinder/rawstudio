@@ -396,13 +396,14 @@ rs_batch_process(RS_QUEUE *queue)
 	RSFilter *finput = rs_filter_new("RSInputImage16", NULL);
 	RSFilter *fdemosaic = rs_filter_new("RSDemosaic", finput);
 	RSFilter *flensfun = rs_filter_new("RSLensfun", fdemosaic);
-	RSFilter *frotate = rs_filter_new("RSRotate", flensfun);
+	RSFilter *ftransform_input = rs_filter_new("RSColorspaceTransform", flensfun);
+	RSFilter *frotate = rs_filter_new("RSRotate", ftransform_input);
 	RSFilter *fcrop = rs_filter_new("RSCrop", frotate);
 	RSFilter *fcache = rs_filter_new("RSCache", fcrop);
 	RSFilter *fresample= rs_filter_new("RSResample", fcache);
 	RSFilter *fdenoise= rs_filter_new("RSDenoise", fresample);
-	RSFilter *fbasic_render = rs_filter_new("RSBasicRender", fdenoise);
-	RSFilter *fend = fbasic_render;
+	RSFilter *ftransform_display = rs_filter_new("RSColorspaceTransform", fdenoise);
+	RSFilter *fend = ftransform_display;
 	RSFilterResponse *filter_response;
 
 	/* FIXME: This is just a temporary hack to make batch work */
@@ -416,8 +417,8 @@ rs_batch_process(RS_QUEUE *queue)
 			profile = rs_icc_profile_new_from_file(profile_filename);
 			g_free(profile_filename);
 		}
-    	if (!profile)
-	        profile = rs_icc_profile_new_from_file(PACKAGE_DATA_DIR "/" PACKAGE "/profiles/generic_camera_profile.icc");
+		/*if (!profile)
+	        profile = rs_icc_profile_new_from_file(PACKAGE_DATA_DIR "/" PACKAGE "/profiles/generic_camera_profile.icc");*/
 	    g_object_set(finput, "icc-profile", profile, NULL);
 	    g_object_unref(profile);
 
@@ -430,7 +431,7 @@ rs_batch_process(RS_QUEUE *queue)
 		}
 		if (!profile)
 			profile = rs_icc_profile_new_from_file(PACKAGE_DATA_DIR "/" PACKAGE "/profiles/sRGB.icc");
-		g_object_set(fbasic_render, "icc-profile", profile, NULL);
+		g_object_set(fend, "icc-profile", profile, NULL);
 	    g_object_unref(profile);
 	}
 	window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
@@ -623,7 +624,8 @@ rs_batch_process(RS_QUEUE *queue)
 	g_object_unref(fcache);
 	g_object_unref(fresample);
 	g_object_unref(fdenoise);
-	g_object_unref(fbasic_render);
+	g_object_unref(ftransform_input);
+	g_object_unref(ftransform_display);
 }
 
 static void

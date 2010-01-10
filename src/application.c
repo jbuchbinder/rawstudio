@@ -134,12 +134,15 @@ rs_photo_save(RS_PHOTO *photo, RSOutput *output, gint width, gint height, gboole
 
 	RSFilter *finput = rs_filter_new("RSInputImage16", NULL);
 	RSFilter *fdemosaic = rs_filter_new("RSDemosaic", finput);
-	RSFilter *frotate = rs_filter_new("RSRotate", fdemosaic);
+	RSFilter *flensfun = rs_filter_new("RSLensfun", fdemosaic);
+	RSFilter *ftransform_input = rs_filter_new("RSColorspaceTransform", flensfun);
+	RSFilter *frotate = rs_filter_new("RSRotate",ftransform_input) ;
 	RSFilter *fcrop = rs_filter_new("RSCrop", frotate);
 	RSFilter *fresample= rs_filter_new("RSResample", fcrop);
-	RSFilter *fdenoise= rs_filter_new("RSDenoise", fresample);
-	RSFilter *fbasic_render = rs_filter_new("RSBasicRender", fdenoise);
-	RSFilter *fend = fbasic_render;
+	RSFilter *fdcp = rs_filter_new("RSDcp", fresample);
+	RSFilter *fdenoise= rs_filter_new("RSDenoise", fdcp);
+	RSFilter *ftransform_display = rs_filter_new("RSColorspaceTransform", fdenoise);
+	RSFilter *fend = ftransform_display;
 
 	rs_filter_set_recursive(fend,
 		"image", photo->input,
@@ -160,8 +163,32 @@ rs_photo_save(RS_PHOTO *photo, RSOutput *output, gint width, gint height, gboole
 		profile = rs_icc_profile_new_from_file(profile_filename);
 		g_free(profile_filename);
 	}
-	if (!profile)
-		profile = rs_icc_profile_new_from_file(PACKAGE_DATA_DIR "/" PACKAGE "/profiles/generic_camera_profile.icc");
+	
+	/* Look up lens */
+	RSMetadata *meta = rs_photo_get_metadata(photo);
+	RSLensDb *lens_db = rs_lens_db_get_default();
+	RSLens *lens = rs_lens_db_lookup_from_metadata(lens_db, meta);
+
+	/* Apply lens information to RSLensfun */
+	if (lens)
+	{
+		rs_filter_set_recursive(fend,
+			"make", meta->make_ascii,
+			"model", meta->model_ascii,
+			"lens", lens,
+			"focal", (gfloat) meta->focallength,
+			"aperture", meta->aperture,
+			"tca_kr", photo->settings[snapshot]->tca_kr,
+			"tca_kb", photo->settings[snapshot]->tca_kb,
+			"vignetting_k2", photo->settings[snapshot]->vignetting_k2,
+			NULL);
+		g_object_unref(lens);
+	}
+
+	g_object_unref(meta);
+	
+//	if (!profile)
+//		profile = rs_icc_profile_new_from_file(PACKAGE_DATA_DIR "/" PACKAGE "/profiles/generic_camera_profile.icc");
 	g_object_set(finput, "icc-profile", profile, NULL);
 	g_object_unref(profile);
 
@@ -172,13 +199,16 @@ rs_photo_save(RS_PHOTO *photo, RSOutput *output, gint width, gint height, gboole
 		profile = rs_icc_profile_new_from_file(profile_filename);
 		g_free(profile_filename);
 	}
-	if (!profile)
+/*	if (!profile)
 		profile = rs_icc_profile_new_from_file(PACKAGE_DATA_DIR "/" PACKAGE "/profiles/sRGB.icc");
-	g_object_set(fbasic_render, "icc-profile", profile, NULL);
-	g_object_unref(profile);
+	g_object_set(fend, "icc-profile", profile, NULL);
+	g_object_unref(profile);*/
+		
+//	RSFilterResponse *response = rs_filter_get_image8(navigator->cache, request);
 
 	/* actually save */
 	g_assert(rs_output_execute(output, fend));
+//	g_object_unref(request);
 
 	photo->exported = TRUE;
 	rs_cache_save(photo, MASK_ALL);
@@ -187,12 +217,15 @@ rs_photo_save(RS_PHOTO *photo, RSOutput *output, gint width, gint height, gboole
 	rs_store_set_flags(NULL, photo->filename, NULL, NULL, &photo->exported);
 
 	g_object_unref(finput);
+	g_object_unref(flensfun);
+	g_object_unref(ftransform_input);
+	g_object_unref(ftransform_display);
 	g_object_unref(fdemosaic);
 	g_object_unref(frotate);
 	g_object_unref(fcrop);
 	g_object_unref(fresample);
 	g_object_unref(fdenoise);
-	g_object_unref(fbasic_render);
+	g_object_unref(fdcp);
 
 	return(TRUE);
 }
@@ -201,8 +234,6 @@ RS_BLOB *
 rs_new(void)
 {
 	RSFilter *cache;
-	RSIccProfile *profile = NULL;
-	gchar *filename;
 
 	RS_BLOB *rs;
 	rs = g_malloc(sizeof(RS_BLOB));
