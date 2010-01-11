@@ -105,10 +105,27 @@ rs_profile_selector_new(void)
 }
 
 void
-rs_profile_selector_select_profile(RSProfileSelector *selector, gint index)
+rs_profile_selector_select_profile(RSProfileSelector *selector, gpointer profile)
 {
+	GtkTreeModel *model;
+	GtkTreeIter iter;
+	gpointer current = NULL;
+
 	g_assert(RS_IS_PROFILE_SELECTOR(selector));
-	gtk_combo_box_set_active (&selector->parent, index);
+
+	model = GTK_TREE_MODEL(selector->store);
+
+	if (gtk_tree_model_get_iter_first(model, &iter))
+		do {
+			gtk_tree_model_get(model, &iter,
+				COLUMN_POINTER, &current,
+				-1);
+			if (current == profile)
+			{
+				gtk_combo_box_set_active_iter(GTK_COMBO_BOX(selector), &iter);
+				break;
+			}
+		} while (gtk_tree_model_iter_next(model, &iter));
 }
 
 void

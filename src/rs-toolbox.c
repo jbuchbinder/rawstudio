@@ -860,17 +860,11 @@ rs_toolbox_set_photo(RSToolbox *toolbox, RS_PHOTO *photo)
 	rs_profile_selector_set_profiles_steal(toolbox->selector, dcp_profiles);
 	
 	/* Find current profile and mark it active */
-	if (photo && photo->metadata && dcp_profiles)
+	if (photo)
 	{
 		RSDcpFile *dcp_profile = rs_photo_get_dcp_profile(photo);
-		GList *node = g_list_first(dcp_profiles);
-		for (i = 0; node != NULL; node = g_list_next(node))
-		{
-			if (node->data == dcp_profile)
-				rs_profile_selector_select_profile(toolbox->selector, i);
-			i++;
-		}
-		g_list_free(dcp_profiles);
+		rs_profile_selector_select_profile(toolbox->selector, dcp_profile);
+		/* FIXME: support ICC profiles too */
 	}
 	gtk_widget_set_sensitive(toolbox->transforms, !!(toolbox->photo));
 }
