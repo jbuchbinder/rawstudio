@@ -742,6 +742,12 @@ void set_lens (GtkButton *button, SingleLensData *single_lens_data)
 			0, gtk_get_current_event_time ());
 }
 
+void
+enable_lens(GtkCheckButton *checkbutton, gpointer user_data)
+{
+	RSLens *lens = user_data;
+	rs_lens_set_lensfun_enabled(lens, gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(checkbutton)));
+}
 
 void
 rs_lens_db_editor_single_lens(RSLens *lens)
@@ -778,7 +784,7 @@ rs_lens_db_editor_single_lens(RSLens *lens)
 				 G_CALLBACK (gtk_widget_destroy), editor);
 
 	GtkWidget *frame = gtk_frame_new("");
-	GtkWidget *table = gtk_table_new(2, 8, FALSE);
+	GtkWidget *table = gtk_table_new(2, 10, FALSE);
 
 	GtkWidget *label1 = gtk_label_new("");
 	gtk_label_set_markup(GTK_LABEL(label1), "<b>Lens make</b>");
@@ -826,11 +832,13 @@ rs_lens_db_editor_single_lens(RSLens *lens)
 	GtkWidget *label_aperture = gtk_label_new(g_strdup_printf("f/%.1f", max_aperture));
 	GtkWidget *label_camera_make = gtk_label_new(camera_make);
 	GtkWidget *label_camera_model = gtk_label_new(camera_model);
-//	GtkWidget *checkbutton_enabled = gtk_toggle_button_new();
+	GtkWidget *checkbutton_enabled = gtk_check_button_new_with_label("Enable this lens");
+	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(checkbutton_enabled), rs_lens_get_lensfun_enabled(lens));
 
 	GtkWidget *button_set_lens = gtk_button_new_with_label("Set lens");
 
-	GtkWidget *sep = gtk_hseparator_new();
+	GtkWidget *sep1 = gtk_hseparator_new();
+	GtkWidget *sep2 = gtk_hseparator_new();
 
 	SingleLensData *single_lens_data = g_malloc(sizeof(SingleLensData));
 	single_lens_data->lensfun_make = label_lensfun_make;
@@ -852,15 +860,18 @@ rs_lens_db_editor_single_lens(RSLens *lens)
 	gtk_table_attach_defaults(GTK_TABLE(table), label_camera_model, 1,2,1,2);
 	gtk_table_attach_defaults(GTK_TABLE(table), label_focal, 1,2,2,3);
 	gtk_table_attach_defaults(GTK_TABLE(table), label_aperture, 1,2,3,4);
-//	gtk_table_attach_defaults(GTK_TABLE(table), checkbutton_enabled, 1,2,4,5);
-	gtk_table_attach_defaults(GTK_TABLE(table), sep, 0,2,5,6);
+	gtk_table_attach_defaults(GTK_TABLE(table), sep1, 0,2,5,6);
 	gtk_table_attach_defaults(GTK_TABLE(table), label_lensfun_make, 1,2,6,7);
 	gtk_table_attach_defaults(GTK_TABLE(table), label_lensfun_model, 1,2,7,8);
 	gtk_table_attach_defaults(GTK_TABLE(table), button_set_lens, 1,2,6,8);
+	gtk_table_attach_defaults(GTK_TABLE(table), sep2, 0,2,8,9);
+	gtk_table_attach_defaults(GTK_TABLE(table), checkbutton_enabled, 0,2,9,10);
 
 	/* Set spacing around separator in table */
 	gtk_table_set_row_spacing(GTK_TABLE(table), 4, 10);
 	gtk_table_set_row_spacing(GTK_TABLE(table), 5, 10);
+	gtk_table_set_row_spacing(GTK_TABLE(table), 7, 10);
+	gtk_table_set_row_spacing(GTK_TABLE(table), 8, 10);
 
 	gtk_window_resize(GTK_WINDOW(editor), 300, 1);
 
@@ -869,6 +880,8 @@ rs_lens_db_editor_single_lens(RSLens *lens)
 
         gtk_box_pack_start (GTK_BOX (GTK_DIALOG(editor)->vbox), frame, TRUE, TRUE, 0);
 	gtk_container_add (GTK_CONTAINER (frame), table);
+
+	g_signal_connect(checkbutton_enabled, "toggled", G_CALLBACK(enable_lens), lens);
 
 	/* FIXME: Put lensfun update button in editor - for this to work, we cannot close the window when updating */
 //	GtkWidget *button_update_lensfun = gtk_button_new_with_label(_("Update lensfun database"));
