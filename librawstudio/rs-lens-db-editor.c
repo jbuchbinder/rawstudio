@@ -36,7 +36,7 @@
 
 static void fill_model(RSLensDb *lens_db, GtkTreeModel *tree_model);
 static gboolean rs_lens_db_editor_update_lensfun();
-void rs_lens_db_editor_single_lens(RSLens *lens);
+GtkDialog *rs_lens_db_editor_single_lens(RSLens *lens);
 
 typedef struct {
 	GtkWidget *lensfun_make;
@@ -749,7 +749,7 @@ enable_lens(GtkCheckButton *checkbutton, gpointer user_data)
 	rs_lens_set_lensfun_enabled(lens, gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(checkbutton)));
 }
 
-void
+GtkDialog *
 rs_lens_db_editor_single_lens(RSLens *lens)
 {
 
@@ -904,4 +904,5 @@ rs_lens_db_editor_single_lens(RSLens *lens)
 		gtk_widget_show(label_lensfun_model);
 		gtk_widget_hide(button_set_lens);
 	}
+	return GTK_DIALOG(editor);
 }

@@ -35,6 +35,6 @@ enum {
 
 
 extern void rs_lens_db_editor();
-extern void rs_lens_db_editor_single_lens(RSLens *lens);
+extern GtkDialog * rs_lens_db_editor_single_lens(RSLens *lens);
 
 #endif /* RS_LENS_DB_EDITOR_H */
