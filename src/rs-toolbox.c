@@ -32,6 +32,7 @@
 #include "rs-photo.h"
 #include "conf_interface.h"
 #include "rs-actions.h"
+#include "rs-lens-db-editor.h"
 
 /* Some helpers for creating the basic sliders */
 typedef struct {
@@ -60,11 +61,12 @@ const static BasicSettings channelmixer[] = {
 #define NCHANNELMIXER (3)
 
 const static BasicSettings lens[] = {
+	{ "empty",          0.000 }, /* Hack to have space to put in a label */
 	{ "tca_kr",         0.001 },
 	{ "tca_kb",         0.001 },
 	{ "vignetting_k2",  0.01 },
 };
-#define NLENS (3)
+#define NLENS (4)
 
 struct _RSToolbox {
 	GtkScrolledWindow parent;
@@ -76,6 +78,9 @@ struct _RSToolbox {
 	GtkRange *ranges[3][NBASICS];
 	GtkRange *channelmixer[3][NCHANNELMIXER];
 	GtkRange *lens[3][NLENS];
+	GtkWidget *lenslabel[3][1];
+	GtkWidget *lensbutton[3][1];
+	RSLens *rs_lens;
 	RSSettings *settings[3];
 	GtkWidget *curve[3];
 
@@ -115,6 +120,7 @@ static void photo_settings_changed(RS_PHOTO *photo, RSSettingsMask mask, gpointe
 static void photo_spatial_changed(RS_PHOTO *photo, gpointer user_data);
 static void photo_finalized(gpointer data, GObject *where_the_object_was);
 static void toolbox_copy_from_photo(RSToolbox *toolbox, const gint snapshot, const RSSettingsMask mask, RS_PHOTO *photo);
+static void toolbox_lens_set_label(RSToolbox *toolbox, gint snapshot);
 
 static void
 rs_toolbox_finalize (GObject *object)
@@ -595,6 +601,40 @@ curve_context_callback(GtkWidget *widget, gpointer user_data)
 	gtk_menu_popup(GTK_MENU(menu), NULL, NULL, NULL, NULL, 0, GDK_CURRENT_TIME);
 }
 
+static GtkWidget*
+basic_label(RSToolbox *toolbox, const gint snapshot, GtkTable *table, const gint row, GtkWidget *widget)
+{
+	GtkWidget *label = gtk_label_new(NULL);
+	if (widget)
+	{
+		GtkWidget *hbox = gtk_hbox_new(FALSE, 2);
+
+		gtk_box_pack_start(GTK_BOX(hbox), label, TRUE, TRUE, 2);
+		gtk_box_pack_start(GTK_BOX(hbox), widget, TRUE, TRUE, 2);
+		gtk_table_attach(table, hbox, 0, 5, 0, 1, GTK_EXPAND, GTK_FILL, 0, 0);     
+	}
+	else
+	{
+		gtk_table_attach(table, label, 0, 5, 0, 1, GTK_EXPAND, GTK_FILL, 0, 0);
+	}
+
+	return label;
+}
+
+void 
+toolbox_edit_lens_clicked(GtkButton *button, gpointer user_data)
+{
+	gint i;
+	RSToolbox *toolbox = user_data;
+	gtk_dialog_run(rs_lens_db_editor_single_lens(toolbox->rs_lens));
+	/* Make sure we set to all 3 snapshots */
+	for(i=0; i<3; i++) toolbox_lens_set_label(toolbox, i);
+	RSLensDb *lens_db = rs_lens_db_get_default();
+	rs_lens_db_save(lens_db);
+	/* FIXME: set lensfun plugin dirty */
+	/* FIXME: set photo dirty (force update) */
+}
+
 static GtkWidget *
 new_snapshot_page(RSToolbox *toolbox, const gint snapshot)
 {
@@ -611,7 +651,15 @@ new_snapshot_page(RSToolbox *toolbox, const gint snapshot)
 		toolbox->ranges[snapshot][row] = basic_slider(toolbox, snapshot, table, row, &basic[row]);
 	for(row=0;row<NCHANNELMIXER;row++)
 		toolbox->channelmixer[snapshot][row] = basic_slider(toolbox, snapshot, channelmixertable, row, &channelmixer[row]);
-	for(row=0;row<NLENS;row++)
+
+	/* ROW HARDCODED TO 0 */
+	toolbox->lensbutton[snapshot][0] = gtk_button_new_with_label(_("Edit lens"));
+	toolbox->lenslabel[snapshot][0] = basic_label(toolbox, snapshot, lenstable, row, toolbox->lensbutton[snapshot][0]);
+	toolbox_lens_set_label(toolbox, snapshot);
+
+	gtk_signal_connect(GTK_OBJECT(toolbox->lensbutton[snapshot][0]), "clicked", G_CALLBACK(toolbox_edit_lens_clicked), toolbox);
+	
+	for(row=1;row<NLENS;row++)
 		toolbox->lens[snapshot][row] = basic_slider(toolbox, snapshot, lenstable, row, &lens[row]);
 
 	/* Add curve editor */
@@ -749,7 +797,7 @@ photo_finalized(gpointer data, GObject *where_the_object_was)
 		{
 			gtk_widget_set_sensitive(GTK_WIDGET(toolbox->channelmixer[snapshot][i]), FALSE);
 		}
-		for(i=0;i<NLENS;i++)
+		for(i=1;i<NLENS;i++)
 		{
 			gtk_widget_set_sensitive(GTK_WIDGET(toolbox->lens[snapshot][i]), FALSE);
 		}
@@ -787,7 +835,7 @@ toolbox_copy_from_photo(RSToolbox *toolbox, const gint snapshot, const RSSetting
 			}
 
 		/* Update lens */
-		for(i=0;i<NLENS;i++)
+		for(i=1;i<NLENS;i++)
 			if (mask)
 			{
 				gfloat value;
@@ -806,6 +854,41 @@ toolbox_copy_from_photo(RSToolbox *toolbox, const gint snapshot, const RSSetting
 		}
 		toolbox->mute_from_sliders = FALSE;
 	}
+}
+
+void
+toolbox_lens_set_label(RSToolbox *toolbox, gint snapshot)
+{
+	const gchar *lens_text = NULL;
+
+	if(toolbox->rs_lens)
+	{
+		if (!rs_lens_get_lensfun_model(toolbox->rs_lens))
+			lens_text = _("Lens unknown");
+		else if (!rs_lens_get_lensfun_enabled(toolbox->rs_lens))			
+			lens_text = _("Lens disabled");
+		else
+			lens_text = rs_lens_get_lensfun_model(toolbox->rs_lens);
+	} 
+	else if(toolbox->photo)
+	{
+		lens_text = _("Camera unknown");
+	} 
+	else
+	{
+		lens_text = _("No photo");
+	}
+
+	GString *temp = g_string_new(lens_text);
+	if (strlen(temp->str) > 25)
+	{
+		temp = g_string_set_size(temp, 22);
+		temp = g_string_append(temp, "...");
+	}
+
+	gtk_label_set_markup(GTK_LABEL(toolbox->lenslabel[snapshot][0]), g_strdup_printf("<small>%s</small>", temp->str));
+	GtkTooltips *tooltips = gtk_tooltips_new();
+	gtk_tooltips_set_tip(tooltips, toolbox->lenslabel[snapshot][0], lens_text, NULL);
 }
 
 void
@@ -839,7 +922,14 @@ rs_toolbox_set_photo(RSToolbox *toolbox, RS_PHOTO *photo)
 				gtk_widget_set_sensitive(GTK_WIDGET(toolbox->ranges[snapshot][i]), TRUE);
 			for(i=0;i<NCHANNELMIXER;i++)
 				gtk_widget_set_sensitive(GTK_WIDGET(toolbox->channelmixer[snapshot][i]), TRUE);
-			for(i=0;i<NLENS;i++)
+
+			if (photo->metadata->lens_identifier) {
+				RSLensDb *lens_db = rs_lens_db_get_default();
+				toolbox->rs_lens = rs_lens_db_get_from_identifier(lens_db, photo->metadata->lens_identifier);
+				toolbox_lens_set_label(toolbox, snapshot);
+			}
+
+			for(i=1;i<NLENS;i++)
 				gtk_widget_set_sensitive(GTK_WIDGET(toolbox->lens[snapshot][i]), TRUE);
 		}
 		photo_spatial_changed(toolbox->photo, toolbox);
