@@ -626,13 +626,16 @@ toolbox_edit_lens_clicked(GtkButton *button, gpointer user_data)
 {
 	gint i;
 	RSToolbox *toolbox = user_data;
-	gtk_dialog_run(rs_lens_db_editor_single_lens(toolbox->rs_lens));
-	/* Make sure we set to all 3 snapshots */
-	for(i=0; i<3; i++) toolbox_lens_set_label(toolbox, i);
-	RSLensDb *lens_db = rs_lens_db_get_default();
-	rs_lens_db_save(lens_db);
-	/* FIXME: set lensfun plugin dirty */
-	/* FIXME: set photo dirty (force update) */
+	if (toolbox->rs_lens)
+	{
+		gtk_dialog_run(rs_lens_db_editor_single_lens(toolbox->rs_lens));
+		/* Make sure we set to all 3 snapshots */
+		for(i=0; i<3; i++) toolbox_lens_set_label(toolbox, i);
+		RSLensDb *lens_db = rs_lens_db_get_default();
+		rs_lens_db_save(lens_db);
+		/* FIXME: set lensfun plugin dirty */
+		/* FIXME: set photo dirty (force update) */
+	}
 }
 
 static GtkWidget *
