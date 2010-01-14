@@ -792,6 +792,8 @@ search_changed(GtkEntry *entry, gpointer user_data)
 	/* FIXME: deselect all photos in store */
 	rs_store_remove(carrier->store, NULL, NULL);
 	g_list_foreach(photos, load_photos, carrier->store);
+	/* Fix size of iconview */
+	rs_store_set_iconview_size(carrier->store, g_list_length(photos));
 
 	GString *window_title = g_string_new("");
 	g_string_printf(window_title, _("Tag search [%s]"), text);
