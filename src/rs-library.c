@@ -65,6 +65,7 @@ struct _RSLibrary {
 
 G_DEFINE_TYPE(RSLibrary, rs_library, G_TYPE_OBJECT)
 
+static gint library_execute_sql(sqlite3 *db, const gchar *sql);
 static void library_sqlite_error(sqlite3 *db, const gint result);
 static gint library_create_tables(sqlite3 *db);
 static gint library_find_tag_id(RSLibrary *library, const gchar *tagname);
@@ -128,6 +129,20 @@ rs_library_init(RSLibrary *library)
 	}
 	g_free(database);
 
+	/* This is not FULL synchronous mode as default, but almost as good. From
+	   the sqlite3 manual:
+	   "There is a very small (though non-zero) chance that a power failure at
+	   just the wrong time could corrupt the database in NORMAL mode. But in
+	   practice, you are more likely to suffer a catastrophic disk failure or
+	   some other unrecoverable hardware fault." */
+	library_execute_sql(library->db, "PRAGMA synchronous = normal;");
+
+	/* Move our journal to memory, we're not doing banking for the Mafia */
+	library_execute_sql(library->db, "PRAGMA journal_mode = memory;");
+
+	/* Place temp tables in memory */
+	library_execute_sql(library->db, "PRAGMA temp_store = memory;");
+
 	rc = library_create_tables(library->db);
 	library_sqlite_error(library->db, rc);
 }
@@ -144,6 +159,19 @@ rs_library_get_singleton(void)
 	g_static_mutex_unlock(&singleton_lock);
 
 	return singleton;
+}
+
+static gint
+library_execute_sql(sqlite3 *db, const gchar *sql)
+{
+	sqlite3_stmt *statement;
+
+	if(SQLITE_OK != sqlite3_prepare(db, sql, -1, &statement, 0))
+		return sqlite3_errcode(db);
+
+	while (SQLITE_ROW == sqlite3_step(statement));
+
+	return sqlite3_finalize(statement);
 }
 
 static void
@@ -622,6 +650,7 @@ rs_library_photo_default_tags(RSLibrary *library, const gchar *photo, RSMetadata
 	}
 
 	gint i;
+	library_execute_sql(library->db, "BEGIN TRANSACTION;");
 	for(i = 0; i < g_list_length(tags); i++)
 	{
 		gchar *tag = (gchar *) g_list_nth_data(tags, i);
@@ -629,6 +658,7 @@ rs_library_photo_default_tags(RSLibrary *library, const gchar *photo, RSMetadata
 		rs_library_photo_add_tag(library, photo, tag, TRUE);
 		g_free(tag);
 	}
+	library_execute_sql(library->db, "COMMIT;");
 	g_list_free(tags);
 }
 
