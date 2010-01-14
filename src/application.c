@@ -41,7 +41,6 @@
 #include "rs-histogram.h"
 #include "rs-photo.h"
 #include "rs-exif.h"
-#include "rs-preload.h"
 #include "rs-library.h"                                                                                                                                    
 #include "lensfun.h"
 
@@ -336,7 +335,7 @@ test()
 		status = g_io_channel_read_line(io, &next_filename, NULL, NULL, NULL);
 		g_strstrip(next_filename);
 		if (status != G_IO_STATUS_EOF)
-			rs_preload(next_filename);
+			rs_io_idle_prefetch_file(next_filename, -1);
 		gboolean filetype_ok = FALSE;
 		gboolean load_ok = FALSE;
 		gboolean thumbnail_ok = FALSE;
