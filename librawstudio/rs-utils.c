@@ -25,6 +25,7 @@
 #include <time.h>
 #include <sys/types.h>
 #include <sys/stat.h>
+#include <fcntl.h>
 #include <unistd.h>
 
 #define DOTDIR ".rawstudio"
@@ -613,19 +614,39 @@ rs_split_string(const gchar *str, const gchar *delimiter) {
 	return glist;
 }
 
-gchar * rs_file_checksum(const gchar *photo)
+gchar *
+rs_file_checksum(const gchar *filename)
 {
+	gchar *checksum = NULL;
 	struct stat st;
-	int fd = open(photo, S_IRUSR);
-	fstat(fd, &st);
-	gint middle = st.st_size/2;
-	char buffer[1024];
+	gint fd = open(filename, O_RDONLY);
 
-	lseek(fd, middle, SEEK_SET);
-	int retval = read(fd, &buffer, 1024);
-	close(fd);
+	if (fd > 0)
+	{
+		fstat(fd, &st);
 
-	return (gchar *) rs_md5(buffer);
+		gint offset = 0;
+		gint length = st.st_size;
+
+		/* If the file is bigger than 2 KiB, we sample 1 KiB in the middle of the file */
+		if (st.st_size > 2048)
+		{
+			offset = st.st_size/2;
+			length = 1024;
+		}
+
+		gchar buffer[length];
+
+		lseek(fd, offset, SEEK_SET);
+		gint bytes_read = read(fd, buffer, length);
+
+		close(fd);
+
+		if (bytes_read = length)
+			checksum = g_compute_checksum_for_data(G_CHECKSUM_MD5, buffer, length);
+	}
+
+	return checksum;
 }
 
 const gchar *
