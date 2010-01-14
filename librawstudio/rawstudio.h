@@ -29,6 +29,11 @@ extern "C" {
 
 #include "rs-macros.h"
 
+#include "rs-io-job.h"
+#include "rs-io-job-checksum.h"
+#include "rs-io-job-metadata.h"
+#include "rs-io-job-prefetch.h"
+#include "rs-io.h"
 #include "rs-rawfile.h"
 #include "rs-settings.h"
 #include "rs-exif.h"

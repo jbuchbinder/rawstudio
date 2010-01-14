@@ -9,6 +9,11 @@ INCLUDES = \
 
 library_includedir=$(includedir)/@PACKAGE@-@VERSION@/
 library_include_HEADERS = rawstudio.h rs-types.h rs-macros.h \
+	rs-io-job.h \
+	rs-io-job-checksum.h \
+	rs-io-job-metadata.h \
+	rs-io-job-prefetch.h \
+	rs-io.h \
 	rs-plugin.h \
 	rs-rawfile.h \
 	rs-exif.h \
@@ -50,6 +55,11 @@ library_include_HEADERS = rawstudio.h rs-types.h rs-macros.h \
 
 lib_LTLIBRARIES = librawstudio-1.1.la
 librawstudio_1_1_la_SOURCES = \
+	rs-io-job.c rs-io-job.h \
+	rs-io-job-checksum.c rs-io-job-checksum.h \
+	rs-io-job-metadata.c rs-io-job-metadata.h \
+	rs-io-job-prefetch.c rs-io-job-prefetch.h \
+	rs-io.c rs-io.h \
 	rs-plugin.c rs-plugin.h \
 	rs-rawfile.c rs-rawfile.h \
 	rs-exif.cc rs-exif.h \
