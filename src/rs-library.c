@@ -61,6 +61,10 @@ struct _RSLibrary {
 	gboolean dispose_has_run;
 
 	sqlite3 *db;
+
+	/* This mutex must be used when inserting data in a table with an
+	   autocrementing column - which is ALWAYS for sqlite */
+	GMutex *id_lock;
 };
 
 G_DEFINE_TYPE(RSLibrary, rs_library, G_TYPE_OBJECT)
@@ -72,13 +76,14 @@ static gint library_find_tag_id(RSLibrary *library, const gchar *tagname);
 static gint library_find_photo_id(RSLibrary *library, const gchar *photo);
 static void library_photo_add_tag(RSLibrary *library, const gint photo_id, const gint tag_id, const gboolean autotag);
 static gboolean library_is_photo_tagged(RSLibrary *library, const gint photo_id, const gint tag_id);
-static void library_add_photo(RSLibrary *library, const gchar *filename);
-static void library_add_tag(RSLibrary *library, const gchar *tagname);
+static gint library_add_photo(RSLibrary *library, const gchar *filename);
+static gint library_add_tag(RSLibrary *library, const gchar *tagname);
 static void library_delete_photo(RSLibrary *library, const gint photo_id);
 static void library_delete_tag(RSLibrary *library, const gint tag_id);
 static void library_photo_delete_tags(RSLibrary *library, const gint photo_id);
 static void library_tag_delete_photos(RSLibrary *library, const gint tag_id);
 static gboolean library_tag_is_used(RSLibrary *library, const gint tag_id);
+static void library_photo_default_tags(RSLibrary *library, const gint photo_id, RSMetadata *metadata);
 
 static GtkWidget *tag_search_entry = NULL;
 
@@ -92,6 +97,8 @@ rs_library_dispose(GObject *object)
 		library->dispose_has_run = TRUE;
 
 		sqlite3_close(library->db);
+
+		g_mutex_free(library->id_lock);
 	}
 
 	G_OBJECT_CLASS(rs_library_parent_class)->dispose (object);
@@ -145,6 +152,8 @@ rs_library_init(RSLibrary *library)
 
 	rc = library_create_tables(library->db);
 	library_sqlite_error(library->db, rc);
+
+	library->id_lock = g_mutex_new();
 }
 
 RSLibrary *
@@ -251,11 +260,13 @@ library_photo_add_tag(RSLibrary *library, const gint photo_id, const gint tag_id
 	if (autotag)
 		autotag_tag = 1;
 
+	g_mutex_lock(library->id_lock);
 	rc = sqlite3_prepare_v2(db, "INSERT INTO phototags (photo, tag, autotag) VALUES (?1, ?2, ?3);", -1, &stmt, NULL);
 	rc = sqlite3_bind_int (stmt, 1, photo_id);
 	rc = sqlite3_bind_int (stmt, 2, tag_id);
 	rc = sqlite3_bind_int (stmt, 3, autotag_tag);
 	rc = sqlite3_step(stmt);
+	g_mutex_unlock(library->id_lock);
 	if (rc != SQLITE_DONE)
 		library_sqlite_error(db, rc);
 	sqlite3_finalize(stmt);
@@ -280,39 +291,51 @@ library_is_photo_tagged(RSLibrary *library, gint photo_id, gint tag_id)
 		return FALSE;
 }
 
-static void
+static gint
 library_add_photo(RSLibrary *library, const gchar *filename)
 {
+	gint id;
 	sqlite3 *db = library->db;
 	gint rc;
 	sqlite3_stmt *stmt;
 
-	gchar *identifier = (gchar *) rs_file_checksum(filename);
+	gchar *identifier = rs_file_checksum(filename);
 
+	g_mutex_lock(library->id_lock);
 	sqlite3_prepare_v2(db, "INSERT INTO library (filename,identifier) VALUES (?1,?2);", -1, &stmt, NULL);
 	rc = sqlite3_bind_text(stmt, 1, filename, strlen(filename), SQLITE_TRANSIENT);
 	rc = sqlite3_bind_text(stmt, 2, identifier, strlen(identifier), SQLITE_TRANSIENT);
 	rc = sqlite3_step(stmt);
+	id = sqlite3_last_insert_rowid(db);
+	g_mutex_unlock(library->id_lock);
 	if (rc != SQLITE_DONE)
 		library_sqlite_error(db, rc);
 	sqlite3_finalize(stmt);
 
 	g_free(identifier);
+
+	return id;
 }
 
-static void
+static gint
 library_add_tag(RSLibrary *library, const gchar *tagname)
 {
+	gint id;
 	sqlite3 *db = library->db;
 	gint rc;
 	sqlite3_stmt *stmt;
 
+	g_mutex_lock(library->id_lock);
 	sqlite3_prepare_v2(db, "INSERT INTO tags (tagname) VALUES (?1);", -1, &stmt, NULL);
 	rc = sqlite3_bind_text(stmt, 1, tagname, strlen(tagname), SQLITE_TRANSIENT);
 	rc = sqlite3_step(stmt);
+	id = sqlite3_last_insert_rowid(db);
+	g_mutex_unlock(library->id_lock);
 	if (rc != SQLITE_DONE)
 		library_sqlite_error(db, rc);
 	sqlite3_finalize(stmt);
+
+	return id;
 }
 
 static void 
@@ -397,29 +420,38 @@ library_tag_is_used(RSLibrary *library, gint tag_id)
 		return FALSE;
 }
 
-void
+gint
 rs_library_add_photo(RSLibrary *library, const gchar *filename)
 {
+	gint photo_id;
+
 	g_assert(RS_IS_LIBRARY(library));
 
-	if (library_find_photo_id(library, filename) == -1)
+	photo_id = library_find_photo_id(library, filename);
+	if (photo_id == -1)
 	{
 		g_debug("Adding photo to library: %s",filename);
-		library_add_photo(library, filename);
+		photo_id = library_add_photo(library, filename);
 	}
+
+	return photo_id;
 }
 
-void
+gint
 rs_library_add_tag(RSLibrary *library, const gchar *tagname)
 {
+	gint tag_id;
+
 	g_assert(RS_IS_LIBRARY(library));
 
-	if (library_find_tag_id(library, tagname) == -1)
+	tag_id = library_find_tag_id(library, tagname);
+	if (tag_id == -1)
 	{
 		g_debug("Adding tag to tags: %s",tagname);
-		library_add_tag(library, tagname);
+		tag_id = library_add_tag(library, tagname);
 	}
 
+	return tag_id;
 }
 
 void
@@ -518,19 +550,23 @@ rs_library_search(RSLibrary *library, GList *tags)
 	{
 		tag = (gchar *) g_list_nth_data(tags, n);
 
+		g_mutex_lock(library->id_lock);
 		sqlite3_prepare_v2(db, "insert into filter select phototags.photo from phototags, tags where phototags.tag = tags.id and lower(tags.tagname) = lower(?1) ;", -1, &stmt, NULL);
 		rc = sqlite3_bind_text(stmt, 1, tag, strlen(tag), SQLITE_TRANSIENT);
 		rc = sqlite3_step(stmt);
 		sqlite3_finalize(stmt);
+		g_mutex_unlock(library->id_lock);
 	}
 
 	sqlite3_prepare_v2(db, "create temp table result (photo integer, count integer)", -1, &stmt, NULL);
 	rc = sqlite3_step(stmt);
 	sqlite3_finalize(stmt);
 
+	g_mutex_lock(library->id_lock);
 	sqlite3_prepare_v2(db, "insert into result select photo, count(photo) from filter group by photo;", -1, &stmt, NULL);
 	rc = sqlite3_step(stmt);
 	sqlite3_finalize(stmt);
+	g_mutex_unlock(library->id_lock);
 
 	sqlite3_prepare_v2(db, "select library.filename from library,result where library.id = result.photo and result.count = ?1 order by library.filename;", -1, &stmt, NULL);
         rc = sqlite3_bind_int(stmt, 1, num_tags);
@@ -554,14 +590,13 @@ rs_library_search(RSLibrary *library, GList *tags)
 	return photos;
 }
 
-void
-rs_library_photo_default_tags(RSLibrary *library, const gchar *photo, RSMetadata *metadata)
+static void
+library_photo_default_tags(RSLibrary *library, const gint photo_id, RSMetadata *metadata)
 {
 	g_assert(RS_IS_LIBRARY(library));
 
 	GList *tags = NULL;
 
-	rs_library_add_photo(library, photo);
 	if (metadata->make_ascii)
 	{
 		GList *temp = rs_split_string(metadata->make_ascii, " ");
@@ -654,8 +689,8 @@ rs_library_photo_default_tags(RSLibrary *library, const gchar *photo, RSMetadata
 	for(i = 0; i < g_list_length(tags); i++)
 	{
 		gchar *tag = (gchar *) g_list_nth_data(tags, i);
-		rs_library_add_tag(library, tag);
-		rs_library_photo_add_tag(library, photo, tag, TRUE);
+		gint tag_id = rs_library_add_tag(library, tag);
+		library_photo_add_tag(library, photo_id, tag_id, TRUE);
 		g_free(tag);
 	}
 	library_execute_sql(library->db, "COMMIT;");
@@ -896,7 +931,7 @@ rs_library_add_photo_with_metadata(RSLibrary *library, const gchar *photo, RSMet
 	if (library_find_photo_id(library, photo) > -1)
 		return;
 
-	rs_library_add_photo(library, photo);
-	rs_library_photo_default_tags(library, photo, metadata);
+	gint photo_id = library_add_photo(library, photo);
+	library_photo_default_tags(library, photo_id, metadata);
 }
 
