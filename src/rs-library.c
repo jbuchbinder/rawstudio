@@ -291,6 +291,20 @@ library_is_photo_tagged(RSLibrary *library, gint photo_id, gint tag_id)
 		return FALSE;
 }
 
+static void
+got_checksum(const gchar *checksum, gpointer user_data)
+{
+	RSLibrary *library = rs_library_get_singleton();
+	sqlite3 *db = library->db;
+	sqlite3_stmt *stmt;
+
+	sqlite3_prepare_v2(db, "UPDATE LIBRARY SET  identifier=?1 WHERE id=?2;", -1, &stmt, NULL);
+	sqlite3_bind_text(stmt, 1, checksum, -1, SQLITE_TRANSIENT);
+	sqlite3_bind_int(stmt, 2, GPOINTER_TO_INT(user_data));
+	sqlite3_step(stmt);
+	sqlite3_finalize(stmt);
+}
+
 static gint
 library_add_photo(RSLibrary *library, const gchar *filename)
 {
@@ -299,12 +313,9 @@ library_add_photo(RSLibrary *library, const gchar *filename)
 	gint rc;
 	sqlite3_stmt *stmt;
 
-	gchar *identifier = rs_file_checksum(filename);
-
 	g_mutex_lock(library->id_lock);
-	sqlite3_prepare_v2(db, "INSERT INTO library (filename,identifier) VALUES (?1,?2);", -1, &stmt, NULL);
+	sqlite3_prepare_v2(db, "INSERT INTO library (filename) VALUES (?1);", -1, &stmt, NULL);
 	rc = sqlite3_bind_text(stmt, 1, filename, strlen(filename), SQLITE_TRANSIENT);
-	rc = sqlite3_bind_text(stmt, 2, identifier, strlen(identifier), SQLITE_TRANSIENT);
 	rc = sqlite3_step(stmt);
 	id = sqlite3_last_insert_rowid(db);
 	g_mutex_unlock(library->id_lock);
@@ -312,7 +323,7 @@ library_add_photo(RSLibrary *library, const gchar *filename)
 		library_sqlite_error(db, rc);
 	sqlite3_finalize(stmt);
 
-	g_free(identifier);
+	rs_io_idle_read_checksum(filename, -1, got_checksum, GINT_TO_POINTER(id));
 
 	return id;
 }
