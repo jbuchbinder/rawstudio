@@ -92,7 +92,7 @@ rs_dcp_factory_get_compatible(RSDcpFactory *factory, const gchar *make, const gc
 	{
 		RSDcpFile *dcp = RS_DCP_FILE(node->data);
 
-		if (g_str_equal(model, rs_dcp_file_get_model(dcp)))
+		if (model && g_str_equal(model, rs_dcp_file_get_model(dcp)))
 			matches = g_list_prepend(matches, dcp);
 	}
 
