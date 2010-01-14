@@ -2436,3 +2436,11 @@ got_metadata(RSMetadata *metadata, gpointer user_data)
 	g_object_unref(job->model);
 	g_free(job);
 }
+
+void rs_store_set_iconview_size(RSStore *store, gint size)
+{
+	gint n;
+
+	for (n=0;n<NUM_VIEWS;n++)
+		gtk_icon_view_set_columns(GTK_ICON_VIEW (store->iconview[n]), size);
+}
