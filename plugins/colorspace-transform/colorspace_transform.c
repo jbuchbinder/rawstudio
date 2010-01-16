@@ -264,15 +264,14 @@ convert_colorspace16(RSColorspaceTransform *colorspace_transform, RS_IMAGE16 *in
 		return;
 
 	/* A few sanity checks */
-	if (input_image->w != output_image->w)
-		return;
-	if (input_image->h != output_image->h)
-		return;
+	g_assert(input_image->w == output_image->w);
+	g_assert(input_image->h == output_image->h);
 
 	/* If input/output-image differ, but colorspace is the same, do a simple copy */
-	else if (input_space == output_space)
+	if (input_space == output_space)
 	{
 		/* FIXME: Do some sanity checking! */
+		/* FIXME: Don't assume images have same pitch! */
 		memcpy(output_image->pixels, input_image->pixels, input_image->rowstride*input_image->h*2);
 	}
 
