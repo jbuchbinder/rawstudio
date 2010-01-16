@@ -199,7 +199,6 @@ HSVtoRGB_SSE(__m128 *c0, __m128 *c1, __m128 *c2)
 
 /* SSE2 implementation, matches the reference implementation pretty closely */
 
-
 void 
 calc_hsm_constants(const RSHuesatMap *map, PrecalcHSM* table) 
 {
@@ -662,7 +661,7 @@ render_SSE2(ThreadInfo* t)
 
 			if (dcp->huesatmap)
 			{
-				huesat_map_SSE2(dcp->huesatmap, &dcp->huesatmap_precalc, &h, &s, &v);
+				huesat_map_SSE2(dcp->huesatmap, dcp->huesatmap_precalc, &h, &s, &v);
 			}
 
 			/* Saturation */
@@ -771,7 +770,7 @@ render_SSE2(ThreadInfo* t)
 
 			/* Apply looktable */
 			if (dcp->looktable) {
-				huesat_map_SSE2(dcp->looktable, &dcp->looktable_precalc, &h, &s, &v);
+				huesat_map_SSE2(dcp->looktable, dcp->looktable_precalc, &h, &s, &v);
 			}
 			
 			/* Ensure that hue is within range */

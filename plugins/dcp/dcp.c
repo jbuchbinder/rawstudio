@@ -57,6 +57,8 @@ finalize(GObject *object)
 	RSDcp *dcp = RS_DCP(object);
 
 	g_free(dcp->curve_samples);
+	g_free(dcp->_huesatmap_precalc_unaligned);
+	g_free(dcp->_looktable_precalc_unaligned);
 
 	free_dcp_profile(dcp);	
 }
@@ -231,6 +233,8 @@ free_dcp_profile(RSDcp *dcp)
 	dcp->use_profile = FALSE;
 }
 
+#define ALIGNTO16(PTR) ((guintptr)PTR + ((16 - ((guintptr)PTR % 16)) % 16))
+
 static void
 rs_dcp_init(RSDcp *dcp)
 {
@@ -248,7 +252,16 @@ rs_dcp_init(RSDcp *dcp)
 	 * be loaded yet at that time :( */
 	if (!klass->prophoto)
 		klass->prophoto = rs_color_space_new_singleton("RSProphoto");
+
+	/* Allocate aligned precalc tables */
+	dcp->_huesatmap_precalc_unaligned = g_malloc(sizeof(PrecalcHSM)+16);
+	dcp->_looktable_precalc_unaligned = g_malloc(sizeof(PrecalcHSM)+16);
+	dcp->huesatmap_precalc = (PrecalcHSM*)ALIGNTO16(dcp->_huesatmap_precalc_unaligned);
+	dcp->looktable_precalc = (PrecalcHSM*)ALIGNTO16(dcp->_looktable_precalc_unaligned);
+	
 }
+
+#undef ALIGNTO16
 
 static void
 init_exposure(RSDcp *dcp)
@@ -1050,9 +1063,9 @@ precalc(RSDcp *dcp)
 	/* Camera to ProPhoto */
 	matrix3_multiply(&xyz_to_prophoto, &dcp->camera_to_pcs, &dcp->camera_to_prophoto); /* verified by SDK */
 	if (dcp->huesatmap)
-		calc_hsm_constants(dcp->huesatmap, &dcp->huesatmap_precalc); 
+		calc_hsm_constants(dcp->huesatmap, dcp->huesatmap_precalc); 
 	if (dcp->looktable)
-		calc_hsm_constants(dcp->looktable, &dcp->looktable_precalc); 
+		calc_hsm_constants(dcp->looktable, dcp->looktable_precalc); 
 	
 }
 

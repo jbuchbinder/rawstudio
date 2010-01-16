@@ -590,7 +590,7 @@ render_SSE4(ThreadInfo* t)
 
 			if (dcp->huesatmap)
 			{
-				huesat_map_SSE4(dcp->huesatmap, &dcp->huesatmap_precalc, &h, &s, &v);
+				huesat_map_SSE4(dcp->huesatmap, dcp->huesatmap_precalc, &h, &s, &v);
 			}
 
 			/* Saturation */
@@ -689,7 +689,7 @@ render_SSE4(ThreadInfo* t)
 
 			/* Apply looktable */
 			if (dcp->looktable) {
-				huesat_map_SSE4(dcp->looktable, &dcp->looktable_precalc, &h, &s, &v);
+				huesat_map_SSE4(dcp->looktable, dcp->looktable_precalc, &h, &s, &v);
 			}
 			
 			/* Ensure that hue is within range */	

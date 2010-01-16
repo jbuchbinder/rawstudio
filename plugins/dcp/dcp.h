@@ -32,15 +32,15 @@ typedef struct _RSDcp RSDcp;
 typedef struct _RSDcpClass RSDcpClass;
 
 typedef struct {
-	/* Precalc: */
-	gfloat hScale[4] __attribute__ ((aligned (16)));
-	gfloat sScale[4] __attribute__ ((aligned (16)));
-	gfloat vScale[4] __attribute__ ((aligned (16)));
-	gint maxHueIndex0[4] __attribute__ ((aligned (16)));
-	gint maxSatIndex0[4] __attribute__ ((aligned (16)));
-	gint maxValIndex0[4] __attribute__ ((aligned (16)));
-	gint hueStep[4] __attribute__ ((aligned (16)));
-	gint valStep[4] __attribute__ ((aligned (16)));
+	/* Precalc: all sizes must be 16 byte aligned */
+	gfloat hScale[4];
+	gfloat sScale[4];
+	gfloat vScale[4];
+	gint maxHueIndex0[4];
+	gint maxSatIndex0[4];
+	gint maxValIndex0[4];
+	gint hueStep[4];
+	gint valStep[4];
 } PrecalcHSM;
 
 
@@ -97,8 +97,10 @@ struct _RSDcp {
 	gfloat exposure_radius;
 	gfloat exposure_qscale;
 
-	PrecalcHSM huesatmap_precalc;
-	PrecalcHSM looktable_precalc;
+	PrecalcHSM *huesatmap_precalc;
+	PrecalcHSM *looktable_precalc;
+	void* _huesatmap_precalc_unaligned;
+	void* _looktable_precalc_unaligned;
 };
 
 struct _RSDcpClass {
