@@ -326,7 +326,7 @@ test()
 	struct lfDatabase *lensdb = lf_db_new ();
 	lf_db_load (lensdb);
 
-	printf("basename, load, filetype, thumb, meta, make, a-make, a-model, aperture, iso, s-speed, wb, f-length, lensfun camera\n");
+	printf("basename, load, filetype, thumb, meta, make, a-make, a-model, aperture, iso, s-speed, wb, f-length, lensfun camera, lens min focal, lens max focal, lens max aperture, lens min aperture, lens id, lens identifier\n");
 	status = g_io_channel_read_line(io, &filename, NULL, NULL, NULL);
 	g_strstrip(filename);
 
@@ -349,6 +349,12 @@ test()
 		gboolean wb_ok = FALSE;
 		gboolean focallength_ok = FALSE;
 		gboolean lensfun_camera_ok = FALSE;
+		gboolean lens_min_focal_ok = FALSE;
+		gboolean lens_max_focal_ok = FALSE;
+		gboolean lens_max_aperture_ok = FALSE;
+		gboolean lens_min_aperture_ok = FALSE;
+		gboolean lens_id_ok = FALSE;
+		gboolean lens_identifier_ok = FALSE;
 
 		if (rs_filetype_can_load(filename))
 		{
@@ -395,12 +401,25 @@ test()
 			if (cameras)
 				lensfun_camera_ok = TRUE;
 
+			if (metadata->lens_min_focal > 0.0)
+				lens_min_focal_ok = TRUE;
+			if (metadata->lens_max_focal > 0.0)
+				lens_max_focal_ok = TRUE;
+			if (metadata->lens_max_aperture > 0.0)
+				lens_max_aperture_ok = TRUE;
+			if (metadata->lens_min_aperture > 0.0)
+				lens_min_aperture_ok = TRUE;
+			if (metadata->lens_id > 0.0)
+				lens_id_ok = TRUE;
+			if (metadata->lens_identifier)
+				lens_identifier_ok = TRUE;
+
 			g_object_unref(metadata);
 
 		}
 
 		basename = g_path_get_basename(filename);
-		printf("%s, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n",
+		printf("%s, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n",
 			basename,
 			load_ok,
 			filetype_ok,
@@ -414,7 +433,13 @@ test()
 			shutterspeed_ok,
 			wb_ok,
 			focallength_ok,
-			lensfun_camera_ok
+			lensfun_camera_ok,
+			lens_min_focal_ok,
+			lens_max_focal_ok,
+			lens_max_aperture_ok,
+			lens_min_aperture_ok,
+			lens_id_ok,
+			lens_identifier_ok
 		);
 		sum = load_ok
 			+filetype_ok
@@ -428,10 +453,15 @@ test()
 			+shutterspeed_ok
 			+wb_ok
 			+focallength_ok
-			+lensfun_camera_ok;
-
+			+lensfun_camera_ok
+			+lens_min_focal_ok
+			+lens_max_focal_ok
+			+lens_max_aperture_ok
+			+lens_min_aperture_ok
+			+lens_id_ok
+			+lens_identifier_ok;
 		good += sum;
-		bad += (13-sum);
+		bad += (19-sum);
 
 		g_free(basename);
 
