@@ -32,6 +32,14 @@ static gfloat _ones_ps[4] __attribute__ ((aligned (16))) = {1.0f, 1.0f, 1.0f, 1.
 static gfloat _two_ps[4] __attribute__ ((aligned (16))) = {2.0f, 2.0f, 2.0f, 2.0f};
 static gfloat _six_ps[4] __attribute__ ((aligned (16))) = {6.0f-1e-15, 6.0f-1e-15, 6.0f-1e-15, 6.0f-1e-15};
 static gfloat _very_small_ps[4] __attribute__ ((aligned (16))) = {1e-15, 1e-15, 1e-15, 1e-15};
+static const gfloat _two_to_23_ps[4] __attribute__ ((aligned (16))) = { 0x1.0p23f, 0x1.0p23f, 0x1.0p23f, 0x1.0p23f };
+
+/* Floor for positive numbers */
+static inline __m128 _mm_floor_positive_ps( __m128 v )
+{
+	__m128 two_to_23_ps = _mm_load_ps(_two_to_23_ps);
+	return _mm_sub_ps( _mm_add_ps( v, two_to_23_ps ), two_to_23_ps );
+}
 
 static inline void
 RGBtoHSV_SSE(__m128 *c0, __m128 *c1, __m128 *c2)
@@ -125,9 +133,9 @@ HSVtoRGB_SSE(__m128 *c0, __m128 *c1, __m128 *c2)
 	__m128 r, g, b;
 	
 	/* Convert get the fraction of h
-	* h_fraction = h - (float)(int)h */
+	* h_fraction = h - floor(h) */
 	__m128 ones_ps = _mm_load_ps(_ones_ps);
-	__m128 h_fraction = _mm_sub_ps(h,_mm_cvtepi32_ps(_mm_cvttps_epi32(h)));
+	__m128 h_fraction = _mm_sub_ps(h,_mm_floor_positive_ps(h));
 
 	/* p = v * (1.0f - s)  */
 	__m128 p = _mm_mul_ps(v,  _mm_sub_ps(ones_ps, s));
@@ -560,7 +568,8 @@ render_SSE2(ThreadInfo* t)
 	__m128 p1f, p2f, p3f, p4f;
 	__m128 r, g, b, r2, g2, b2;
 	__m128i zero;
-
+	int _mm_rounding = _MM_GET_ROUNDING_MODE();
+	_MM_SET_ROUNDING_MODE(_MM_ROUND_DOWN);
 	__m128 hue_add = _mm_set_ps(dcp->hue, dcp->hue, dcp->hue, dcp->hue);
 	__m128 sat = _mm_set_ps(dcp->saturation, dcp->saturation, dcp->saturation, dcp->saturation);
 	gboolean do_contrast = (ABS(1.0f - dcp->contrast) > 0.001f);
@@ -831,6 +840,7 @@ render_SSE2(ThreadInfo* t)
 			_mm_store_si128(pixel + 1, p2);
 		}
 	}
+	_MM_SET_ROUNDING_MODE(_mm_rounding);
 	return TRUE;
 }
 
