@@ -14,6 +14,7 @@
    <menuitem action="CopySettings" />
    <menuitem action="PasteSettings" />
    <menuitem action="ResetSettings" />
+   <menuitem action="SaveDefaultSettings" />
    <separator />
    <menuitem action="Preferences" />
   </menu>

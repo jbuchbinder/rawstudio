@@ -20,6 +20,7 @@
 #include <rawstudio.h>
 #include "rs-photo.h"
 #include "rs-cache.h"
+#include "rs-camera-db.h"
 
 static void rs_photo_class_init (RS_PHOTOClass *klass);
 
@@ -580,6 +581,9 @@ rs_photo_load_from_file(const gchar *filename)
 					break;
 			}
 		}
+
+		/* Load defaults */
+		rs_camera_db_photo_set_defaults(rs_camera_db_get_singleton(), photo);
 
 		/* Load cache */
 		mask = rs_cache_load(photo);

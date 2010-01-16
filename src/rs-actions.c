@@ -38,6 +38,7 @@
 #include "rs-save-dialog.h"
 #include "rs-library.h"
 #include "rs-lens-db-editor.h"
+#include "rs-camera-db.h"
 
 static GtkActionGroup *core_action_group = NULL;
 GStaticMutex rs_actions_spinlock = G_STATIC_MUTEX_INIT;
@@ -73,6 +74,7 @@ ACTION(edit_menu)
 	rs_core_action_group_set_sensivity("RevertSettings", RS_IS_PHOTO(rs->photo));
 	rs_core_action_group_set_sensivity("CopySettings", RS_IS_PHOTO(rs->photo));
 	rs_core_action_group_set_sensivity("PasteSettings", !!(rs->settings_buffer));
+	rs_core_action_group_set_sensivity("SaveDefaultSettings", RS_IS_PHOTO(rs->photo));
 }
 
 ACTION(photo_menu)
@@ -499,6 +501,12 @@ ACTION(reset_settings)
 {
 	if (RS_IS_PHOTO(rs->photo))
 		rs_settings_reset(rs->photo->settings[rs->current_setting], MASK_ALL);
+}
+
+ACTION(save_default_settings)
+{
+	if (RS_IS_PHOTO(rs->photo))
+		rs_camera_db_save_defaults(rs_camera_db_get_singleton(), rs->photo);
 }
 
 ACTION(preferences)
@@ -948,6 +956,7 @@ rs_get_core_action_group(RS_BLOB *rs)
 	{ "CopySettings", GTK_STOCK_COPY, _("_Copy settings"), "<control>C", NULL, ACTION_CB(copy_settings) },
 	{ "PasteSettings", GTK_STOCK_PASTE, _("_Paste settings"), "<control>V", NULL, ACTION_CB(paste_settings) },
 	{ "ResetSettings", GTK_STOCK_REFRESH, _("_Reset settings"), NULL, NULL, ACTION_CB(reset_settings) },
+	{ "SaveDefaultSettings", NULL, _("_Save default settings"), NULL, NULL, ACTION_CB(save_default_settings) },
 	{ "Preferences", GTK_STOCK_PREFERENCES, _("_Preferences"), NULL, NULL, ACTION_CB(preferences) },
 
 	/* Photo menu */

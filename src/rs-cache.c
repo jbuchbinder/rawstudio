@@ -28,8 +28,6 @@
 /* This will be written to XML files for making backward compatibility easier to implement */
 #define CACHEVERSION 4
 
-static guint rs_cache_load_setting(RSSettings *rss, xmlDocPtr doc, xmlNodePtr cur, gint version);
-
 gchar *
 rs_cache_get_name(const gchar *src)
 {
@@ -55,7 +53,7 @@ rs_cache_get_name(const gchar *src)
 void
 rs_cache_save(RS_PHOTO *photo, const RSSettingsMask mask)
 {
-	gint id, i;
+	gint id;
 	xmlTextWriterPtr writer;
 	gchar *cachename;
 
@@ -92,59 +90,7 @@ rs_cache_save(RS_PHOTO *photo, const RSSettingsMask mask)
 	{
 		xmlTextWriterStartElement(writer, BAD_CAST "settings");
 		xmlTextWriterWriteFormatAttribute(writer, BAD_CAST "id", "%d", id);
-		if (mask & MASK_EXPOSURE)
-			xmlTextWriterWriteFormatElement(writer, BAD_CAST "exposure", "%f",
-				photo->settings[id]->exposure);
-		if (mask & MASK_SATURATION)
-		xmlTextWriterWriteFormatElement(writer, BAD_CAST "saturation", "%f",
-			photo->settings[id]->saturation);
-		if (mask & MASK_HUE)
-		xmlTextWriterWriteFormatElement(writer, BAD_CAST "hue", "%f",
-			photo->settings[id]->hue);
-		if (mask & MASK_CONTRAST)
-		xmlTextWriterWriteFormatElement(writer, BAD_CAST "contrast", "%f",
-			photo->settings[id]->contrast);
-		if (mask & MASK_WARMTH)
-		xmlTextWriterWriteFormatElement(writer, BAD_CAST "warmth", "%f",
-			photo->settings[id]->warmth);
-		if (mask & MASK_TINT)
-		xmlTextWriterWriteFormatElement(writer, BAD_CAST "tint", "%f",
-			photo->settings[id]->tint);
-		if (mask & MASK_SHARPEN)
-		xmlTextWriterWriteFormatElement(writer, BAD_CAST "sharpen", "%f",
-			photo->settings[id]->sharpen);
-		xmlTextWriterWriteFormatElement(writer, BAD_CAST "denoise_luma", "%f",
-			photo->settings[id]->denoise_luma);
-		xmlTextWriterWriteFormatElement(writer, BAD_CAST "denoise_chroma", "%f",
-			photo->settings[id]->denoise_chroma);
-		if (mask & MASK_CHANNELMIXER)
-		{
-			xmlTextWriterWriteFormatElement(writer, BAD_CAST "channelmixer_red", "%f",
-				photo->settings[id]->channelmixer_red);
-			xmlTextWriterWriteFormatElement(writer, BAD_CAST "channelmixer_green", "%f",
-				photo->settings[id]->channelmixer_green);
-			xmlTextWriterWriteFormatElement(writer, BAD_CAST "channelmixer_blue", "%f",
-				photo->settings[id]->channelmixer_blue);
-		}
-		if (mask & MASK_TCA_KR)
-			xmlTextWriterWriteFormatElement(writer, BAD_CAST "tca_kr", "%f",
-				photo->settings[id]->tca_kr);
-		if (mask & MASK_TCA_KB)
-			xmlTextWriterWriteFormatElement(writer, BAD_CAST "tca_kb", "%f",
-				photo->settings[id]->tca_kb);
-		if (mask & MASK_VIGNETTING_K2)
-			xmlTextWriterWriteFormatElement(writer, BAD_CAST "vignetting_k2", "%f",
-				photo->settings[id]->vignetting_k2);
-		if (mask & MASK_CURVE && photo->settings[id]->curve_nknots > 0)
-		{
-			xmlTextWriterStartElement(writer, BAD_CAST "curve");
-			xmlTextWriterWriteFormatAttribute(writer, BAD_CAST "num", "%d", photo->settings[id]->curve_nknots);
-			for(i=0;i<photo->settings[id]->curve_nknots;i++)
-				xmlTextWriterWriteFormatElement(writer, BAD_CAST "knot", "%f %f",
-					photo->settings[id]->curve_knots[i*2+0],
-					photo->settings[id]->curve_knots[i*2+1]);
-			xmlTextWriterEndElement(writer);
-		}
+		rs_cache_save_settings(photo->settings[id], mask, writer);
 		xmlTextWriterEndElement(writer);
 	}
 	xmlTextWriterEndDocument(writer);
@@ -153,7 +99,53 @@ rs_cache_save(RS_PHOTO *photo, const RSSettingsMask mask)
 	return;
 }
 
-static guint
+void
+rs_cache_save_settings(RSSettings *rss, const RSSettingsMask mask, xmlTextWriterPtr writer)
+{
+	if (mask & MASK_EXPOSURE)
+		xmlTextWriterWriteFormatElement(writer, BAD_CAST "exposure", "%f", rss->exposure);
+	if (mask & MASK_SATURATION)
+		xmlTextWriterWriteFormatElement(writer, BAD_CAST "saturation", "%f", rss->saturation);
+	if (mask & MASK_HUE)
+		xmlTextWriterWriteFormatElement(writer, BAD_CAST "hue", "%f", rss->hue);
+	if (mask & MASK_CONTRAST)
+		xmlTextWriterWriteFormatElement(writer, BAD_CAST "contrast", "%f", rss->contrast);
+	if (mask & MASK_WARMTH)
+		xmlTextWriterWriteFormatElement(writer, BAD_CAST "warmth", "%f", rss->warmth);
+	if (mask & MASK_TINT)
+		xmlTextWriterWriteFormatElement(writer, BAD_CAST "tint", "%f", rss->tint);
+	if (mask & MASK_SHARPEN)
+		xmlTextWriterWriteFormatElement(writer, BAD_CAST "sharpen", "%f", rss->sharpen);
+	if (mask & MASK_DENOISE_LUMA)
+		xmlTextWriterWriteFormatElement(writer, BAD_CAST "denoise_luma", "%f", rss->denoise_luma);
+	if (mask & MASK_DENOISE_CHROMA)
+		xmlTextWriterWriteFormatElement(writer, BAD_CAST "denoise_chroma", "%f", rss->denoise_chroma);
+	if (mask & MASK_CHANNELMIXER)
+	{
+		xmlTextWriterWriteFormatElement(writer, BAD_CAST "channelmixer_red", "%f", rss->channelmixer_red);
+		xmlTextWriterWriteFormatElement(writer, BAD_CAST "channelmixer_green", "%f", rss->channelmixer_green);
+		xmlTextWriterWriteFormatElement(writer, BAD_CAST "channelmixer_blue", "%f", rss->channelmixer_blue);
+	}
+	if (mask & MASK_TCA_KR)
+		xmlTextWriterWriteFormatElement(writer, BAD_CAST "tca_kr", "%f", rss->tca_kr);
+	if (mask & MASK_TCA_KB)
+		xmlTextWriterWriteFormatElement(writer, BAD_CAST "tca_kb", "%f", rss->tca_kb);
+	if (mask & MASK_VIGNETTING_K2)
+		xmlTextWriterWriteFormatElement(writer, BAD_CAST "vignetting_k2", "%f", rss->vignetting_k2);
+	if (mask & MASK_CURVE && rss->curve_nknots > 0)
+	{
+		gint i;
+		xmlTextWriterStartElement(writer, BAD_CAST "curve");
+		xmlTextWriterWriteFormatAttribute(writer, BAD_CAST "num", "%d", rss->curve_nknots);
+		for(i=0;i<rss->curve_nknots;i++)
+			xmlTextWriterWriteFormatElement(writer, BAD_CAST "knot", "%f %f",
+				rss->curve_knots[i*2+0],
+				rss->curve_knots[i*2+1]);
+		xmlTextWriterEndElement(writer);
+	}
+}
+
+guint
 rs_cache_load_setting(RSSettings *rss, xmlDocPtr doc, xmlNodePtr cur, gint version)
 {
 	RSSettingsMask mask = 0;
