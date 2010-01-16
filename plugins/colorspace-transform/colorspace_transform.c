@@ -50,7 +50,7 @@ enum {
 
 static RSFilterResponse *get_image(RSFilter *filter, const RSFilterRequest *request);
 static RSFilterResponse *get_image8(RSFilter *filter, const RSFilterRequest *request);
-static void convert_colorspace16(RSColorspaceTransform *colorspace_transform, RS_IMAGE16 *input_image, RS_IMAGE16 *output_image, RSColorSpace *input_space, RSColorSpace *output_space);
+static gboolean convert_colorspace16(RSColorspaceTransform *colorspace_transform, RS_IMAGE16 *input_image, RS_IMAGE16 *output_image, RSColorSpace *input_space, RSColorSpace *output_space);
 static void convert_colorspace8(RSColorspaceTransform *colorspace_transform, RS_IMAGE16 *input_image, GdkPixbuf *output_image, RSColorSpace *input_space, RSColorSpace *output_space);
 
 static RSFilterClass *rs_colorspace_transform_parent_class = NULL;
@@ -98,22 +98,29 @@ get_image(RSFilter *filter, const RSFilterRequest *request)
 	RSColorSpace *input_space = rs_filter_param_get_object_with_type(RS_FILTER_PARAM(previous_response), "colorspace", RS_TYPE_COLOR_SPACE);
 	RSColorSpace *output_space = rs_filter_param_get_object_with_type(RS_FILTER_PARAM(request), "colorspace", RS_TYPE_COLOR_SPACE);
 
-	response = rs_filter_response_clone(previous_response);
 
 	printf("\033[33m16 input_space: %s\033[0m\n", (input_space) ? G_OBJECT_TYPE_NAME(input_space) : "none");
 	printf("\033[33m16 output_space: %s\n\033[0m", (output_space) ? G_OBJECT_TYPE_NAME(output_space) : "none");
 	if (input_space && output_space)
 	{
-		g_object_unref(previous_response);
 		output = rs_image16_copy(input, FALSE);
 
-		convert_colorspace16(colorspace_transform, input, output, input_space, output_space);
-
-		rs_filter_response_set_image(response, output);
-		g_object_unref(output);
-		g_object_unref(input);
-
-		return response;
+		if (convert_colorspace16(colorspace_transform, input, output, input_space, output_space))
+		{
+			/* Image was converted */
+			response = rs_filter_response_clone(previous_response);
+			g_object_unref(previous_response);
+			rs_filter_response_set_image(response, output);
+			g_object_unref(output);
+			g_object_unref(input);
+			return response;
+		} else
+		{
+			/* No conversion was needed */
+			g_object_unref(input);
+			g_object_unref(output);
+			return previous_response;
+		}
 	}
 	else
 	{
@@ -247,36 +254,24 @@ transform16_c(gushort* __restrict input, gushort* __restrict output, gint num_pi
 	}
 }
 
-static void
+static gboolean
 convert_colorspace16(RSColorspaceTransform *colorspace_transform, RS_IMAGE16 *input_image, RS_IMAGE16 *output_image, RSColorSpace *input_space, RSColorSpace *output_space)
 {
 	g_assert(RS_IS_IMAGE16(input_image));
-	g_assert(RS_IS_IMAGE16(output_image) || (output_image == NULL));
+	g_assert(RS_IS_IMAGE16(output_image));
 	g_assert(RS_IS_COLOR_SPACE(input_space));
 	g_assert(RS_IS_COLOR_SPACE(output_space));
 
-	/* Do the transformation inplace if needed */
-	if (output_image == NULL)
-		output_image = input_image;
-
-	/* If both input/output images and colorspace are the same, return immediately */
-	if ((input_image == output_image) && (input_space == output_space))
-		return;
+	/* If input/output-image doesn't differ, return no transformation needed */
+	if (input_space == output_space)
+		return FALSE;
 
 	/* A few sanity checks */
 	g_assert(input_image->w == output_image->w);
 	g_assert(input_image->h == output_image->h);
 
-	/* If input/output-image differ, but colorspace is the same, do a simple copy */
-	if (input_space == output_space)
-	{
-		/* FIXME: Do some sanity checking! */
-		/* FIXME: Don't assume images have same pitch! */
-		memcpy(output_image->pixels, input_image->pixels, input_image->rowstride*input_image->h*2);
-	}
-
 	/* If a CMS is needed, do the transformation using LCMS */
-	else if (RS_COLOR_SPACE_REQUIRES_CMS(input_space) || RS_COLOR_SPACE_REQUIRES_CMS(output_space))
+	if (RS_COLOR_SPACE_REQUIRES_CMS(input_space) || RS_COLOR_SPACE_REQUIRES_CMS(output_space))
 	{
 		const RSIccProfile *i, *o;
 
@@ -304,6 +299,7 @@ convert_colorspace16(RSColorspaceTransform *colorspace_transform, RS_IMAGE16 *in
 			input_image->pixelsize,
 			&mat);
 	}
+	return TRUE;
 }
 
 static void
@@ -315,10 +311,8 @@ convert_colorspace8(RSColorspaceTransform *colorspace_transform, RS_IMAGE16 *inp
 	g_assert(RS_IS_COLOR_SPACE(output_space));
 
 	/* A few sanity checks */
-	if (input_image->w != gdk_pixbuf_get_width(output_image))
-		return;
-	if (input_image->h != gdk_pixbuf_get_height(output_image))
-		return;
+	g_assert(input_image->w == gdk_pixbuf_get_width(output_image));
+	g_assert(input_image->h == gdk_pixbuf_get_height(output_image));
 
 	/* If a CMS is needed, do the transformation using LCMS */
 	if (RS_COLOR_SPACE_REQUIRES_CMS(input_space) || RS_COLOR_SPACE_REQUIRES_CMS(output_space))
