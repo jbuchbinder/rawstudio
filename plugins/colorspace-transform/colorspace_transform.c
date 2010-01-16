@@ -183,17 +183,17 @@ transform8_c(RS_IMAGE16 *input, GdkPixbuf *output, RS_MATRIX3 *matrix, guchar *t
 				( i[R] * mati.coeff[0][0]
 				+ i[G] * mati.coeff[0][1]
 				+ i[B] * mati.coeff[0][2]
-				+ 128 ) >> 8;
+				+ MATRIX_RESOLUTION_ROUNDER ) >> MATRIX_RESOLUTION;
 			g =
 				( i[R] * mati.coeff[1][0]
 				+ i[G] * mati.coeff[1][1]
 				+ i[B] * mati.coeff[1][2]
-				+ 128 ) >> 8;
+				+ MATRIX_RESOLUTION_ROUNDER ) >> MATRIX_RESOLUTION;
 			b =
 				( i[R] * mati.coeff[2][0]
 				+ i[G] * mati.coeff[2][1]
 				+ i[B] * mati.coeff[2][2]
-				+ 128 ) >> 8;
+				+ MATRIX_RESOLUTION_ROUNDER ) >> MATRIX_RESOLUTION;
 
 			r = CLAMP(r, 0, 65535);
 			g = CLAMP(g, 0, 65535);
@@ -209,7 +209,7 @@ transform8_c(RS_IMAGE16 *input, GdkPixbuf *output, RS_MATRIX3 *matrix, guchar *t
 }
 
 static void
-transform16_c(gushort *input, gushort *output, gint num_pixels, const gint pixelsize, RS_MATRIX3 *matrix)
+transform16_c(gushort* __restrict input, gushort* __restrict output, gint num_pixels, const gint pixelsize, RS_MATRIX3 *matrix)
 {
 	gint r,g,b;
 	RS_MATRIX3Int mati;
@@ -222,17 +222,17 @@ transform16_c(gushort *input, gushort *output, gint num_pixels, const gint pixel
 			( input[R] * mati.coeff[0][0]
 			+ input[G] * mati.coeff[0][1]
 			+ input[B] * mati.coeff[0][2]
-			+ 128 ) >> 8;
+			+ MATRIX_RESOLUTION_ROUNDER ) >> MATRIX_RESOLUTION;
 		g =
 			( input[R] * mati.coeff[1][0]
 			+ input[G] * mati.coeff[1][1]
 			+ input[B] * mati.coeff[1][2]
-			+ 128 ) >> 8;
+			+ MATRIX_RESOLUTION_ROUNDER ) >> MATRIX_RESOLUTION;
 		b =
 			( input[R] * mati.coeff[2][0]
 			+ input[G] * mati.coeff[2][1]
 			+ input[B] * mati.coeff[2][2]
-			+ 128 ) >> 8;
+			+ MATRIX_RESOLUTION_ROUNDER ) >> MATRIX_RESOLUTION;
 
 		r = CLAMP(r, 0, 65535);
 		g = CLAMP(g, 0, 65535);
