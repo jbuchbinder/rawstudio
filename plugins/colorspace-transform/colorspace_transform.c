@@ -99,8 +99,6 @@ get_image(RSFilter *filter, const RSFilterRequest *request)
 	RSColorSpace *output_space = rs_filter_param_get_object_with_type(RS_FILTER_PARAM(request), "colorspace", RS_TYPE_COLOR_SPACE);
 
 
-	printf("\033[33m16 input_space: %s\033[0m\n", (input_space) ? G_OBJECT_TYPE_NAME(input_space) : "none");
-	printf("\033[33m16 output_space: %s\n\033[0m", (output_space) ? G_OBJECT_TYPE_NAME(output_space) : "none");
 	if (input_space && output_space)
 	{
 		output = rs_image16_copy(input, FALSE);
@@ -108,6 +106,8 @@ get_image(RSFilter *filter, const RSFilterRequest *request)
 		if (convert_colorspace16(colorspace_transform, input, output, input_space, output_space))
 		{
 			/* Image was converted */
+			printf("\033[33m16 input_space: %s\033[0m\n", (input_space) ? G_OBJECT_TYPE_NAME(input_space) : "none");
+			printf("\033[33m16 output_space: %s\n\033[0m", (output_space) ? G_OBJECT_TYPE_NAME(output_space) : "none");
 			response = rs_filter_response_clone(previous_response);
 			g_object_unref(previous_response);
 			rs_filter_response_set_image(response, output);
@@ -124,7 +124,6 @@ get_image(RSFilter *filter, const RSFilterRequest *request)
 	}
 	else
 	{
-		g_debug("No conversion done");
 		return previous_response;
 	}
 
@@ -352,7 +351,7 @@ convert_colorspace8(RSColorspaceTransform *colorspace_transform, RS_IMAGE16 *inp
 			nd = rs_1d_function_evaluate(output_gamma, nd);
 
 			/* 8 bit output */
-			gint res = (gint) (nd*255.0);
+			gint res = (gint) (nd*255.0 + 0.5f);
 			_CLAMP255(res);
 			table8[i] = res;
 		}
