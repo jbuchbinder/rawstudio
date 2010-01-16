@@ -276,6 +276,7 @@ load_db(RSCameraDb *camera_db)
 	xmlNodePtr cur;
 	xmlNodePtr entry = NULL;
 	xmlChar *val;
+	RSDcpFactory *dcp_factory = rs_dcp_factory_new_default();
 
 	doc = xmlParseFile(camera_db->path);
 	if (!doc)
@@ -302,6 +303,8 @@ load_db(RSCameraDb *camera_db)
 						gtk_list_store_set(camera_db->cameras, &iter, COLUMN_MAKE, val, -1);
 					else if ((!xmlStrcmp(entry->name, BAD_CAST "model")))
 						gtk_list_store_set(camera_db->cameras, &iter, COLUMN_MODEL, val, -1);
+					else if ((!xmlStrcmp(entry->name, BAD_CAST "dcp-profile")))
+						gtk_list_store_set(camera_db->cameras, &iter, COLUMN_PROFILE, rs_dcp_factory_find_from_path(dcp_factory, (gchar *) val), -1);
 					xmlFree(val);
 					
 					if ((!xmlStrcmp(entry->name, BAD_CAST "settings")))
