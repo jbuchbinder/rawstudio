@@ -304,14 +304,14 @@ load_db(RSCameraDb *camera_db)
 						gtk_list_store_set(camera_db->cameras, &iter, COLUMN_MODEL, val, -1);
 					xmlFree(val);
 					
-					if ((!xmlStrcmp(cur->name, BAD_CAST "settings")))
+					if ((!xmlStrcmp(entry->name, BAD_CAST "settings")))
 					{
-						val = xmlGetProp(cur, BAD_CAST "id");
+						val = xmlGetProp(entry, BAD_CAST "id");
 						gint id = atoi((gchar *) val);
 						xmlFree(val);
 						id = CLAMP(id, 0, 2);
 						RSSettings *settings = rs_settings_new();
-						rs_cache_load_setting(settings, doc, cur->xmlChildrenNode, 100); /* FIXME: Correct version somehow! */
+						rs_cache_load_setting(settings, doc, entry->xmlChildrenNode, 100); /* FIXME: Correct version somehow! */
 						gtk_list_store_set(camera_db->cameras, &iter, COLUMN_SETTINGS0 + id, settings, -1);
 						g_object_unref(settings);
 					}
