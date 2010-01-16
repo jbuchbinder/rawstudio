@@ -186,7 +186,7 @@ library_execute_sql(sqlite3 *db, const gchar *sql)
 static void
 library_sqlite_error(sqlite3 *db, gint result)
 {
-	if (result != SQLITE_OK)
+	if (result != SQLITE_OK && result != SQLITE_DONE)
 	{
 		g_warning("sqlite3 warning: %s\n", sqlite3_errmsg(db));
 	}
