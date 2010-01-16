@@ -367,7 +367,8 @@ test()
 				g_object_unref(photo);
 			}
 
-			RSMetadata *metadata = rs_metadata_new_from_file(filename);
+			RSMetadata *metadata = rs_metadata_new();
+			rs_metadata_load_from_file(metadata, filename);
 
 			load_meta_ok = TRUE;
 
