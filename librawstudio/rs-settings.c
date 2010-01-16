@@ -70,13 +70,13 @@ rs_settings_class_init (RSSettingsClass *klass)
 
 	g_object_class_install_property(object_class,
 		PROP_EXPOSURE, g_param_spec_float(
-			"exposure", _("Exposure"), _("Exposure"),
+			"exposure", _("Exposure"), _("Expos"),
 			-3.0, 3.0, 0.0, G_PARAM_READWRITE)
 	);
 	g_object_class_install_property(object_class,
 		PROP_SATURATION, g_param_spec_float(
-			"saturation", _("Saturation"), _("Saturation"),
-			0.0, 3.0, 1.0, G_PARAM_READWRITE)
+			"saturation", _("Saturation"), _("Satur"),
+			0.0, 2.0, 1.0, G_PARAM_READWRITE)
 	);
 	g_object_class_install_property(object_class,
 		PROP_HUE, g_param_spec_float(
@@ -85,47 +85,47 @@ rs_settings_class_init (RSSettingsClass *klass)
 	);
 	g_object_class_install_property(object_class,
 		PROP_CONTRAST, g_param_spec_float(
-			"contrast", _("Contrast"), _("Contrast"),
-			0.0, 3.0, 1.0, G_PARAM_READWRITE)
+			"contrast", _("Contrast"), _("Contr"),
+			0.5, 2.5, 1.0, G_PARAM_READWRITE)
 	);
 	g_object_class_install_property(object_class,
 		PROP_WARMTH, g_param_spec_float(
-			"warmth", _("Warmth"), _("Warmth"),
-			-2.0, 2.0, 0.0, G_PARAM_READWRITE)
+			"warmth", _("Warmth"), _("Temp"),
+			-1.0, 1.5, 0.0, G_PARAM_READWRITE)
 	);
 	g_object_class_install_property(object_class,
 		PROP_TINT, g_param_spec_float(
 			"tint", _("Tint"), _("Tint"),
-			-2.0, 2.0, 0.0, G_PARAM_READWRITE)
+			-1.0, 1.0, 0.0, G_PARAM_READWRITE)
 	);
 	g_object_class_install_property(object_class,
 		PROP_SHARPEN, g_param_spec_float(
-			"sharpen", _("Sharpen"), _("Sharpen"),
+			"sharpen", _("Sharpen"), _("Sharp"),
 			0.0, 100.0, 0.0, G_PARAM_READWRITE)
 	);
 	g_object_class_install_property(object_class,
 		PROP_DENOISE_LUMA, g_param_spec_float( /* FIXME: ? */
-			"denoise_luma", _("Denoise"), _("Denoise"),
+			"denoise_luma", _("Denoise"), _("Denoi"),
 			0.0, 100.0, 0.0, G_PARAM_READWRITE)
 	);
 	g_object_class_install_property(object_class,
 		PROP_DENOISE_CHROMA, g_param_spec_float( /* FIXME: ? */
-			"denoise_chroma", _("Color Denoise"), _("Color denoise"),
+			"denoise_chroma", _("Color Denoise"), _("ColDn"),
 			0.0, 100.0, 0.0, G_PARAM_READWRITE)
 	);
 	g_object_class_install_property(object_class,
 		PROP_TCA_KR, g_param_spec_float( /* FIXME: ? */
-			"tca_kr", _("CA Red"), _("CA Red"),
-			-1, 1, 0.0, G_PARAM_READWRITE)
+			"tca_kr", _("CA Red"), _("CA R"),
+			-0.5, 0.5, 0.0, G_PARAM_READWRITE)
 	);
 	g_object_class_install_property(object_class,
 		PROP_TCA_KB, g_param_spec_float( /* FIXME: ? */
-			"tca_kb", _("CA Blue"), _("CA Blue"),
-			-1, 1, 0.0, G_PARAM_READWRITE)
+			"tca_kb", _("CA Blue"), _("CA B"),
+			-0.5, 0.5, 0.0, G_PARAM_READWRITE)
 	);
 	g_object_class_install_property(object_class,
 		PROP_VIGNETTING_K2, g_param_spec_float( /* FIXME: ? */
-			"vignetting_k2", _("Vignetting"), _("Vignetting"),
+			"vignetting_k2", _("Vignetting"), _("Vign"),
 			-1, 2, 0.0, G_PARAM_READWRITE)
 	);
 	g_object_class_install_property(object_class,
