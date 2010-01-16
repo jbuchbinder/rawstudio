@@ -68,6 +68,7 @@ static gboolean ifd_reader(RAWFILE *rawfile, guint offset, RSMetadata *meta);
 static gboolean thumbnail_reader(const gchar *service, RAWFILE *rawfile, guint offset, guint length, RSMetadata *meta);
 static gboolean thumbnail_store(GdkPixbuf *pixbuf, RSMetadata *meta);
 static GdkPixbuf* raw_thumbnail_reader(const gchar *service, RSMetadata *meta);
+static void generate_lens_identifier(RSMetadata *meta);
 
 typedef enum tiff_field_type
 {
@@ -217,7 +218,7 @@ makernote_canon(RAWFILE *rawfile, guint offset, RSMetadata *meta)
 
 				/* Lens ID */
 				raw_get_short(rawfile, ifd.value_offset+44, &temp);
-				gfloat lens_id = (gfloat) temp;
+				meta->lens_id = (gfloat) temp;
 
 				/* Focalunits */
 				raw_get_short(rawfile, ifd.value_offset+50, &focalunits);
@@ -237,21 +238,6 @@ makernote_canon(RAWFILE *rawfile, guint offset, RSMetadata *meta)
 				/* Min Aperture */
 				raw_get_short(rawfile, ifd.value_offset+54, &temp);
 				meta->lens_min_aperture = (gfloat) exp(CanonEv(temp)*log(2)/2);
-
-				/* Build identifier string */
-				GString *identifier = g_string_new("");
-				if (lens_id > 0)
-					g_string_append_printf(identifier, "ID:%.1f ",lens_id);
-				if (meta->lens_max_focal > 0)
-					g_string_append_printf(identifier, "maxF:%.0f ",meta->lens_max_focal);
-				if (meta->lens_min_focal > 0)
-					g_string_append_printf(identifier, "minF:%.0f ",meta->lens_min_focal);
-				if (meta->lens_max_aperture > 0)
-					g_string_append_printf(identifier, "maxF:%.1f ",meta->lens_max_aperture);
-				if (meta->lens_min_aperture > 0)
-					g_string_append_printf(identifier, "minF:%.0f ",meta->lens_min_aperture);
-				meta->lens_identifier = g_strdup(identifier->str);
-				g_string_free(identifier, TRUE);
 			}
 			break;
 		case 0x0004: /* CanonShotInfo */
@@ -1126,6 +1112,9 @@ exif_reader(RAWFILE *rawfile, guint offset, RSMetadata *meta)
 		}
 	}
 
+	/* Generate lens identifier */
+	generate_lens_identifier(meta);
+
 	return TRUE;
 }
 
@@ -1559,4 +1548,33 @@ rs_plugin_load(RSPlugin *plugin)
 	rs_filetype_register_meta_loader(".erf", "Epson", tif_load_meta, 10);
 
 	rs_filetype_register_meta_loader(".tiff", "Generic TIFF meta loader", tiff_load_meta, 10);
+}
+
+void generate_lens_identifier(RSMetadata *meta)
+{
+	/* Build identifier string */
+	GString *identifier = g_string_new("");
+	if (meta->lens_id > 0)
+		g_string_append_printf(identifier, "ID:%.1f ",meta->lens_id);
+	if (meta->lens_max_focal > 0)
+		g_string_append_printf(identifier, "maxF:%.0f ",meta->lens_max_focal);
+	if (meta->lens_min_focal > 0)
+		g_string_append_printf(identifier, "minF:%.0f ",meta->lens_min_focal);
+	if (meta->lens_max_aperture > 0)
+		g_string_append_printf(identifier, "maxF:%.1f ",meta->lens_max_aperture);
+	if (meta->lens_min_aperture > 0)
+		g_string_append_printf(identifier, "minF:%.0f ",meta->lens_min_aperture);
+	if (strlen(identifier->str) > 0)
+		meta->lens_identifier = g_strdup(identifier->str);
+	else
+	{
+		/* Most likely a hacked compact */
+		if (meta->make_ascii > 0)
+			g_string_append_printf(identifier, "make:%s ",meta->make_ascii);
+		if (meta->model_ascii > 0)
+			g_string_append_printf(identifier, "model:%s ",meta->model_ascii);
+		if (strlen(identifier->str) > 0)
+			meta->lens_identifier = g_strdup(identifier->str);
+	}
+	g_string_free(identifier, TRUE);
 }
