@@ -98,7 +98,7 @@ rs_metadata_init (RSMetadata *metadata)
 	metadata->thumbnail = NULL;
 
 	/* Lens info */
-	metadata->lens_id = -1.0;
+	metadata->lens_id = -1;
 	metadata->lens_min_focal = -1.0;
 	metadata->lens_max_focal = -1.0;
 	metadata->lens_min_aperture = -1.0;
@@ -166,8 +166,8 @@ rs_metadata_cache_save(RSMetadata *metadata, const gchar *filename)
 		if (metadata->focallength > 0)
 			xmlTextWriterWriteFormatElement(writer, BAD_CAST "focallength", "%d", metadata->focallength);
 		if (metadata->lens_id > -1.0)
-			xmlTextWriterWriteFormatElement(writer, BAD_CAST "lens_id", "%f", metadata->lens_id);
-		if (metadata->lens_min_focal > -1.0)
+			xmlTextWriterWriteFormatElement(writer, BAD_CAST "lens_id", "%d", metadata->lens_id);
+		if (metadata->lens_min_focal > -1)
 			xmlTextWriterWriteFormatElement(writer, BAD_CAST "lens_min_focal", "%f", metadata->lens_min_focal);
 		if (metadata->lens_max_focal > -1.0)
 			xmlTextWriterWriteFormatElement(writer, BAD_CAST "lens_max_focal", "%f", metadata->lens_max_focal);

@@ -218,7 +218,7 @@ makernote_canon(RAWFILE *rawfile, guint offset, RSMetadata *meta)
 
 				/* Lens ID */
 				raw_get_short(rawfile, ifd.value_offset+44, &temp);
-				meta->lens_id = (gfloat) temp;
+				meta->lens_id = temp;
 
 				/* Focalunits */
 				raw_get_short(rawfile, ifd.value_offset+50, &focalunits);
@@ -1555,7 +1555,7 @@ void generate_lens_identifier(RSMetadata *meta)
 	/* Build identifier string */
 	GString *identifier = g_string_new("");
 	if (meta->lens_id > 0)
-		g_string_append_printf(identifier, "ID:%.1f ",meta->lens_id);
+		g_string_append_printf(identifier, "ID:%d ",meta->lens_id);
 	if (meta->lens_max_focal > 0)
 		g_string_append_printf(identifier, "maxF:%.0f ",meta->lens_max_focal);
 	if (meta->lens_min_focal > 0)
