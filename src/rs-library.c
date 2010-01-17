@@ -290,11 +290,17 @@ library_create_tables(sqlite3 *db)
 	rc = sqlite3_step(stmt);
 	sqlite3_finalize(stmt);
 
-	/* Set current version */
-	rc = sqlite3_prepare_v2(db, "insert into version (version) values (?1);", -1, &stmt, NULL);
-	rc = sqlite3_bind_int(stmt, 1, LIBRARY_VERSION);
+	rc = sqlite3_prepare_v2(db, "select * from version", -1, &stmt, NULL);
 	rc = sqlite3_step(stmt);
 	sqlite3_finalize(stmt);
+	if (rc != SQLITE_ROW)
+	{
+		/* Set current version */
+		rc = sqlite3_prepare_v2(db, "insert into version (version) values (?1);", -1, &stmt, NULL);
+		rc = sqlite3_bind_int(stmt, 1, LIBRARY_VERSION);
+		rc = sqlite3_step(stmt);
+		sqlite3_finalize(stmt);
+	}
 
 	return SQLITE_OK;
 }
