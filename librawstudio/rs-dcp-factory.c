@@ -1,6 +1,7 @@
 #include "rs-dcp-file.h"
 #include "rs-dcp-factory.h"
 #include "config.h"
+#include "rs-utils.h"
 
 #define DCP_FACTORY_DEFAULT_SEARCH_PATH PACKAGE_DATA_DIR "/" PACKAGE "/profiles/"
 
@@ -66,6 +67,12 @@ rs_dcp_factory_new(const gchar *search_path)
 	return factory;
 }
 
+void
+rs_dcp_factory_append(RSDcpFactory *factory, const gchar *search_path)
+{
+	load_profiles(factory, search_path);
+}
+
 RSDcpFactory *
 rs_dcp_factory_new_default(void)
 {
@@ -76,6 +83,10 @@ rs_dcp_factory_new_default(void)
 	if (!factory)
 	{
 		factory = rs_dcp_factory_new(DCP_FACTORY_DEFAULT_SEARCH_PATH);
+
+		gchar *user_profiles = g_strdup_printf("%s/profiles/", rs_confdir_get());
+		rs_dcp_factory_append(factory, user_profiles);
+		g_free(user_profiles);
 	}
 	g_static_mutex_unlock(&lock);
 
