@@ -157,19 +157,6 @@ library_check_version(sqlite3 *db)
 		switch (version)
 		{
 		case 0:
-			/* Add missing version table */
-			sqlite3_prepare_v2(db, "create table version (version integer)", -1, &stmt, NULL);
-			rc = sqlite3_step(stmt);
-			library_sqlite_error(db, rc);
-			sqlite3_finalize(stmt);
-
-			/* Set current version */
-			rc = sqlite3_prepare_v2(db, "insert into version (version) values (?1);", -1, &stmt, NULL);
-			rc = sqlite3_bind_int(stmt, 1, LIBRARY_VERSION);
-			rc = sqlite3_step(stmt);
-			library_sqlite_error(db, rc);
-			sqlite3_finalize(stmt);
-
 			/* Alter table library - add identifier column */
 			sqlite3_prepare_v2(db, "alter table library add column identifier varchar(32)", -1, &stmt, NULL);
 			rc = sqlite3_step(stmt);
