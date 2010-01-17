@@ -287,6 +287,16 @@ library_create_tables(sqlite3 *db)
 		rc = sqlite3_bind_int(stmt, 1, LIBRARY_VERSION);
 		rc = sqlite3_step(stmt);
 		sqlite3_finalize(stmt);
+
+		rc = sqlite3_prepare_v2(db, "select identifier from library", -1, &stmt, NULL);
+		rc = sqlite3_step(stmt);
+		sqlite3_finalize(stmt);
+
+		/* Check if library.identifier exists */
+		if (rc == SQLITE_MISUSE)
+		{
+			library_set_version(db, 0);
+		}
 	}
 
 	return SQLITE_OK;
