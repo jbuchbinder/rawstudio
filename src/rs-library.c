@@ -36,6 +36,9 @@
  *   photo
  *   tag
  *   autotag
+ *
+ * version
+ *   version
  */
 /*
 #include <glib.h>
@@ -55,6 +58,8 @@
 #include "conf_interface.h"
 #include "config.h"
 #include "gettext.h"
+
+#define LIBRARY_VERSION 0
 
 struct _RSLibrary {
 	GObject parent;
@@ -120,6 +125,71 @@ rs_library_class_init(RSLibraryClass *klass)
 	object_class->finalize = rs_library_finalize;
 }
 
+static gint
+library_set_version(sqlite3 *db, gint version)
+{
+	sqlite3_stmt *stmt;
+	gint rc;
+
+	rc = sqlite3_prepare_v2(db, "update version set version = ?1;", -1, &stmt, NULL);
+	rc = sqlite3_bind_int(stmt, 1, version);
+	rc = sqlite3_step(stmt);
+	library_sqlite_error(db, rc);
+	sqlite3_finalize(stmt);
+
+	return SQLITE_OK;
+}
+
+static void
+library_check_version(sqlite3 *db)
+{
+	sqlite3_stmt *stmt;
+	gint rc, version = 0;
+
+	rc = sqlite3_prepare_v2(db, "SELECT version FROM version", -1, &stmt, NULL);
+	rc = sqlite3_step(stmt);
+	if (rc == SQLITE_ROW)
+		version = sqlite3_column_int(stmt, 0);
+	rc = sqlite3_finalize(stmt);
+
+	while (version < LIBRARY_VERSION)
+	{
+		switch (version)
+		{
+		case 0:
+			/* Add missing version table */
+			sqlite3_prepare_v2(db, "create table version (version integer)", -1, &stmt, NULL);
+			rc = sqlite3_step(stmt);
+			library_sqlite_error(db, rc);
+			sqlite3_finalize(stmt);
+
+			/* Set current version */
+			rc = sqlite3_prepare_v2(db, "insert into version (version) values (?1);", -1, &stmt, NULL);
+			rc = sqlite3_bind_int(stmt, 1, LIBRARY_VERSION);
+			rc = sqlite3_step(stmt);
+			library_sqlite_error(db, rc);
+			sqlite3_finalize(stmt);
+
+			/* Alter table library - add identifier column */
+			sqlite3_prepare_v2(db, "alter table library add column identifier varchar(32)", -1, &stmt, NULL);
+			rc = sqlite3_step(stmt);
+			library_sqlite_error(db, rc);
+			sqlite3_finalize(stmt);
+
+			library_set_version(db, version+1);
+			break;
+
+		default:
+			/* We should never hit this */
+			g_debug("Some error occured in library_check_version() - please notify developers");
+			break;
+		}
+
+		version++;
+		g_debug("Updated library database to version %d", version);
+	}
+}
+
 static void
 rs_library_init(RSLibrary *library)
 {
@@ -152,6 +222,8 @@ rs_library_init(RSLibrary *library)
 
 	rc = library_create_tables(library->db);
 	library_sqlite_error(library->db, rc);
+
+	library_check_version(library->db);
 
 	library->id_lock = g_mutex_new();
 }
@@ -210,6 +282,17 @@ library_create_tables(sqlite3 *db)
 
 	/* Create table (phototags) to bind tags and photos together */
 	sqlite3_prepare_v2(db, "create table phototags (photo integer, tag integer, autotag integer)", -1, &stmt, NULL);
+	rc = sqlite3_step(stmt);
+	sqlite3_finalize(stmt);
+
+	/* Create table (version) to help keeping track of database version */
+	sqlite3_prepare_v2(db, "create table version (version integer)", -1, &stmt, NULL);
+	rc = sqlite3_step(stmt);
+	sqlite3_finalize(stmt);
+
+	/* Set current version */
+	rc = sqlite3_prepare_v2(db, "insert into version (version) values (?1);", -1, &stmt, NULL);
+	rc = sqlite3_bind_int(stmt, 1, LIBRARY_VERSION);
 	rc = sqlite3_step(stmt);
 	sqlite3_finalize(stmt);
 
