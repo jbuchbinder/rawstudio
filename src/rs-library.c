@@ -59,7 +59,7 @@
 #include "config.h"
 #include "gettext.h"
 
-#define LIBRARY_VERSION 0
+#define LIBRARY_VERSION 1
 
 struct _RSLibrary {
 	GObject parent;
