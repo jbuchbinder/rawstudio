@@ -389,12 +389,9 @@ library_add_photo(RSLibrary *library, const gchar *filename)
 	gint rc;
 	sqlite3_stmt *stmt;
 
-	gchar *identifier = (gchar *) rs_file_checksum(filename);
-
 	g_mutex_lock(library->id_lock);
-	sqlite3_prepare_v2(db, "INSERT INTO library (filename,identifier) VALUES (?1,?2);", -1, &stmt, NULL);
+	sqlite3_prepare_v2(db, "INSERT INTO library (filename) VALUES (?1);", -1, &stmt, NULL);
 	rc = sqlite3_bind_text(stmt, 1, filename, strlen(filename), SQLITE_TRANSIENT);
-	rc = sqlite3_bind_text(stmt, 2, identifier, strlen(identifier), SQLITE_TRANSIENT);
 	rc = sqlite3_step(stmt);
 	id = sqlite3_last_insert_rowid(db);
 	g_mutex_unlock(library->id_lock);
