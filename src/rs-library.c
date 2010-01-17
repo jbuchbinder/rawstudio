@@ -143,7 +143,7 @@ library_set_version(sqlite3 *db, gint version)
 static void
 library_check_version(sqlite3 *db)
 {
-	sqlite3_stmt *stmt;
+	sqlite3_stmt *stmt, *stmt_update;
 	gint rc, version = 0;
 
 	rc = sqlite3_prepare_v2(db, "SELECT version FROM version", -1, &stmt, NULL);
@@ -161,6 +161,26 @@ library_check_version(sqlite3 *db)
 			sqlite3_prepare_v2(db, "alter table library add column identifier varchar(32)", -1, &stmt, NULL);
 			rc = sqlite3_step(stmt);
 			library_sqlite_error(db, rc);
+			sqlite3_finalize(stmt);
+
+			/* Run through all photos in library and insert unique identifier in library */
+			gchar *filename, *identifier;
+			sqlite3_prepare_v2(db, "select filename from library", -1, &stmt, NULL);
+			while (sqlite3_step(stmt) == SQLITE_ROW)
+			{
+				filename = (gchar *) sqlite3_column_text(stmt, 0);
+				if (g_file_test(filename, G_FILE_TEST_EXISTS))
+				{
+					identifier = rs_file_checksum(filename);
+					rc = sqlite3_prepare_v2(db, "update library set identifier = ?1 WHERE filename = ?2;", -1, &stmt_update, NULL);
+					rc = sqlite3_bind_text(stmt_update, 1, identifier, strlen(identifier), SQLITE_TRANSIENT);
+					rc = sqlite3_bind_text(stmt_update, 2, filename, strlen(filename), SQLITE_TRANSIENT);
+					rc = sqlite3_step(stmt_update);
+					library_sqlite_error(db, rc);
+					sqlite3_finalize(stmt_update);
+					g_free(identifier);
+				}
+			}
 			sqlite3_finalize(stmt);
 
 			library_set_version(db, version+1);
