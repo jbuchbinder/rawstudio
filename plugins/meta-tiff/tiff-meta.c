@@ -640,6 +640,9 @@ makernote_nikon(RAWFILE *rawfile, guint offset, RSMetadata *meta)
 					raw_strcpy(rawfile, offset, buf97, 324);
 				}
 				break;
+			case 0x0098: /* LensData - LensData0100 | LensData0101 | LensData0201 | LensData0204 | LensDataUnknown */
+				/* FIXME: meta->lens_id = LensIDNumber (encrypted) */
+				break;
 			case 0x001d: /* serial */
 				raw_get_uchar(rawfile, offset++, &char_tmp);
 				while(char_tmp)
