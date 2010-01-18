@@ -573,6 +573,16 @@ makernote_nikon(RAWFILE *rawfile, guint offset, RSMetadata *meta)
 				ifd_reader(rawfile, uint_temp1+base, meta);
 				meta->thumbnail_start += base;
 				break;
+			case 0x0084: /* Lens - rational64u[4] */
+				raw_get_rational(rawfile, offset, &float_temp1);
+				meta->lens_min_focal = float_temp1;
+				raw_get_rational(rawfile, offset+8, &float_temp1);
+				meta->lens_max_focal = float_temp1;
+				raw_get_rational(rawfile, offset+16, &float_temp1);
+				meta->lens_max_aperture = float_temp1;
+				raw_get_rational(rawfile, offset+24, &float_temp1);
+				meta->lens_min_aperture = float_temp1;
+				break;
 			case 0x0097: /* white balance */
 				if (g_str_equal(meta->model_ascii, "NIKON D90")
 					|| g_str_equal(meta->model_ascii, "NIKON D3S")
