@@ -78,7 +78,7 @@ rs_cache_save(RS_PHOTO *photo, const RSSettingsMask mask)
 	RSDcpFile *dcp = rs_photo_get_dcp_profile(photo);
 	if (RS_IS_DCP_FILE(dcp))
 		xmlTextWriterWriteFormatElement(writer, BAD_CAST "dcp-profile", "%s",
-			rs_tiff_get_filename(RS_TIFF(dcp)));
+			rs_tiff_get_filename_nopath(RS_TIFF(dcp)));
 
 	if (photo->crop)
 	{

@@ -370,7 +370,7 @@ save_db(RSCameraDb *camera_db)
 			if (profile)
 			{
 				if (RS_IS_DCP_FILE(profile))
-					xmlTextWriterWriteFormatElement(writer, BAD_CAST "dcp-profile", "%s", rs_tiff_get_filename(RS_TIFF(profile)));
+					xmlTextWriterWriteFormatElement(writer, BAD_CAST "dcp-profile", "%s", rs_tiff_get_filename_nopath(RS_TIFF(profile)));
 				/* FIXME: Add support for ICC profiles */
 			}
 

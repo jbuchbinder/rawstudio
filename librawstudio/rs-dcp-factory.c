@@ -120,7 +120,7 @@ rs_dcp_factory_find_from_path(RSDcpFactory *factory, const gchar *path)
 	{
 		RSDcpFile *dcp = RS_DCP_FILE(node->data);
 
-		if (g_str_equal(path, rs_tiff_get_filename(RS_TIFF(dcp))))
+		if (g_str_equal(path, rs_tiff_get_filename_nopath(RS_TIFF(dcp))))
 			ret = dcp;
 	}
 
