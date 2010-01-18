@@ -1,5 +1,6 @@
 #include <rawstudio.h>
 #include <sys/stat.h>
+#include <string.h>
 #include "rs-tiff.h"
 
 G_DEFINE_TYPE (RSTiff, rs_tiff, G_TYPE_OBJECT)
@@ -159,6 +160,14 @@ rs_tiff_get_filename(RSTiff *tiff)
 	g_assert(RS_IS_TIFF(tiff));
 
 	return tiff->filename;
+}
+
+const gchar *
+rs_tiff_get_filename_nopath(RSTiff *tiff)
+{
+	g_assert(RS_IS_TIFF(tiff));
+
+	return strrchr(tiff->filename,'/') + 1;
 }
 
 RSTiffIfdEntry *

@@ -58,6 +58,9 @@ RSTiff *rs_tiff_new_from_file(const gchar *filename);
 const gchar *
 rs_tiff_get_filename(RSTiff *tiff);
 
+const gchar *
+rs_tiff_get_filename_nopath(RSTiff *tiff);
+
 RSTiffIfdEntry *
 rs_tiff_get_ifd_entry(RSTiff *tiff, guint ifd_num, gushort tag);
 
