@@ -142,6 +142,17 @@ raw_get_uchar(RAWFILE *rawfile, guint pos, guchar *target)
 }
 
 gboolean
+raw_get_rational(RAWFILE *rawfile, guint pos, gfloat *target)
+{
+	guint counter, divisor;
+	raw_get_uint(rawfile, pos, &counter);
+	raw_get_uint(rawfile, pos+4, &divisor);
+	*target = (gfloat) counter / (gfloat) divisor;
+
+	return(TRUE);
+}
+
+gboolean
 raw_strcmp(RAWFILE *rawfile, guint pos, const gchar *needle, gint len)
 {
 	if((rawfile->base+pos+len) > rawfile->size)
