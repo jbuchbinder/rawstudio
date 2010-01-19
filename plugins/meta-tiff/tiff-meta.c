@@ -59,6 +59,7 @@ static gboolean makernote_nikon(RAWFILE *rawfile, guint offset, RSMetadata *meta
 static gboolean makernote_olympus(RAWFILE *rawfile, guint base, guint offset, RSMetadata *meta);
 static gboolean makernote_olympus_camerasettings(RAWFILE *rawfile, guint base, guint offset, RSMetadata *meta);
 static gboolean makernote_olympus_imageprocessing(RAWFILE *rawfile, guint base, guint offset, RSMetadata *meta);
+static gboolean makernote_olympus_equipment(RAWFILE *rawfile, guint base, guint offset, RSMetadata *meta);
 static gboolean makernote_panasonic(RAWFILE *rawfile, guint offset, RSMetadata *meta);
 static gboolean makernote_pentax(RAWFILE *rawfile, guint offset, RSMetadata *meta);
 static void sony_decrypt(SonyMeta *sony, guint *data, gint len);
@@ -798,6 +799,47 @@ makernote_olympus_imageprocessing(RAWFILE *rawfile, guint base, guint offset, RS
 }
 
 static gboolean
+makernote_olympus_equipment(RAWFILE *rawfile, guint base, guint offset, RSMetadata *meta)
+{
+	gushort number_of_entries;
+	struct IFD ifd;
+	gushort ushort_temp1;
+	gchar *str = NULL;
+
+	if(!raw_get_ushort(rawfile, offset, &number_of_entries))
+		return FALSE;
+
+	if (number_of_entries>5000)
+		return FALSE;
+
+	offset += 2;
+
+	while(number_of_entries--)
+	{
+		read_ifd(rawfile, offset, &ifd);
+		offset += 12;
+
+		switch(ifd.tag)
+		{
+			case 0x0202: /* LensSerialNumber */
+				/* FIXME: odd data at this address? */
+				str = raw_strdup(rawfile, offset, 32);
+				break;
+			case 0x0207: /* MinFocalLength */
+				raw_get_ushort(rawfile, offset-4, &ushort_temp1);
+				meta->lens_min_focal = ushort_temp1;
+				break;
+			case 0x0208: /* MaxFocalLength */
+				raw_get_ushort(rawfile, offset-4, &ushort_temp1);
+				meta->lens_max_focal = ushort_temp1;
+				break;
+		}
+	}
+	return TRUE;
+}
+
+
+static gboolean
 makernote_olympus(RAWFILE *rawfile, guint base, guint offset, RSMetadata *meta)
 {
 	gushort number_of_entries;
@@ -845,6 +887,10 @@ makernote_olympus(RAWFILE *rawfile, guint base, guint offset, RSMetadata *meta)
 			case 0x1018: /* Blue multiplier on many Olympus's (E-10, E-300, E-330, E-400, E-500) */
 				raw_get_ushort(rawfile, offset, &ushort_temp1);
 				meta->cam_mul[2] = (gdouble) ushort_temp1 / 256.0;
+				break;
+			case 0x2010: /* Equipment2 */
+				raw_get_uint(rawfile, offset, &uint_temp1);
+				makernote_olympus_equipment(rawfile, base+uint_temp1, base+uint_temp1, meta);
 				break;
 			case 0x2020: /* Olympus CameraSettings Tags */
 				raw_get_uint(rawfile, offset, &uint_temp1);
