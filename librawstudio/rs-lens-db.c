@@ -328,7 +328,7 @@ rs_lens_db_get_from_identifier(RSLensDb *lens_db, const gchar *identifier)
 		g_object_get(lens, "identifier", &rs_identifier, NULL);
 
 		/* If we got a match, raise refcount by 1 and break out of the loop */
-		if (g_str_equal(rs_identifier, identifier))
+		if (rs_identifier && g_str_equal(rs_identifier, identifier))
 		{
 			ret = g_object_ref(lens);
 			break;
