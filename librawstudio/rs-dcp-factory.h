@@ -33,7 +33,7 @@ RSDcpFactory *rs_dcp_factory_new_default(void);
 
 GList *rs_dcp_factory_get_compatible(RSDcpFactory *factory, const gchar *make, const gchar *model);
 
-RSDcpFile *rs_dcp_factory_find_from_path(RSDcpFactory *factory, const gchar *path);
+RSDcpFile *rs_dcp_factory_find_from_id(RSDcpFactory *factory, const gchar *path);
 
 G_END_DECLS
 

@@ -304,3 +304,20 @@ rs_dcp_file_get_looktable(RSDcpFile *dcp_file)
 {
 	return rs_huesat_map_new_from_dcp(RS_TIFF(dcp_file), 0, 0xc725, 0xc726);
 }
+
+gchar* 
+rs_dcp_get_id(RSDcpFile *dcp_file)
+{
+	const gchar* dcp_filename = rs_tiff_get_filename_nopath(RS_TIFF(dcp_file));
+	const gchar* dcp_model = rs_dcp_file_get_model(dcp_file);
+	const gchar* dcp_name = rs_dcp_file_get_name(dcp_file);
+	
+	/* Concat all three elements */
+	gchar *id = g_strconcat(dcp_filename, dcp_model, dcp_name, NULL);
+
+	/* Convert to lower case to eliminate case mismatches */
+	gchar *id_return = g_ascii_strdown(id, -1);
+	g_free(id);
+
+	return id_return;
+}

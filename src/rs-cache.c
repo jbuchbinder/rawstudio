@@ -77,8 +77,12 @@ rs_cache_save(RS_PHOTO *photo, const RSSettingsMask mask)
 
 	RSDcpFile *dcp = rs_photo_get_dcp_profile(photo);
 	if (RS_IS_DCP_FILE(dcp))
+	{
+		gchar* dcp_id = rs_dcp_get_id(RS_DCP_FILE(dcp));
 		xmlTextWriterWriteFormatElement(writer, BAD_CAST "dcp-profile", "%s",
-			rs_tiff_get_filename_nopath(RS_TIFF(dcp)));
+			dcp_id);
+		g_free(dcp_id);
+	}
 
 	if (photo->crop)
 	{
@@ -376,7 +380,7 @@ rs_cache_load(RS_PHOTO *photo)
 		{
 			val = xmlNodeListGetString(doc, cur->xmlChildrenNode, 1);
 			RSDcpFactory *factory = rs_dcp_factory_new_default();
-			RSDcpFile *dcp = rs_dcp_factory_find_from_path(factory, (gchar *) val);
+			RSDcpFile *dcp = rs_dcp_factory_find_from_id(factory, (gchar *) val);
 			if (dcp)
 				rs_photo_set_dcp_profile(photo, dcp);
 			xmlFree(val);

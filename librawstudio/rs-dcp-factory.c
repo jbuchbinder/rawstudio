@@ -111,7 +111,7 @@ rs_dcp_factory_get_compatible(RSDcpFactory *factory, const gchar *make, const gc
 }
 
 RSDcpFile *
-rs_dcp_factory_find_from_path(RSDcpFactory *factory, const gchar *path)
+rs_dcp_factory_find_from_id(RSDcpFactory *factory, const gchar *id)
 {
 	RSDcpFile *ret = NULL;
 	GList *node;
@@ -120,8 +120,16 @@ rs_dcp_factory_find_from_path(RSDcpFactory *factory, const gchar *path)
 	{
 		RSDcpFile *dcp = RS_DCP_FILE(node->data);
 
-		if (g_str_equal(path, rs_tiff_get_filename_nopath(RS_TIFF(dcp))))
+		gchar* dcp_id = rs_dcp_get_id(dcp);
+
+		if (g_str_equal(id, dcp_id))
+		{
+			if (ret)
+				g_warning("WARNING: Duplicate profiles detected in file: %s, for %s, named:%s.\nUnsing last found profile.", rs_tiff_get_filename_nopath(RS_TIFF(dcp)),  rs_dcp_file_get_model(dcp),  rs_dcp_file_get_name(dcp));
 			ret = dcp;
+		}
+
+		g_free(dcp_id);
 	}
 
 	return ret;

@@ -304,7 +304,7 @@ load_db(RSCameraDb *camera_db)
 					else if ((!xmlStrcmp(entry->name, BAD_CAST "model")))
 						gtk_list_store_set(camera_db->cameras, &iter, COLUMN_MODEL, val, -1);
 					else if ((!xmlStrcmp(entry->name, BAD_CAST "dcp-profile")))
-						gtk_list_store_set(camera_db->cameras, &iter, COLUMN_PROFILE, rs_dcp_factory_find_from_path(dcp_factory, (gchar *) val), -1);
+						gtk_list_store_set(camera_db->cameras, &iter, COLUMN_PROFILE, rs_dcp_factory_find_from_id(dcp_factory, (gchar *) val), -1);
 					xmlFree(val);
 					
 					if ((!xmlStrcmp(entry->name, BAD_CAST "settings")))
@@ -370,7 +370,11 @@ save_db(RSCameraDb *camera_db)
 			if (profile)
 			{
 				if (RS_IS_DCP_FILE(profile))
-					xmlTextWriterWriteFormatElement(writer, BAD_CAST "dcp-profile", "%s", rs_tiff_get_filename_nopath(RS_TIFF(profile)));
+				{
+					gchar* dcp_id = rs_dcp_get_id(RS_DCP_FILE(profile));
+					xmlTextWriterWriteFormatElement(writer, BAD_CAST "dcp-profile", "%s", dcp_id);
+					g_free(dcp_id);
+				}
 				/* FIXME: Add support for ICC profiles */
 			}
 
