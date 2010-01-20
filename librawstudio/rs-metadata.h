@@ -82,7 +82,7 @@ struct _RSMetadata {
 	GdkPixbuf *thumbnail;
 
 	/* Lens info */
-	gshort lens_id;
+	guint lens_id;
 	gdouble lens_min_focal;
 	gdouble lens_max_focal;
 	gdouble lens_min_aperture;
