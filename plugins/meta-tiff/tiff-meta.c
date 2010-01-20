@@ -805,6 +805,8 @@ makernote_olympus_equipment(RAWFILE *rawfile, guint base, guint offset, RSMetada
 	struct IFD ifd;
 	gushort ushort_temp1;
 	gchar *str = NULL;
+	guint temp;
+	gint total;
 
 	if(!raw_get_ushort(rawfile, offset, &number_of_entries))
 		return FALSE;
@@ -822,8 +824,18 @@ makernote_olympus_equipment(RAWFILE *rawfile, guint base, guint offset, RSMetada
 		switch(ifd.tag)
 		{
 			case 0x0202: /* LensSerialNumber */
-				/* FIXME: odd data at this address? */
-				str = raw_strdup(rawfile, offset, 32);
+				/* magic spot, but this is the address for serial number in all Olympus files where it's present */
+				raw_get_ushort(rawfile, offset-4, &ushort_temp1);
+				temp = offset+ushort_temp1-212;
+
+				str = raw_strdup(rawfile, temp, 32);
+
+				/* Make a number from the string we just got */
+				gint i = 0;
+				while(str[i])
+					total += str[i++];
+
+				meta->lens_id = total;
 				break;
 			case 0x0205: /* MinApertureAtMinFocal */
 				raw_get_ushort(rawfile, offset-4, &ushort_temp1);
