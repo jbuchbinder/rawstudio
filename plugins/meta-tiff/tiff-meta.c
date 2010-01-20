@@ -825,6 +825,14 @@ makernote_olympus_equipment(RAWFILE *rawfile, guint base, guint offset, RSMetada
 				/* FIXME: odd data at this address? */
 				str = raw_strdup(rawfile, offset, 32);
 				break;
+			case 0x0205: /* MinApertureAtMinFocal */
+				raw_get_ushort(rawfile, offset-4, &ushort_temp1);
+				meta->lens_min_aperture = (gfloat) ushort_temp1/256;
+				break;
+			case 0x0206: /* MaxApertureAtMaxFocal */
+				raw_get_ushort(rawfile, offset-4, &ushort_temp1);
+				meta->lens_max_aperture = (gfloat) ushort_temp1/256;
+				break;
 			case 0x0207: /* MinFocalLength */
 				raw_get_ushort(rawfile, offset-4, &ushort_temp1);
 				meta->lens_min_focal = ushort_temp1;
