@@ -824,11 +824,7 @@ makernote_olympus_equipment(RAWFILE *rawfile, guint base, guint offset, RSMetada
 		switch(ifd.tag)
 		{
 			case 0x0202: /* LensSerialNumber */
-				/* magic spot, but this is the address for serial number in all Olympus files where it's present */
-				raw_get_ushort(rawfile, offset-4, &ushort_temp1);
-				temp = offset+ushort_temp1-212;
-
-				str = raw_strdup(rawfile, temp, 32);
+				str = raw_strdup(rawfile, base + ifd.value_offset, 32);
 
 				/* Make a number from the string we just got */
 				gint i = 0;
@@ -910,7 +906,7 @@ makernote_olympus(RAWFILE *rawfile, guint base, guint offset, RSMetadata *meta)
 				break;
 			case 0x2010: /* Equipment2 */
 				raw_get_uint(rawfile, offset, &uint_temp1);
-				makernote_olympus_equipment(rawfile, base+uint_temp1, base+uint_temp1, meta);
+				makernote_olympus_equipment(rawfile, base, base+uint_temp1, meta);
 				break;
 			case 0x2020: /* Olympus CameraSettings Tags */
 				raw_get_uint(rawfile, offset, &uint_temp1);
