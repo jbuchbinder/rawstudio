@@ -835,11 +835,11 @@ makernote_olympus_equipment(RAWFILE *rawfile, guint base, guint offset, RSMetada
 				break;
 			case 0x0205: /* MinApertureAtMinFocal */
 				raw_get_ushort(rawfile, offset-4, &ushort_temp1);
-				meta->lens_min_aperture = (gfloat) sqrt(2)*(ushort_temp1/256);
+				meta->lens_min_aperture = (gfloat) pow(sqrt(2),(ushort_temp1/256));
 				break;
 			case 0x0206: /* MaxApertureAtMaxFocal */
 				raw_get_ushort(rawfile, offset-4, &ushort_temp1);
-				meta->lens_max_aperture = (gfloat) sqrt(2)*(ushort_temp1/256);
+				meta->lens_max_aperture = (gfloat) pow(sqrt(2),(ushort_temp1/256));
 				break;
 			case 0x0207: /* MinFocalLength */
 				raw_get_ushort(rawfile, offset-4, &ushort_temp1);
