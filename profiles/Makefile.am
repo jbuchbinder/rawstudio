@@ -243,3 +243,5 @@ rawstudio_DATA = generic_camera_profile.icc\
 	SONY_DSLR-A850-simple.dcp\
 	SONY_DSLR-A900-simple.dcp\
 	SONY_DSLR-A5-simple.dcp
+
+EXTRA_DIST = $(rawstudio_DATA)
