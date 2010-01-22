@@ -18,6 +18,8 @@ libdir = $(datadir)/rawstudio/plugins/
 
 resample_la_LIBADD = @PACKAGE_LIBS@ resample-sse2.lo
 resample_la_LDFLAGS = -module -avoid-version
+EXTRA_DIST = resample-sse2.c
+
 resample.lo: resample.c
 	$(LTCOMPILE) -DEXIT_CODE=0 -c resample.c
 
