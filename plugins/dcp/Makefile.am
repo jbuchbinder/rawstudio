@@ -14,6 +14,7 @@ libdir = $(datadir)/rawstudio/plugins/
 
 dcp_la_LIBADD = @PACKAGE_LIBS@ adobe-camera-raw-tone.lo dcp-sse2.lo dcp-sse4.lo
 dcp_la_LDFLAGS = -module -avoid-version
+EXTRA_DIST = dcp.h dcp-sse2.c dcp-sse4.c adobe-camera-raw-tone.c adobe-camera-raw-tone.h
 
 adobe-camera-raw-tone.lo: adobe-camera-raw-tone.c adobe-camera-raw-tone.h
 	$(LTCOMPILE) -c adobe-camera-raw-tone.c
