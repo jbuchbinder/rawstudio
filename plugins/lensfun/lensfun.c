@@ -539,8 +539,8 @@ get_image(RSFilter *filter, const RSFilterRequest *request)
 			vignetting.Focal = lensfun->focal;
 			vignetting.Aperture = lensfun->aperture;
 			vignetting.Terms[0] = -lensfun->vignetting_k1 * 0.5;
-			vignetting.Terms[1] = -lensfun->vignetting_k2 * 0.125;
-			vignetting.Terms[2] = lensfun->vignetting_k3 * 0.03;
+			vignetting.Terms[1] = -lensfun->vignetting_k2 * 0.05;
+			vignetting.Terms[2] = -lensfun->vignetting_k3 * 0.015;
 			lf_lens_add_calib_vignetting((lfLens *) lensfun->selected_lens, &vignetting);
 		} else
 		{
