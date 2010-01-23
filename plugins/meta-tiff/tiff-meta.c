@@ -22,6 +22,7 @@
 #include <math.h>
 #include <arpa/inet.h> /* sony_decrypt(): htonl() */
 #include <string.h> /* memcpy() */
+#include <stdlib.h>
 
 /* It is required having some arbitrary maximum exposure time to prevent borked
  * shutter speed values being interpreted from the tiff.
@@ -492,7 +493,8 @@ makernote_nikon(RAWFILE *rawfile, guint offset, RSMetadata *meta)
 	gint key = 0;
 	guint ver97 = 0;
 	guchar buf97[324], ci, cj, ck;
-	guchar buf98[31] = "";
+	guchar buf98[33] = "";
+	gushort lensdata = 0;
 	gboolean magic; /* Nikon's makernote type */
 
 	if (raw_strcmp(rawfile, offset, "Nikon", 5))
@@ -645,7 +647,14 @@ makernote_nikon(RAWFILE *rawfile, guint offset, RSMetadata *meta)
 				break;
 			case 0x0098: /* LensData - LensData0100 | LensData0101 | LensData0201 | LensData0204 | LensDataUnknown */
 				/* Will be used in 0x00a7 */
-				raw_strcpy(rawfile, offset, &buf98, 31);
+				raw_strcpy(rawfile, offset, &buf98, 33);
+				gchar *str = raw_strdup(rawfile, offset, 4);
+				lensdata = atoi(str);
+				g_free(str);
+
+				/* Unencrypted LensIDNumber */
+				if (lensdata == 100)
+					meta->lens_id = buf98[0x06];
 				break;
 			case 0x001d: /* serial */
 				raw_get_uchar(rawfile, offset++, &char_tmp);
@@ -659,27 +668,33 @@ makernote_nikon(RAWFILE *rawfile, guint offset, RSMetadata *meta)
 				if (g_str_equal(meta->model_ascii, "NIKON D3000")
 				    || g_str_equal(meta->model_ascii, "NIKON D5000"))
 					break;
+
+				guchar ctmp[4];
+				raw_get_uchar(rawfile, offset++, ctmp);
+				raw_get_uchar(rawfile, offset++, ctmp+1);
+				raw_get_uchar(rawfile, offset++, ctmp+2);
+				raw_get_uchar(rawfile, offset, ctmp+3);
+				key = ctmp[0]^ctmp[1]^ctmp[2]^ctmp[3];
+
+				/* data from 0x0098 */
+				if (strlen((const gchar *) buf98))
+				{
+					ci = xlat[0][serial & 0xff];
+					cj = xlat[1][key];
+					ck = 0x60;
+
+					for (i=4; i < sizeof(buf98); i++)
+						buf98[i] = buf98[i] ^ (cj += ci * ck++);
+
+					/* Finding LensIDNumber - 101 untested */
+					if (lensdata == 101 || lensdata == 201 || lensdata == 203)
+						meta->lens_id = buf98[0x0b];
+					else if (lensdata == 204)
+						meta->lens_id = buf98[0x0c];
+				}
+
 				if (ver97 >> 8 == 2)
 				{
-					guchar ctmp[4];
-					raw_get_uchar(rawfile, offset++, ctmp);
-					raw_get_uchar(rawfile, offset++, ctmp+1);
-					raw_get_uchar(rawfile, offset++, ctmp+2);
-					raw_get_uchar(rawfile, offset, ctmp+3);
-					key = ctmp[0]^ctmp[1]^ctmp[2]^ctmp[3];
-
-					/* data from 0x0098 */
-					if (strlen((const gchar *) buf98))
-					{
-						ci = xlat[0][serial & 0xff];
-						cj = xlat[1][key];
-						ck = 0x60;
-
-						for (i=4; i < sizeof(buf98); i++)
-							buf98[i] = buf98[i] ^ (cj += ci * ck++);
-						meta->lens_id = buf98[0x0b];
-					}
-
 					ci = xlat[0][serial & 0xff];
 					cj = xlat[1][key];
 					ck = 0x60;
