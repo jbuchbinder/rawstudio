@@ -665,10 +665,7 @@ makernote_nikon(RAWFILE *rawfile, guint offset, RSMetadata *meta)
 				}
 				break;
 			case 0x00a7: /* white balance */
-				if (g_str_equal(meta->model_ascii, "NIKON D3000")
-				    || g_str_equal(meta->model_ascii, "NIKON D5000"))
-					break;
-
+			{
 				guchar ctmp[4];
 				raw_get_uchar(rawfile, offset++, ctmp);
 				raw_get_uchar(rawfile, offset++, ctmp+1);
@@ -693,6 +690,11 @@ makernote_nikon(RAWFILE *rawfile, guint offset, RSMetadata *meta)
 						meta->lens_id = buf98[0x0c];
 				}
 
+				/* Don't read WB from D3000 or D5000 */
+				if (g_str_equal(meta->model_ascii, "NIKON D3000")
+				    || g_str_equal(meta->model_ascii, "NIKON D5000"))
+					break;
+
 				if (ver97 >> 8 == 2)
 				{
 					ci = xlat[0][serial & 0xff];
@@ -710,6 +712,7 @@ makernote_nikon(RAWFILE *rawfile, guint offset, RSMetadata *meta)
 					rs_metadata_normalize_wb(meta);
 				}
 				break;
+			}
 			case 0x00aa: /* Nikon Saturation */
 				if (meta->make == MAKE_NIKON)
 				{
