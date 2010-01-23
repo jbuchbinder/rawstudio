@@ -50,7 +50,7 @@ typedef struct {
 
 /* SSE2 Polynomial pow function from Mesa3d (MIT License) */
 
-#define EXP_POLY_DEGREE 3
+#define EXP_POLY_DEGREE 2
 
 #define POLY0(x, c0) _mm_set1_ps(c0)
 #define POLY1(x, c0, c1) _mm_add_ps(_mm_mul_ps(POLY0(x, c1), x), _mm_set1_ps(c0))
@@ -94,7 +94,7 @@ exp2f4(__m128 x)
 }
 
 
-#define LOG_POLY_DEGREE 5
+#define LOG_POLY_DEGREE 4
 
 static inline __m128 
 log2f4(__m128 x)
