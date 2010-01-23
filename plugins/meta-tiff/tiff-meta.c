@@ -489,8 +489,10 @@ makernote_nikon(RAWFILE *rawfile, guint offset, RSMetadata *meta)
 	guint base;
 	guint save;
 	gint serial = 0;
+	gint key = 0;
 	guint ver97 = 0;
 	guchar buf97[324], ci, cj, ck;
+	guchar buf98[31] = "";
 	gboolean magic; /* Nikon's makernote type */
 
 	if (raw_strcmp(rawfile, offset, "Nikon", 5))
@@ -642,7 +644,8 @@ makernote_nikon(RAWFILE *rawfile, guint offset, RSMetadata *meta)
 				}
 				break;
 			case 0x0098: /* LensData - LensData0100 | LensData0101 | LensData0201 | LensData0204 | LensDataUnknown */
-				/* FIXME: meta->lens_id = LensIDNumber (encrypted) */
+				/* Will be used in 0x00a7 */
+				raw_strcpy(rawfile, offset, &buf98, 31);
 				break;
 			case 0x001d: /* serial */
 				raw_get_uchar(rawfile, offset++, &char_tmp);
@@ -663,8 +666,22 @@ makernote_nikon(RAWFILE *rawfile, guint offset, RSMetadata *meta)
 					raw_get_uchar(rawfile, offset++, ctmp+1);
 					raw_get_uchar(rawfile, offset++, ctmp+2);
 					raw_get_uchar(rawfile, offset, ctmp+3);
+					key = ctmp[0]^ctmp[1]^ctmp[2]^ctmp[3];
+
+					/* data from 0x0098 */
+					if (strlen((const gchar *) buf98))
+					{
+						ci = xlat[0][serial & 0xff];
+						cj = xlat[1][key];
+						ck = 0x60;
+
+						for (i=4; i < sizeof(buf98); i++)
+							buf98[i] = buf98[i] ^ (cj += ci * ck++);
+						meta->lens_id = buf98[0x0b];
+					}
+
 					ci = xlat[0][serial & 0xff];
-					cj = xlat[1][ctmp[0]^ctmp[1]^ctmp[2]^ctmp[3]];
+					cj = xlat[1][key];
 					ck = 0x60;
 					for (i=0; i < 324; i++)
 						buf97[i] ^= (cj += ci * ck++);
