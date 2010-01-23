@@ -126,7 +126,7 @@ rs_settings_class_init (RSSettingsClass *klass)
 	g_object_class_install_property(object_class,
 		PROP_VIGNETTING_K2, g_param_spec_float( /* FIXME: ? */
 			"vignetting_k2", _("Vignetting"), _("Vign"),
-			-1, 2, 0.0, G_PARAM_READWRITE)
+			-1.5, 1.5, 0.0, G_PARAM_READWRITE)
 	);
 	g_object_class_install_property(object_class,
 		PROP_CHANNELMIXER_RED, g_param_spec_float( /* FIXME: ? */
