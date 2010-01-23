@@ -684,7 +684,7 @@ makernote_nikon(RAWFILE *rawfile, guint offset, RSMetadata *meta)
 						buf98[i] = buf98[i] ^ (cj += ci * ck++);
 
 					/* Finding LensIDNumber - 101 untested */
-					if (lensdata == 101 || lensdata == 201 || lensdata == 203)
+					if (lensdata == 101 || lensdata == 201 || lensdata == 202 || lensdata == 203)
 						meta->lens_id = buf98[0x0b];
 					else if (lensdata == 204)
 						meta->lens_id = buf98[0x0c];
