@@ -19,15 +19,15 @@ libdir = $(datadir)/rawstudio/plugins/
 
 colorspace_transform_la_LIBADD = @PACKAGE_LIBS@ colorspace_transform_sse2.lo rs-cmm.lo
 colorspace_transform_la_LDFLAGS = -module -avoid-version
-EXTRA_DIST = rs-cmm.c rs-cmm.h colorspace_transform_sse2.c
+EXTRA_DIST = rs-cmm.c rs-cmm.h colorspace_transform_sse2.c colorspace_transform.h
 
-colorspace_transform.lo: colorspace_transform.c
+colorspace_transform.lo: colorspace_transform.c colorspace_transform.h
 	$(LTCOMPILE) -DEXIT_CODE=0 -c $(top_srcdir)/plugins/colorspace-transform/colorspace_transform.c
 
 rs-cmm.lo: rs-cmm.c rs-cmm.h
 	$(LTCOMPILE) -DEXIT_CODE=2 -c $(top_srcdir)/plugins/colorspace-transform/rs-cmm.c
 
-colorspace_transform_sse2.lo: colorspace_transform_sse2.c
+colorspace_transform_sse2.lo: colorspace_transform_sse2.c colorspace_transform.h
 if CAN_COMPILE_SSE2
 SSE_FLAG=-msse2
 else

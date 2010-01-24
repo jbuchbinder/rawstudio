@@ -22,26 +22,7 @@
 #include <rawstudio.h>
 #include <lcms.h>
 #include "rs-cmm.h"
-
-typedef struct _RSColorspaceTransform RSColorspaceTransform;
-typedef struct _RSColorspaceTransformClass RSColorspaceTransformClass;
-
-typedef struct {
-	RSColorspaceTransform *cst;
-	GThread *threadid;
-	gint start_x;
-	gint start_y;
-	gint end_x;
-	gint end_y;
-	RS_IMAGE16 *input;
-	void *output;
-	RSColorSpace *input_space;
-	RSColorSpace *output_space;
-	RS_MATRIX3 *matrix;
-	gboolean gamma_correct;
-	guchar* table8;
-	gfloat output_gamma;
-} ThreadInfo;
+#include "colorspace_transform.h"
 
 #if defined(__SSE2__)
 

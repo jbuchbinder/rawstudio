@@ -22,31 +22,8 @@
 #include <rawstudio.h>
 #include <lcms.h>
 #include "rs-cmm.h"
+#include "colorspace_transform.h"
 
-#define RS_TYPE_COLORSPACE_TRANSFORM (rs_colorspace_transform_type)
-#define RS_COLORSPACE_TRANSFORM(obj) (G_TYPE_CHECK_INSTANCE_CAST ((obj), RS_TYPE_COLORSPACE_TRANSFORM, RSColorspaceTransform))
-#define RS_COLORSPACE_TRANSFORM_CLASS(klass) (G_TYPE_CHECK_CLASS_CAST ((klass), RS_TYPE_COLORSPACE_TRANSFORM, RSColorspaceTransformClass))
-#define RS_IS_COLORSPACE_TRANSFORM(obj) (G_TYPE_CHECK_INSTANCE_TYPE ((obj), RS_TYPE_COLORSPACE_TRANSFORM))
-
-typedef struct _RSColorspaceTransform RSColorspaceTransform;
-typedef struct _RSColorspaceTransformClass RSColorspaceTransformClass;
-
-typedef struct {
-	RSColorspaceTransform *cst;
-	GThread *threadid;
-	gint start_x;
-	gint start_y;
-	gint end_x;
-	gint end_y;
-	RS_IMAGE16 *input;
-	void *output;
-	RSColorSpace *input_space;
-	RSColorSpace *output_space;
-	RS_MATRIX3 *matrix;
-	gboolean gamma_correct;
-	guchar* table8;
-	gfloat output_gamma;
-} ThreadInfo;
 
 struct _RSColorspaceTransform {
 	RSFilter parent;
