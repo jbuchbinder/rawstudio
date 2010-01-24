@@ -61,7 +61,7 @@ static gboolean makernote_olympus(RAWFILE *rawfile, guint base, guint offset, RS
 static gboolean makernote_olympus_camerasettings(RAWFILE *rawfile, guint base, guint offset, RSMetadata *meta);
 static gboolean makernote_olympus_imageprocessing(RAWFILE *rawfile, guint base, guint offset, RSMetadata *meta);
 static gboolean makernote_olympus_equipment(RAWFILE *rawfile, guint base, guint offset, RSMetadata *meta);
-static gboolean makernote_panasonic(RAWFILE *rawfile, guint offset, RSMetadata *meta);
+static gboolean ifd_panasonic(RAWFILE *rawfile, guint offset, RSMetadata *meta);
 static gboolean makernote_pentax(RAWFILE *rawfile, guint offset, RSMetadata *meta);
 static gboolean makernote_sony(RAWFILE *rawfile, guint offset, RSMetadata *meta);
 static void sony_decrypt(SonyMeta *sony, guint *data, gint len);
@@ -958,7 +958,7 @@ makernote_olympus(RAWFILE *rawfile, guint base, guint offset, RSMetadata *meta)
 }
 
 static gboolean
-makernote_panasonic(RAWFILE *rawfile, guint offset, RSMetadata *meta)
+ifd_panasonic(RAWFILE *rawfile, guint offset, RSMetadata *meta)
 {
 	gushort number_of_entries;
 	struct IFD ifd;
@@ -1457,7 +1457,7 @@ tiff_load_meta(const gchar *service, RAWFILE *rawfile, guint offset, RSMetadata 
 		if (meta->make == MAKE_KODAK && g_str_equal(meta->model_ascii, "DCS Pro 14N"))
 			exif_reader(rawfile, offset, meta);
 		if (meta->make == MAKE_PANASONIC)
-			makernote_panasonic(rawfile, offset, meta);
+			ifd_panasonic(rawfile, offset, meta);
 
 		if (offset == next) break; /* avoid infinite loops */
 		offset = next;
