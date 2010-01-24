@@ -63,6 +63,7 @@ static gboolean makernote_olympus_imageprocessing(RAWFILE *rawfile, guint base, 
 static gboolean makernote_olympus_equipment(RAWFILE *rawfile, guint base, guint offset, RSMetadata *meta);
 static gboolean makernote_panasonic(RAWFILE *rawfile, guint offset, RSMetadata *meta);
 static gboolean makernote_pentax(RAWFILE *rawfile, guint offset, RSMetadata *meta);
+static gboolean makernote_sony(RAWFILE *rawfile, guint offset, RSMetadata *meta);
 static void sony_decrypt(SonyMeta *sony, guint *data, gint len);
 static gboolean private_sony(RAWFILE *rawfile, guint offset, RSMetadata *meta);
 static gboolean exif_reader(RAWFILE *rawfile, guint offset, RSMetadata *meta);
@@ -1045,6 +1046,36 @@ makernote_pentax(RAWFILE *rawfile, guint offset, RSMetadata *meta)
 	return TRUE;
 }
 
+static gboolean
+makernote_sony(RAWFILE *rawfile, guint offset, RSMetadata *meta)
+{
+	gushort number_of_entries = 0;
+	guint uint_temp1;
+
+	struct IFD ifd;
+
+	/* get number of entries */
+	if(!raw_get_ushort(rawfile, offset, &number_of_entries))
+		return FALSE;
+	offset += 2;
+
+	while(number_of_entries--)
+	{
+		read_ifd(rawfile, offset, &ifd);
+		offset += 12;
+		print_ifd(rawfile, &ifd);
+		switch (ifd.tag)
+		{
+		case 0xb027: /* LensType */
+			raw_get_uint(rawfile, offset-4, &uint_temp1);
+			meta->lens_id = uint_temp1;
+			break;
+		}
+	}
+
+	return TRUE;
+}
+
 static void
 sony_decrypt(SonyMeta *sony, guint *data, gint len)
 {
@@ -1213,6 +1244,9 @@ exif_reader(RAWFILE *rawfile, guint offset, RSMetadata *meta)
 							makernote_olympus(rawfile, ifd.value_offset, ifd.value_offset+12, meta);
 						else if (raw_strcmp(rawfile, ifd.value_offset, "OLYMP", 5))
 							makernote_olympus(rawfile, ifd.value_offset+8, ifd.value_offset+8, meta);
+						break;
+					case MAKE_SONY:
+						makernote_sony(rawfile, ifd.value_offset, meta);
 						break;
 					default:
 						break;
