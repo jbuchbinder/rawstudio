@@ -73,10 +73,18 @@ rs_plugin_load(RSPlugin *plugin)
 }
 
 static void
+finalize(GObject *object)
+{
+	RSDenoise *denoise = RS_DENOISE(object);
+	destroyDenoiser(&denoise->info);
+}
+
+static void
 rs_denoise_class_init(RSDenoiseClass *klass)
 {
 	RSFilterClass *filter_class = RS_FILTER_CLASS (klass);
 	GObjectClass *object_class = G_OBJECT_CLASS(klass);
+	object_class->finalize = finalize;
 
 	rs_denoise_parent_class = g_type_class_peek_parent (klass);
 
@@ -93,12 +101,6 @@ rs_denoise_class_init(RSDenoiseClass *klass)
 	filter_class->get_image = get_image;
 }
 
-static void
-finalize(GObject *object)
-{
-	RSDenoise *denoise = RS_DENOISE(object);
-	destroyDenoiser(&denoise->info);
-}
 
 static void
 settings_changed(RSSettings *settings, RSSettingsMask mask, RSDenoise *denoise)
