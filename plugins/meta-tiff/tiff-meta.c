@@ -1063,7 +1063,7 @@ makernote_sony(RAWFILE *rawfile, guint offset, RSMetadata *meta)
 	{
 		read_ifd(rawfile, offset, &ifd);
 		offset += 12;
-		print_ifd(rawfile, &ifd);
+
 		switch (ifd.tag)
 		{
 		case 0xb027: /* LensType */
