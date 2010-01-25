@@ -642,7 +642,7 @@ rs_file_checksum(const gchar *filename)
 
 		close(fd);
 
-		if (bytes_read = length)
+		if (bytes_read == length)
 			checksum = g_compute_checksum_for_data(G_CHECKSUM_MD5, buffer, length);
 	}
 
