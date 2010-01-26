@@ -58,6 +58,8 @@
 #include "conf_interface.h"
 #include "config.h"
 #include "gettext.h"
+#include <libxml/encoding.h>
+#include <libxml/xmlwriter.h>
 
 #define LIBRARY_VERSION 1
 
@@ -89,6 +91,7 @@ static void library_photo_delete_tags(RSLibrary *library, const gint photo_id);
 static void library_tag_delete_photos(RSLibrary *library, const gint tag_id);
 static gboolean library_tag_is_used(RSLibrary *library, const gint tag_id);
 static void library_photo_default_tags(RSLibrary *library, const gint photo_id, RSMetadata *metadata);
+static void library_backup_tags(RSLibrary *library, const gchar *directory);
 
 static GtkWidget *tag_search_entry = NULL;
 
@@ -1059,3 +1062,129 @@ rs_library_add_photo_with_metadata(RSLibrary *library, const gchar *photo, RSMet
 	library_photo_default_tags(library, photo_id, metadata);
 }
 
+static void 
+library_backup_tags(RSLibrary *library, const gchar *directory)
+{
+	sqlite3 *db = library->db;
+	sqlite3_stmt *stmt;
+	gint rc;
+	gchar *filename = NULL, *checksum, *tag, *t_filename;
+	gint autotag;
+
+	const gchar *tagfile = g_build_filename(directory, "/.rawstudio/tags.xml", NULL);
+	xmlTextWriterPtr writer;
+
+	writer = xmlNewTextWriterFilename(tagfile, 0);
+	xmlTextWriterSetIndent(writer, 1);
+	xmlTextWriterStartDocument(writer, NULL, "ISO-8859-1", NULL);
+	xmlTextWriterStartElement(writer, BAD_CAST "rawstudio-tags");
+	xmlTextWriterWriteFormatAttribute(writer, BAD_CAST "version", "%d", LIBRARY_VERSION);
+
+	const gchar *temp = g_strdup_printf("%s/%%", directory);
+	rc = sqlite3_prepare_v2(db, "select library.filename,library.identifier,tags.tagname,phototags.autotag from library,phototags,tags where library.filename like ?1 and phototags.photo = library.id and tags.id = phototags.tag order by library.filename;", -1, &stmt, NULL);
+	rc = sqlite3_bind_text(stmt, 1, temp, strlen(temp), SQLITE_TRANSIENT);
+	library_sqlite_error(db, rc);
+	while (sqlite3_step(stmt) == SQLITE_ROW)
+	{
+		t_filename = g_path_get_basename(g_strdup((gchar *) sqlite3_column_text(stmt, 0)));
+		if (g_strcmp0(t_filename, filename) != 0 || filename == NULL)
+		{
+			if (filename != NULL)
+				xmlTextWriterEndElement(writer);
+			filename = t_filename;
+			xmlTextWriterStartElement(writer, BAD_CAST "file");
+			xmlTextWriterWriteFormatAttribute(writer, BAD_CAST "name", "%s", filename);
+			checksum = g_strdup((gchar *) sqlite3_column_text(stmt, 1));
+			xmlTextWriterWriteFormatAttribute(writer, BAD_CAST "checksum", "%s", checksum);
+		}
+
+		tag = g_strdup((gchar *) sqlite3_column_text(stmt, 2));
+		autotag = (gint) sqlite3_column_int(stmt, 3);
+		xmlTextWriterStartElement(writer, BAD_CAST "tag");
+		xmlTextWriterWriteFormatAttribute(writer, BAD_CAST "name", "%s", tag);
+		xmlTextWriterWriteFormatAttribute(writer, BAD_CAST "auto", "%d", autotag);
+		xmlTextWriterEndElement(writer);
+	}
+	xmlTextWriterEndElement(writer);
+
+	rc = sqlite3_finalize(stmt);
+
+	xmlTextWriterEndDocument(writer);
+	xmlFreeTextWriter(writer);
+	return;
+}
+
+void 
+rs_library_restore_tags(const gchar *directory)
+{
+	RSLibrary *library = rs_library_get_singleton();
+	const gchar *tagfile = g_build_filename(directory, "/.rawstudio/tags.xml", NULL);
+	
+	xmlDocPtr doc;
+	xmlNodePtr cur, cur2;
+	xmlChar *val;
+	gint version;
+
+	gchar *filename, *identifier, *tagname;
+	gint autotag, photoid, tagid;
+
+	doc = xmlParseFile(tagfile);
+	cur = xmlDocGetRootElement(doc);
+
+	if ((!xmlStrcmp(cur->name, BAD_CAST "rawstudio-tags")))
+	{
+		val = xmlGetProp(cur, BAD_CAST "version");
+		if (val)
+			version = atoi((gchar *) val);
+	}
+
+	cur = cur->xmlChildrenNode;
+	while(cur)
+	{
+		if ((!xmlStrcmp(cur->name, BAD_CAST "file")))
+		{
+			val = xmlGetProp(cur, BAD_CAST "name");
+			filename = g_build_filename(directory, val, NULL);
+			xmlFree(val);
+
+			photoid = library_find_photo_id(library, filename);
+			if ( photoid == -1)
+			{
+				photoid = rs_library_add_photo(library, filename);
+
+				val = xmlGetProp(cur, BAD_CAST "checksum");
+				identifier = g_strdup((gchar*) val);
+				xmlFree(val);
+
+				cur2 = cur->xmlChildrenNode;
+				while(cur2)
+				{
+					if ((!xmlStrcmp(cur2->name, BAD_CAST "tag")))
+					{
+						val = xmlGetProp(cur2, BAD_CAST "name");
+						tagname = g_strdup((gchar*) val);
+						xmlFree(val);
+						tagid = library_find_tag_id(library, tagname);
+						if ( tagid == -1)
+							tagid = rs_library_add_tag(library, tagname);
+
+						val = xmlGetProp(cur2, BAD_CAST "auto");
+						autotag = atoi((gchar *) val);
+						xmlFree(val);
+
+						library_photo_add_tag(library, photoid, tagid, (autotag == 1));
+
+						g_free(tagname);
+					}
+					cur2 = cur2->next;
+				}
+				g_free(identifier);
+			}
+			g_free(filename);
+		}
+		cur = cur->next;
+	}
+
+	xmlFreeDoc(doc);
+	return;
+}
