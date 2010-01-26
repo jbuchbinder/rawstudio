@@ -1125,7 +1125,9 @@ rs_library_restore_tags(const gchar *directory)
 {
 	RSLibrary *library = rs_library_get_singleton();
 	const gchar *tagfile = g_build_filename(directory, "/.rawstudio/tags.xml", NULL);
-	
+	if (!g_file_test(tagfile, G_FILE_TEST_EXISTS))
+	    return;
+
 	xmlDocPtr doc;
 	xmlNodePtr cur, cur2;
 	xmlChar *val;
