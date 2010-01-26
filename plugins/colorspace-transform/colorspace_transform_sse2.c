@@ -174,7 +174,7 @@ transform8_srgb_sse2(ThreadInfo* t)
 	if (complete_w & 3)
 	{
 		if ((t->end_x+4) < input->w)
-			complete_w = ((complete_w+3) / 4 *4);
+			complete_w = (((complete_w + 3) / 4) * 4);
 	}
 	
 	for(y=t->start_y ; y<t->end_y ; y++)
@@ -276,31 +276,33 @@ transform8_srgb_sse2(ThreadInfo* t)
 			i += 16;
 			o += 16;
 		}
+
 		/* Process remaining pixels */
 		width = complete_w & 3;
+
 		while(width--)
 		{
 			__m128i zero = _mm_setzero_si128();
-			__m128i in = _mm_loadl_epi64((__m128i*)i); // Load two pixels
+			__m128i in = _mm_loadl_epi64((__m128i*)i); // Load one pixel
 			__m128i p1 =_mm_unpacklo_epi16(in, zero);
 			__m128 p1f  = _mm_cvtepi32_ps(p1);
 
 			/* Splat r,g,b */
-			__m128 r =  _mm_shuffle_ps(p1f, p1f, _MM_SHUFFLE(4,4,4,4));
-			__m128 g =  _mm_shuffle_ps(p1f, p1f, _MM_SHUFFLE(3,3,3,3));
+			__m128 r =  _mm_shuffle_ps(p1f, p1f, _MM_SHUFFLE(0,0,0,0));
+			__m128 g =  _mm_shuffle_ps(p1f, p1f, _MM_SHUFFLE(1,1,1,1));
 			__m128 b =  _mm_shuffle_ps(p1f, p1f, _MM_SHUFFLE(2,2,2,2));
 
 			__m128 r2 = sse_matrix3_mul(mat_ps, r, g, b);
 			__m128 g2 = sse_matrix3_mul(&mat_ps[12], r, g, b);
 			__m128 b2 = sse_matrix3_mul(&mat_ps[24], r, g, b);
 
-			r = _mm_unpacklo_ps(r2, g2);	// GG RR GG RR
-			r = _mm_movelh_ps(r, b2);		// BB BB GG RR
+			r = _mm_unpacklo_ps(r2, g2);	// RR GG RR GG
+			r = _mm_movelh_ps(r, b2);		// RR GG BB BB
 
 			__m128 normalize = _mm_load_ps(_normalize);
 			__m128 max_val = _mm_load_ps(_ones_ps);
 			__m128 min_val = _mm_setzero_ps();
-			r = _mm_min_ps(max_val, _mm_max_ps(min_val, _mm_mul_ps(normalize, r2)));
+			r = _mm_min_ps(max_val, _mm_max_ps(min_val, _mm_mul_ps(normalize, r)));
 			__m128 mul_over = _mm_load_ps(_srb_mul_over);
 			__m128 sub_over = _mm_load_ps(_srb_sub_over);
 			__m128 pow_over = _mm_load_ps(_srb_pow_over);
@@ -360,7 +362,7 @@ transform8_otherrgb_sse2(ThreadInfo* t)
 	if (complete_w & 3)
 	{
 		if ((t->end_x+4) < input->w)
-			complete_w = ((complete_w+3) / 4 *4);
+			complete_w = ((complete_w+3) / 4 * 4);
 	}
 	__m128 gamma = _mm_set1_ps(t->output_gamma);
 
@@ -452,8 +454,8 @@ transform8_otherrgb_sse2(ThreadInfo* t)
 			__m128 p1f  = _mm_cvtepi32_ps(p1);
 
 			/* Splat r,g,b */
-			__m128 r =  _mm_shuffle_ps(p1f, p1f, _MM_SHUFFLE(4,4,4,4));
-			__m128 g =  _mm_shuffle_ps(p1f, p1f, _MM_SHUFFLE(3,3,3,3));
+			__m128 r =  _mm_shuffle_ps(p1f, p1f, _MM_SHUFFLE(0,0,0,0));
+			__m128 g =  _mm_shuffle_ps(p1f, p1f, _MM_SHUFFLE(1,1,1,1));
 			__m128 b =  _mm_shuffle_ps(p1f, p1f, _MM_SHUFFLE(2,2,2,2));
 
 			__m128 r2 = sse_matrix3_mul(mat_ps, r, g, b);
@@ -466,7 +468,7 @@ transform8_otherrgb_sse2(ThreadInfo* t)
 			__m128 normalize = _mm_load_ps(_normalize);
 			__m128 max_val = _mm_load_ps(_ones_ps);
 			__m128 min_val = _mm_setzero_ps();
-			r = _mm_min_ps(max_val, _mm_max_ps(min_val, _mm_mul_ps(normalize, r2)));
+			r = _mm_min_ps(max_val, _mm_max_ps(min_val, _mm_mul_ps(normalize, r)));
 			__m128 upscale = _mm_load_ps(_8bit);
 			r = _mm_mul_ps(upscale, _mm_fastpow_ps(r, gamma));
 			
