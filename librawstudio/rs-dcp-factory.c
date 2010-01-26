@@ -120,7 +120,7 @@ rs_dcp_factory_find_from_id(RSDcpFactory *factory, const gchar *id)
 	{
 		RSDcpFile *dcp = RS_DCP_FILE(node->data);
 
-		gchar* dcp_id = rs_dcp_get_id(dcp);
+		const gchar *dcp_id = rs_dcp_get_id(dcp);
 
 		if (g_str_equal(id, dcp_id))
 		{
@@ -128,8 +128,6 @@ rs_dcp_factory_find_from_id(RSDcpFactory *factory, const gchar *id)
 				g_warning("WARNING: Duplicate profiles detected in file: %s, for %s, named:%s.\nUnsing last found profile.", rs_tiff_get_filename_nopath(RS_TIFF(dcp)),  rs_dcp_file_get_model(dcp),  rs_dcp_file_get_name(dcp));
 			ret = dcp;
 		}
-
-		g_free(dcp_id);
 	}
 
 	return ret;
