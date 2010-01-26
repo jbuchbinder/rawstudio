@@ -1161,8 +1161,7 @@ rs_library_restore_tags(const gchar *directory)
 				photoid = rs_library_add_photo(library, filename);
 
 				val = xmlGetProp(cur, BAD_CAST "checksum");
-				identifier = g_strdup((gchar*) val);
-				xmlFree(val);
+				identifier = (gchar *) val;
 
 				cur2 = cur->xmlChildrenNode;
 				while(cur2)
@@ -1170,8 +1169,7 @@ rs_library_restore_tags(const gchar *directory)
 					if ((!xmlStrcmp(cur2->name, BAD_CAST "tag")))
 					{
 						val = xmlGetProp(cur2, BAD_CAST "name");
-						tagname = g_strdup((gchar*) val);
-						xmlFree(val);
+						tagname =(gchar*) val;
 						tagid = library_find_tag_id(library, tagname);
 						if ( tagid == -1)
 							tagid = rs_library_add_tag(library, tagname);
@@ -1182,11 +1180,11 @@ rs_library_restore_tags(const gchar *directory)
 
 						library_photo_add_tag(library, photoid, tagid, (autotag == 1));
 
-						g_free(tagname);
+						xmlFree(tagname);
 					}
 					cur2 = cur2->next;
 				}
-				g_free(identifier);
+				xmlFree(identifier);
 			}
 			g_free(filename);
 		}
