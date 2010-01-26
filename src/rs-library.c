@@ -1092,7 +1092,7 @@ library_backup_tags(RSLibrary *library, const gchar *directory)
 	library_sqlite_error(db, rc);
 	while (sqlite3_step(stmt) == SQLITE_ROW)
 	{
-		t_filename = g_path_get_basename(g_strdup((gchar *) sqlite3_column_text(stmt, 0)));
+		t_filename = g_path_get_basename((gchar *) sqlite3_column_text(stmt, 0));
 		if (g_strcmp0(t_filename, filename) != 0 || filename == NULL)
 		{
 			if (filename != NULL)
@@ -1100,11 +1100,11 @@ library_backup_tags(RSLibrary *library, const gchar *directory)
 			filename = t_filename;
 			xmlTextWriterStartElement(writer, BAD_CAST "file");
 			xmlTextWriterWriteFormatAttribute(writer, BAD_CAST "name", "%s", filename);
-			checksum = g_strdup((gchar *) sqlite3_column_text(stmt, 1));
+			checksum = (gchar *) sqlite3_column_text(stmt, 1);
 			xmlTextWriterWriteFormatAttribute(writer, BAD_CAST "checksum", "%s", checksum);
 		}
 
-		tag = g_strdup((gchar *) sqlite3_column_text(stmt, 2));
+		tag = (gchar *) sqlite3_column_text(stmt, 2);
 		autotag = (gint) sqlite3_column_int(stmt, 3);
 		xmlTextWriterStartElement(writer, BAD_CAST "tag");
 		xmlTextWriterWriteFormatAttribute(writer, BAD_CAST "name", "%s", tag);
