@@ -1073,6 +1073,8 @@ load_directory(RSStore *store, const gchar *path, RSLibrary *library, const gboo
 	GDir *dir;
 	gint count = 0;
 
+	rs_library_restore_tags(path);
+
 	dir = g_dir_open(path, 0, NULL); /* FIXME: check errors */
 
 	while((dir != NULL) && (name = g_dir_read_name(dir)))
