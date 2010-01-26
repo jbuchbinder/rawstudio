@@ -434,6 +434,8 @@ library_add_photo(RSLibrary *library, const gchar *filename)
 
 	rs_io_idle_read_checksum(filename, -1, got_checksum, GINT_TO_POINTER(id));
 
+	library_backup_tags(library, g_path_get_dirname(photo));
+
 	return id;
 }
 
@@ -598,6 +600,8 @@ rs_library_photo_add_tag(RSLibrary *library, const gchar *filename, const gchar 
 	if (!library_is_photo_tagged(library, photo_id, tag_id))
 		library_photo_add_tag(library, photo_id, tag_id, autotag);
 
+	library_backup_tags(library, g_path_get_dirname(filename));
+
 	return;
 }
 
@@ -617,6 +621,7 @@ rs_library_delete_photo(RSLibrary *library, const gchar *photo)
 
 	library_photo_delete_tags(library, photo_id);
 	library_delete_photo(library, photo_id);
+	library_backup_tags(library, g_path_get_dirname(photo));
 }
 
 gboolean
@@ -1060,6 +1065,7 @@ rs_library_add_photo_with_metadata(RSLibrary *library, const gchar *photo, RSMet
 
 	gint photo_id = library_add_photo(library, photo);
 	library_photo_default_tags(library, photo_id, metadata);
+	library_backup_tags(library, g_path_get_dirname(photo));
 }
 
 static void 
