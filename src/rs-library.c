@@ -434,7 +434,7 @@ library_add_photo(RSLibrary *library, const gchar *filename)
 
 	rs_io_idle_read_checksum(filename, -1, got_checksum, GINT_TO_POINTER(id));
 
-	library_backup_tags(library, g_path_get_dirname(photo));
+	library_backup_tags(library, g_path_get_dirname(filename));
 
 	return id;
 }
