@@ -1,5 +1,6 @@
 #include "rs-dcp-file.h"
 #include "rs-profile-factory.h"
+#include "rs-profile-factory-model.h"
 #include "config.h"
 #include "rs-utils.h"
 
@@ -8,7 +9,7 @@
 struct _RSProfileFactory {
 	GObject parent;
 
-	GList *profiles;
+	GtkListStore *profiles;
 };
 
 G_DEFINE_TYPE(RSProfileFactory, rs_profile_factory, G_TYPE_OBJECT)
@@ -21,7 +22,9 @@ rs_profile_factory_class_init(RSProfileFactoryClass *klass)
 static void
 rs_profile_factory_init(RSProfileFactory *factory)
 {
-	factory->profiles = NULL;
+	/* We use G_TYPE_POINTER to store some strings because they should live
+	 forever - and we avoid unneeded strdup/free */
+	factory->profiles = gtk_list_store_new(NUM_COLUMNS, RS_TYPE_DCP_FILE, G_TYPE_POINTER, G_TYPE_POINTER);
 }
 
 static void
@@ -48,7 +51,14 @@ load_profiles(RSProfileFactory *factory, const gchar *path)
 			const gchar *model = rs_dcp_file_get_model(profile);
 			if (model)
 			{
-				factory->profiles = g_list_prepend(factory->profiles, profile);
+				GtkTreeIter iter;
+
+				gtk_list_store_prepend(factory->profiles, &iter);
+				gtk_list_store_set(factory->profiles, &iter,
+					COLUMN_PROFILE, profile,
+					COLUMN_MODEL, model,
+					COLUMN_ID, rs_dcp_get_id(profile),
+					-1);
 			}
 		}
 
@@ -96,16 +106,22 @@ rs_profile_factory_new_default(void)
 GList *
 rs_profile_factory_get_compatible(RSProfileFactory *factory, const gchar *make, const gchar *model)
 {
+	RSDcpFile *dcp;
+	gchar *dcp_model;
 	GList *matches = NULL;
-	GList *node;
+	GtkTreeIter iter;
+	GtkTreeModel *treemodel = GTK_TREE_MODEL(factory->profiles);
 
-	for (node = g_list_first(factory->profiles) ; node != NULL ; node = g_list_next(node))
-	{
-		RSDcpFile *profile = RS_DCP_FILE(node->data);
-
-		if (model && g_str_equal(model, rs_dcp_file_get_model(profile)))
-			matches = g_list_prepend(matches, profile);
-	}
+	if (gtk_tree_model_get_iter_first(treemodel, &iter))
+		do {
+			gtk_tree_model_get(treemodel, &iter,
+				COLUMN_MODEL, &dcp_model,
+				COLUMN_PROFILE, &dcp,
+				-1);
+			if (model && g_str_equal(model, dcp_model))
+				matches = g_list_prepend(matches, dcp);
+			g_object_unref(dcp);
+		} while (gtk_tree_model_iter_next(treemodel, &iter));
 
 	return matches;
 }
@@ -114,21 +130,30 @@ RSDcpFile *
 rs_profile_factory_find_from_id(RSProfileFactory *factory, const gchar *id)
 {
 	RSDcpFile *ret = NULL;
-	GList *node;
+	RSDcpFile *dcp;
+	gchar *model_id;
+	GtkTreeIter iter;
+	GtkTreeModel *treemodel = GTK_TREE_MODEL(factory->profiles);
 
-	for (node = g_list_first(factory->profiles) ; node != NULL ; node = g_list_next(node))
-	{
-		RSDcpFile *profile = RS_DCP_FILE(node->data);
+	if (gtk_tree_model_get_iter_first(treemodel, &iter))
+		do {
+			gtk_tree_model_get(treemodel, &iter,
+				COLUMN_ID, &model_id,
+				-1);
 
-		const gchar *profile_id = rs_dcp_get_id(profile);
+			if (id && g_str_equal(id, model_id))
+			{
+				gtk_tree_model_get(treemodel, &iter,
+					COLUMN_PROFILE, &dcp,
+					-1);
 
-		if (g_str_equal(id, profile_id))
-		{
-			if (ret)
-				g_warning("WARNING: Duplicate profiles detected in file: %s, for %s, named:%s.\nUnsing last found profile.", rs_tiff_get_filename_nopath(RS_TIFF(profile)),  rs_dcp_file_get_model(profile),  rs_dcp_file_get_name(profile));
-			ret = profile;
-		}
-	}
+				if (ret)
+					g_warning("WARNING: Duplicate profiles detected in file: %s, for %s, named:%s.\nUnsing last found profile.", rs_tiff_get_filename_nopath(RS_TIFF(dcp)),  rs_dcp_file_get_model(dcp),  rs_dcp_file_get_name(dcp));
+
+				ret = dcp;
+				g_object_unref(dcp);
+			}
+		} while (gtk_tree_model_iter_next(treemodel, &iter));
 
 	return ret;
 }
