@@ -24,7 +24,7 @@ rs_profile_factory_init(RSProfileFactory *factory)
 {
 	/* We use G_TYPE_POINTER to store some strings because they should live
 	 forever - and we avoid unneeded strdup/free */
-	factory->profiles = gtk_list_store_new(NUM_COLUMNS, RS_TYPE_DCP_FILE, G_TYPE_POINTER, G_TYPE_POINTER);
+	factory->profiles = gtk_list_store_new(FACTORY_MODEL_NUM_COLUMNS, RS_TYPE_DCP_FILE, G_TYPE_POINTER, G_TYPE_POINTER);
 }
 
 static void
@@ -55,9 +55,9 @@ load_profiles(RSProfileFactory *factory, const gchar *path)
 
 				gtk_list_store_prepend(factory->profiles, &iter);
 				gtk_list_store_set(factory->profiles, &iter,
-					COLUMN_PROFILE, profile,
-					COLUMN_MODEL, model,
-					COLUMN_ID, rs_dcp_get_id(profile),
+					FACTORY_MODEL_COLUMN_PROFILE, profile,
+					FACTORY_MODEL_COLUMN_MODEL, model,
+					FACTORY_MODEL_COLUMN_ID, rs_dcp_get_id(profile),
 					-1);
 			}
 		}
@@ -115,8 +115,8 @@ rs_profile_factory_get_compatible(RSProfileFactory *factory, const gchar *make, 
 	if (gtk_tree_model_get_iter_first(treemodel, &iter))
 		do {
 			gtk_tree_model_get(treemodel, &iter,
-				COLUMN_MODEL, &dcp_model,
-				COLUMN_PROFILE, &dcp,
+				FACTORY_MODEL_COLUMN_MODEL, &dcp_model,
+				FACTORY_MODEL_COLUMN_PROFILE, &dcp,
 				-1);
 			if (model && g_str_equal(model, dcp_model))
 				matches = g_list_prepend(matches, dcp);
@@ -138,13 +138,13 @@ rs_profile_factory_find_from_id(RSProfileFactory *factory, const gchar *id)
 	if (gtk_tree_model_get_iter_first(treemodel, &iter))
 		do {
 			gtk_tree_model_get(treemodel, &iter,
-				COLUMN_ID, &model_id,
+				FACTORY_MODEL_COLUMN_ID, &model_id,
 				-1);
 
 			if (id && g_str_equal(id, model_id))
 			{
 				gtk_tree_model_get(treemodel, &iter,
-					COLUMN_PROFILE, &dcp,
+					FACTORY_MODEL_COLUMN_PROFILE, &dcp,
 					-1);
 
 				if (ret)
