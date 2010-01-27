@@ -165,6 +165,6 @@ gchar * rs_file_checksum(const gchar *photo);
 
 const gchar * rs_human_aperture(gdouble aperture);
 const gchar * rs_human_focal(gdouble min, gdouble max);
-const gchar * rs_normalize_path(const gchar *path);
+gchar * rs_normalize_path(gchar *path);
 
 #endif /* RS_UTILS_H */

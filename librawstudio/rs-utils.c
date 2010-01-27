@@ -675,8 +675,8 @@ rs_human_focal(gdouble min, gdouble max)
 	return ret;
 }
 
-const gchar *
-rs_normalize_path(const gchar *path)
+gchar *
+rs_normalize_path(gchar *path)
 {
 	char temp [PATH_MAX+1];
 	return realpath(path, temp);
