@@ -126,6 +126,34 @@ rs_profile_factory_get_compatible(RSProfileFactory *factory, const gchar *make, 
 	return matches;
 }
 
+static gboolean
+visible_func(GtkTreeModel *model, GtkTreeIter *iter, gpointer data)
+{
+	gboolean visible = FALSE;
+
+	gchar *model_needle = (gchar *) data;
+	gchar *model_haystack;
+
+	gtk_tree_model_get(model, iter, FACTORY_MODEL_COLUMN_MODEL, &model_haystack, -1);
+
+	if (g_strcmp0(model_needle, model_haystack) == 0)
+	    visible = TRUE;
+
+	return visible;
+}
+
+GtkTreeModelFilter *
+rs_dcp_factory_get_compatible_as_model(RSProfileFactory *factory, const gchar *make, const gchar *model)
+{
+	g_assert(RS_IS_PROFILE_FACTORY(factory));
+
+	GtkTreeModelFilter *filter = GTK_TREE_MODEL_FILTER(gtk_tree_model_filter_new(GTK_TREE_MODEL(factory->profiles), NULL));
+
+	gtk_tree_model_filter_set_visible_func(filter, visible_func, g_strdup(model), g_free);
+
+	return filter;
+}
+
 RSDcpFile *
 rs_profile_factory_find_from_id(RSProfileFactory *factory, const gchar *id)
 {

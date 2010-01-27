@@ -16,8 +16,6 @@ G_BEGIN_DECLS
 
 typedef struct {
 	GtkComboBox parent;
-
-	GtkListStore *store;
 } RSProfileSelector;
 
 typedef struct {

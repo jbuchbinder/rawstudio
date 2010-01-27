@@ -33,6 +33,8 @@ RSProfileFactory *rs_profile_factory_new_default(void);
 
 GList *rs_profile_factory_get_compatible(RSProfileFactory *factory, const gchar *make, const gchar *model);
 
+GtkTreeModelFilter *rs_dcp_factory_get_compatible_as_model(RSProfileFactory *factory, const gchar *make, const gchar *model);
+
 RSDcpFile *rs_profile_factory_find_from_id(RSProfileFactory *factory, const gchar *path);
 
 G_END_DECLS
