@@ -658,6 +658,8 @@ rs_human_aperture(gdouble aperture)
 		ret = g_strdup_printf("f/%.1f", aperture);
 	else
 		ret = g_strdup_printf("f/%.0f", aperture);
+
+	return ret;
 }
 
 const gchar *
