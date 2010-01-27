@@ -176,7 +176,7 @@ rs_metadata_cache_save(RSMetadata *metadata, const gchar *filename)
 		if (metadata->lens_max_aperture > -1.0)
 			xmlTextWriterWriteFormatElement(writer, BAD_CAST "lens_max_aperture", "%f", metadata->lens_max_aperture);
 		if (metadata->lens_identifier)
-			xmlTextWriterWriteFormatElement(writer, BAD_CAST "lens_identifier", metadata->lens_identifier);
+			xmlTextWriterWriteFormatElement(writer, BAD_CAST "lens_identifier", "%s", metadata->lens_identifier);
 		xmlTextWriterEndDocument(writer);
 		xmlFreeTextWriter(writer);
 	}
