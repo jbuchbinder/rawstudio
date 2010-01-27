@@ -42,7 +42,7 @@ printvec(const char *str, const RS_VECTOR3 *vec)
 void
 printmat3(RS_MATRIX3 *mat)
 {
-	int x, y;
+	int y;
 
 	printf("M: matrix(\n");
 	for(y=0; y<3; y++)

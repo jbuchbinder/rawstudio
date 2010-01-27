@@ -21,6 +21,9 @@
 #include <string.h> /* memset() */
 #include <math.h> /* pow() */
 
+/* FIXME: Stupid hack */
+extern void rs_cms_do_transform(gpointer transform, gpointer input, gpointer output, guint size);
+
 static void make_tables(RSColorTransform *rct);
 static gboolean select_render(RSColorTransform *rct);
 

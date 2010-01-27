@@ -219,7 +219,6 @@ rs_tiff_ifd_entry_init(RSTiffIfdEntry *self)
 RSTiffIfdEntry *
 rs_tiff_ifd_entry_new(RSTiff *tiff, guint offset)
 {
-	gint i;
 	RSTiffIfdEntry *entry = g_object_new(RS_TYPE_TIFF_IFD_ENTRY, NULL);
 
 	entry->tag = rs_tiff_get_ushort(tiff, offset+0);

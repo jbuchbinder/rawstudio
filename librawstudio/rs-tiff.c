@@ -124,12 +124,6 @@ read_file_header(RSTiff *tiff)
 	return TRUE;
 }
 
-static RSTiff *
-rs_tiff_new(void)
-{
-	return g_object_new(RS_TYPE_TIFF, NULL);
-}
-
 static gboolean
 read_from_file(RSTiff *tiff)
 {
@@ -196,7 +190,7 @@ rs_tiff_get_ascii(RSTiff *tiff, guint ifd_num, gushort tag)
 	if (entry && entry->type && entry->count)
 	{
 		if ((entry->value_offset + entry->count) < tiff->map_length)
-			ret = g_strndup(tiff->map + entry->value_offset , entry->count);
+			ret = g_strndup((gchar *) tiff->map + entry->value_offset , entry->count);
 	}
 
 	return ret;

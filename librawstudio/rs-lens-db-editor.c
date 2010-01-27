@@ -653,7 +653,7 @@ rs_lens_db_editor_update_lensfun()
 	GDir *dir = g_dir_open(target, 0, NULL);
 	const gchar *fn = NULL;
 
-	while (fn = g_dir_read_name (dir))
+	while ((fn = g_dir_read_name (dir)))
 	{
 		GPatternSpec *ps = g_pattern_spec_new ("*.xml");
 		if (g_pattern_match (ps, strlen(fn), fn, NULL))

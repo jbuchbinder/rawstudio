@@ -26,6 +26,7 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <unistd.h>
+#include "rs-io.h"
 #include "rs-io-job-prefetch.h"
 
 typedef struct {

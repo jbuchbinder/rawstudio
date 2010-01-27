@@ -175,7 +175,7 @@ rs_io_idle_cancel_class(gint idle_class)
 	/* Put a marker in the queue, we will rotate the complete queue, so we have to know when we're around */
 	g_async_queue_push_unlocked(queue, marker_job);
 
-	while(current_job = g_async_queue_pop_unlocked(queue))
+	while((current_job = g_async_queue_pop_unlocked(queue)))
 	{
 		/* If current job matches marker, we're done */
 		if (current_job == marker_job)
@@ -212,7 +212,7 @@ rs_io_idle_cancel(RSIoJob *job)
 	/* Put a marker in the queue, we will rotate the complete queue, so we have to know when we're around */
 	g_async_queue_push_unlocked(queue, marker_job);
 
-	while(current_job = g_async_queue_pop_unlocked(queue))
+	while((current_job = g_async_queue_pop_unlocked(queue)))
 	{
 		/* If current job matches marker, we're done */
 		if (current_job == marker_job)

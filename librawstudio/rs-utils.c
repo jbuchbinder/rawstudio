@@ -635,7 +635,7 @@ rs_file_checksum(const gchar *filename)
 			length = 1024;
 		}
 
-		gchar buffer[length];
+		guchar buffer[length];
 
 		lseek(fd, offset, SEEK_SET);
 		gint bytes_read = read(fd, buffer, length);

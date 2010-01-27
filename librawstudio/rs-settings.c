@@ -18,6 +18,7 @@
  */
 
 #include "rs-settings.h"
+#include "rs-utils.h"
 #include <config.h>
 #include "gettext.h"
 #include <string.h> /* memcmp() */
@@ -255,53 +256,54 @@ void
 rs_settings_reset(RSSettings *settings, const RSSettingsMask mask)
 {
 	g_assert(RS_IS_SETTINGS(settings));
+	GObject *object = G_OBJECT(settings);
 
 	rs_settings_commit_start(settings);
 
 	if (mask & MASK_EXPOSURE)
-		rs_object_class_property_reset(settings, "exposure");
+		rs_object_class_property_reset(object, "exposure");
 
 	if (mask & MASK_SATURATION)
-		rs_object_class_property_reset(settings, "saturation");
+		rs_object_class_property_reset(object, "saturation");
 
 	if (mask & MASK_HUE)
-		rs_object_class_property_reset(settings, "hue");
+		rs_object_class_property_reset(object, "hue");
 
 	if (mask & MASK_CONTRAST)
-		rs_object_class_property_reset(settings, "contrast");
+		rs_object_class_property_reset(object, "contrast");
 
 	if (mask & MASK_WARMTH)
-		rs_object_class_property_reset(settings, "warmth");
+		rs_object_class_property_reset(object, "warmth");
 
 	if (mask & MASK_TINT)
-		rs_object_class_property_reset(settings, "tint");
+		rs_object_class_property_reset(object, "tint");
 
 	if (mask & MASK_SHARPEN)
-		rs_object_class_property_reset(settings, "sharpen");
+		rs_object_class_property_reset(object, "sharpen");
 
 	if (mask & MASK_DENOISE_LUMA)
-		rs_object_class_property_reset(settings, "denoise_luma");
+		rs_object_class_property_reset(object, "denoise_luma");
 
 	if (mask & MASK_DENOISE_CHROMA)
-		rs_object_class_property_reset(settings, "denoise_chroma");
+		rs_object_class_property_reset(object, "denoise_chroma");
 
 	if (mask & MASK_TCA_KR)
-		rs_object_class_property_reset(settings, "tca_kr");
+		rs_object_class_property_reset(object, "tca_kr");
 
 	if (mask & MASK_TCA_KB)
-		rs_object_class_property_reset(settings, "tca_kb");
+		rs_object_class_property_reset(object, "tca_kb");
 
 	if (mask & MASK_VIGNETTING_K2)
-		rs_object_class_property_reset(settings, "vignetting_k2");
+		rs_object_class_property_reset(object, "vignetting_k2");
 
 	if (mask & MASK_CHANNELMIXER_RED)
-		rs_object_class_property_reset(settings, "channelmixer_red");
+		rs_object_class_property_reset(object, "channelmixer_red");
 
 	if (mask & MASK_CHANNELMIXER_GREEN)
-		rs_object_class_property_reset(settings, "channelmixer_green");
+		rs_object_class_property_reset(object, "channelmixer_green");
 
 	if (mask & MASK_CHANNELMIXER_BLUE)
-		rs_object_class_property_reset(settings, "channelmixer_blue");
+		rs_object_class_property_reset(object, "channelmixer_blue");
 
 	if (mask && MASK_CURVE)
 	{
