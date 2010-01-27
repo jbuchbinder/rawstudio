@@ -378,8 +378,8 @@ rs_cache_load(RS_PHOTO *photo)
 		else if ((!xmlStrcmp(cur->name, BAD_CAST "dcp-profile")))
 		{
 			val = xmlNodeListGetString(doc, cur->xmlChildrenNode, 1);
-			RSDcpFactory *factory = rs_dcp_factory_new_default();
-			RSDcpFile *dcp = rs_dcp_factory_find_from_id(factory, (gchar *) val);
+			RSProfileFactory *factory = rs_profile_factory_new_default();
+			RSDcpFile *dcp = rs_profile_factory_find_from_id(factory, (gchar *) val);
 			if (dcp)
 				rs_photo_set_dcp_profile(photo, dcp);
 			xmlFree(val);

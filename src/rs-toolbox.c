@@ -947,8 +947,8 @@ rs_toolbox_set_photo(RSToolbox *toolbox, RS_PHOTO *photo)
 	GList *dcp_profiles = NULL;
 	if (photo && photo->metadata)
 	{
-		RSDcpFactory *factory = rs_dcp_factory_new_default();
-		dcp_profiles = rs_dcp_factory_get_compatible(factory, photo->metadata->make_ascii, photo->metadata->model_ascii);
+		RSProfileFactory *factory = rs_profile_factory_new_default();
+		dcp_profiles = rs_profile_factory_get_compatible(factory, photo->metadata->make_ascii, photo->metadata->model_ascii);
 	}
 	rs_profile_selector_set_profiles_steal(toolbox->selector, dcp_profiles);
 	
