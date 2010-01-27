@@ -1,3 +1,5 @@
+#include "config.h"
+#include "gettext.h"
 #include "rs-profile-selector.h"
 #include "rs-icc-profile.h"
 #include "rs-profile-factory-model.h"
@@ -5,8 +7,9 @@
 G_DEFINE_TYPE(RSProfileSelector, rs_profile_selector, GTK_TYPE_COMBO_BOX)
 
 enum {
-    DCP_SELECTED_SIGNAL,
+	DCP_SELECTED_SIGNAL,
 	ICC_SELECTED_SIGNAL,
+	ADD_SELECTED_SIGNAL,
     LAST_SIGNAL
 };
 static guint signals[LAST_SIGNAL] = {0};
@@ -16,12 +19,6 @@ enum {
 	COLUMN_POINTER,
 	COLUMN_TYPE,
 	NUM_COLUMNS
-};
-
-/* We use these for sorting */
-enum {
-	SELECTOR_TYPE_DCP,
-	SELECTOR_TYPE_ICC
 };
 
 static void
@@ -59,6 +56,15 @@ rs_profile_selector_class_init(RSProfileSelectorClass *klass)
         g_cclosure_marshal_VOID__OBJECT,
         G_TYPE_NONE, 1, RS_TYPE_ICC_PROFILE);
 
+	signals[ADD_SELECTED_SIGNAL] = g_signal_new("add-selected",
+		G_TYPE_FROM_CLASS(klass),
+	    G_SIGNAL_RUN_FIRST | G_SIGNAL_ACTION,
+		0,
+		NULL,
+		NULL,
+        g_cclosure_marshal_VOID__VOID,
+        G_TYPE_NONE, 0);
+
 	object_class->dispose = rs_profile_selector_dispose;
 	object_class->finalize = rs_profile_selector_finalize;
 }
@@ -83,12 +89,38 @@ changed(GtkComboBox *combo, gpointer data)
 			COLUMN_POINTER, &profile,
 			COLUMN_TYPE, &type,
 			-1);
+		RSProfileSelector *selector = RS_PROFILE_SELECTOR(combo);
 
-		if (type == SELECTOR_TYPE_DCP)
+		if (type == FACTORY_MODEL_TYPE_DCP)
+		{
 			g_signal_emit(RS_PROFILE_SELECTOR(combo), signals[DCP_SELECTED_SIGNAL], 0, profile);
-		else if (type == SELECTOR_TYPE_ICC)
+			selector->selected = profile;
+		}
+		else if (type == FACTORY_MODEL_TYPE_ICC)
+		{
 			g_signal_emit(RS_PROFILE_SELECTOR(combo), signals[ICC_SELECTED_SIGNAL], 0, profile);
+			selector->selected = profile;
+		}
+		else if (type == FACTORY_MODEL_TYPE_ADD)
+		{
+			/* If the user selects "add profile", we should not stay at this selection */
+			rs_profile_selector_select_profile(selector, selector->selected);
+
+			g_signal_emit(RS_PROFILE_SELECTOR(combo), signals[ADD_SELECTED_SIGNAL], 0, NULL);
+		}
 	}
+}
+
+static gboolean
+separator_func(GtkTreeModel *model, GtkTreeIter *iter, gpointer data)
+{
+	gint type = 0;
+
+	gtk_tree_model_get(model, iter,
+		COLUMN_TYPE, &type,
+		-1);
+
+	return (type == FACTORY_MODEL_TYPE_SEP);
 }
 
 static void
@@ -101,8 +133,10 @@ rs_profile_selector_init(RSProfileSelector *selector)
 	GtkCellRenderer *cell = gtk_cell_renderer_text_new();
 	gtk_cell_layout_pack_start(GTK_CELL_LAYOUT(combo), cell, TRUE );
 	gtk_cell_layout_set_attributes(GTK_CELL_LAYOUT(combo), cell,
-		"text", 0,
+		"markup", 0,
 		NULL);
+
+	gtk_combo_box_set_row_separator_func(combo, separator_func, NULL, NULL);
 }
 
 RSProfileSelector *
@@ -138,42 +172,40 @@ rs_profile_selector_select_profile(RSProfileSelector *selector, gpointer profile
 static void
 modify_func(GtkTreeModel *filter, GtkTreeIter *iter, GValue *value, gint column, gpointer data)
 {
-	GtkTreeModel *model; 
+	GtkTreeModel *model;
 	GtkTreeIter child_iter;
 
+	gint type;
 	gpointer profile;
+	gchar *str;
 
 	g_object_get(filter, "child-model", &model, NULL);
 	gtk_tree_model_filter_convert_iter_to_child_iter(GTK_TREE_MODEL_FILTER(filter), &child_iter, iter);
-	gtk_tree_model_get(model, &child_iter, FACTORY_MODEL_COLUMN_PROFILE, &profile, -1 );
+	gtk_tree_model_get(model, &child_iter,
+		FACTORY_MODEL_COLUMN_TYPE, &type,
+		FACTORY_MODEL_COLUMN_PROFILE, &profile,
+		-1);
 
-	if (RS_IS_DCP_FILE(profile))
+	if (column == COLUMN_TYPE)
+		g_value_set_int(value, type);
+	else if (column == COLUMN_POINTER)
+		g_value_set_pointer(value, profile);
+	else if (column == COLUMN_NAME)
 	{
-		switch (column)
+		switch(type)
 		{
-			case COLUMN_POINTER:
-				g_value_set_pointer(value, profile);
+			case FACTORY_MODEL_TYPE_DCP:
+				str = g_strdup_printf("%s <small><small>(dcp)</small></small>", rs_dcp_file_get_name(profile));
+				g_value_set_string(value, str);
+				g_free(str);
 				break;
-			case COLUMN_NAME:
-				g_value_set_string(value, rs_dcp_file_get_name(profile));
+			case FACTORY_MODEL_TYPE_ICC:
+				str = g_strdup_printf("%s <small><small>(icc)</small></small>", "FIXME-name");
+				g_value_set_string(value, str);
+				g_free(str);
 				break;
-			case COLUMN_TYPE:
-				g_value_set_int(value, SELECTOR_TYPE_DCP);
-				break;
-		}
-	}
-	else if (RS_IS_ICC_PROFILE(profile))
-	{
-		switch (column)
-		{
-			case COLUMN_POINTER:
-				g_value_set_pointer(value, profile);
-				break;
-			case COLUMN_NAME:
-				g_value_set_string(value, "ICC FIXME");
-				break;
-			case COLUMN_TYPE:
-				g_value_set_int(value, SELECTOR_TYPE_ICC);
+			case FACTORY_MODEL_TYPE_ADD:
+				g_value_set_string(value, _("Add profile ..."));
 				break;
 		}
 	}

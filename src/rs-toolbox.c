@@ -106,6 +106,7 @@ static guint signals[LAST_SIGNAL] = { 0 };
 
 static void dcp_profile_selected(RSProfileSelector *selector, RSDcpFile *dcp, RSToolbox *toolbox);
 static void icc_profile_selected(RSProfileSelector *selector, RSIccProfile *icc, RSToolbox *toolbox);
+static void add_profile_selected(RSProfileSelector *selector, RSToolbox *toolbox);
 static void conf_histogram_height_changed(GConfClient *client, guint cnxn_id, GConfEntry *entry, gpointer user_data);
 static void notebook_switch_page(GtkNotebook *notebook, GtkNotebookPage *page, guint page_num, RSToolbox *toolbox);
 static void basic_range_value_changed(GtkRange *range, gpointer user_data);
@@ -166,6 +167,7 @@ rs_toolbox_init (RSToolbox *self)
 	self->selector = rs_profile_selector_new();
 	g_signal_connect(self->selector, "dcp-selected", G_CALLBACK(dcp_profile_selected), self);
 	g_signal_connect(self->selector, "icc-selected", G_CALLBACK(icc_profile_selected), self);
+	g_signal_connect(self->selector, "add-selected", G_CALLBACK(add_profile_selected), self);
 	gtk_box_pack_start(self->toolbox, GTK_WIDGET(self->selector), FALSE, FALSE, 0);
 
 	for(page=0;page<3;page++)
@@ -233,9 +235,13 @@ dcp_profile_selected(RSProfileSelector *selector, RSDcpFile *dcp, RSToolbox *too
 static void
 icc_profile_selected(RSProfileSelector *selector, RSIccProfile *icc, RSToolbox *toolbox)
 {
-	/* FIXME: stub */
-//	if (toolbox->photo)
-//		rs_photo_set_icc_profile(toolbox->photo, icc);
+	g_debug("FIXME: stub @ %s:%d %s()", __FILE__, __LINE__, __FUNCTION__);
+}
+
+static void
+add_profile_selected(RSProfileSelector *selector, RSToolbox *toolbox)
+{
+	g_debug("FIXME: stub @ %s:%d %s()", __FILE__, __LINE__, __FUNCTION__);
 }
 
 static void
@@ -944,7 +950,6 @@ rs_toolbox_set_photo(RSToolbox *toolbox, RS_PHOTO *photo)
 	toolbox->mute_from_sliders = FALSE;
 
 	/* Update profile selector */
-	GList *dcp_profiles = NULL;
 	if (photo && photo->metadata)
 	{
 		RSProfileFactory *factory = rs_profile_factory_new_default();
