@@ -27,6 +27,7 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 #include <unistd.h>
+#include <stdlib.h>
 
 #define DOTDIR ".rawstudio"
 
@@ -672,4 +673,11 @@ rs_human_focal(gdouble min, gdouble max)
 	else
 		ret = g_strdup_printf("%.0f-%.0fmm", min, max);
 	return ret;
+}
+
+const gchar *
+rs_normalize_path(const gchar *path)
+{
+	char temp [PATH_MAX+1];
+	return realpath(path, temp);
 }
