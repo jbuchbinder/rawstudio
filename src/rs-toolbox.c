@@ -948,9 +948,9 @@ rs_toolbox_set_photo(RSToolbox *toolbox, RS_PHOTO *photo)
 	if (photo && photo->metadata)
 	{
 		RSProfileFactory *factory = rs_profile_factory_new_default();
-		dcp_profiles = rs_profile_factory_get_compatible(factory, photo->metadata->make_ascii, photo->metadata->model_ascii);
+		GtkTreeModelFilter *filter = rs_dcp_factory_get_compatible_as_model(factory, photo->metadata->make_ascii, photo->metadata->model_ascii);
+		rs_profile_selector_set_model_filter(toolbox->selector, filter);
 	}
-	rs_profile_selector_set_profiles_steal(toolbox->selector, dcp_profiles);
 	
 	/* Find current profile and mark it active */
 	if (photo)
