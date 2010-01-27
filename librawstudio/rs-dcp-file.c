@@ -60,6 +60,7 @@ rs_dcp_file_class_init(RSDcpFileClass *klass)
 	RSTiffClass *tiff_class = RS_TIFF_CLASS(klass);
 
 	tiff_class->read_file_header = read_file_header;
+	object_class->dispose = rs_dcp_file_dispose;
 }
 
 static void
