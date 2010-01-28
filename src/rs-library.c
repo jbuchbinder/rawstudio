@@ -1157,7 +1157,7 @@ rs_library_restore_tags(const gchar *directory)
 	xmlChar *val;
 	gint version;
 
-	gchar *filename, *identifier, *tagname;
+	gchar *filename, *identifier, *tagname, *temp;
 	gint autotag, photoid, tagid;
 
 	doc = xmlParseFile(tagfile);
@@ -1176,7 +1176,9 @@ rs_library_restore_tags(const gchar *directory)
 		if ((!xmlStrcmp(cur->name, BAD_CAST "file")))
 		{
 			val = xmlGetProp(cur, BAD_CAST "name");
-			filename = g_build_filename(directory, val, NULL);
+			temp = g_build_filename(directory, val, NULL);
+			filename = g_strdup(rs_normalize_path(temp));
+			g_free(temp);
 			xmlFree(val);
 
 			photoid = library_find_photo_id(library, filename);
