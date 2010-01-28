@@ -161,7 +161,7 @@ rs_lensfun_class_init(RSLensfunClass *klass)
 	g_object_class_install_property(object_class,
 		PROP_VIGNETTING_K2, g_param_spec_float(
 			"vignetting_k2", "vignetting_k2", "vignetting_k2",
-			-1, 2, 0.0, G_PARAM_READWRITE)
+			-1.5, 1.5, 0.0, G_PARAM_READWRITE)
 	);
 	g_object_class_install_property(object_class,
 		PROP_VIGNETTING_K3, g_param_spec_float(
