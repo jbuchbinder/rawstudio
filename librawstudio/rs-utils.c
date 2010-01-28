@@ -681,3 +681,56 @@ rs_normalize_path(gchar *path)
 	char temp [PATH_MAX+1];
 	return realpath(path, temp);
 }
+
+/**
+ * Copy a file from one location to another
+ * @param source An absolute path to a source file
+ * @param deastination An absolute path to a destination file (not folder), will be overwritten if exists
+ * @return TRUE on success, FALSE on failure
+ */
+gboolean
+rs_file_copy(const gchar *source, const gchar *destination)
+{
+	gboolean ret = FALSE;
+	const gint buffer_size = 1024*1024;
+	gint source_fd, destination_fd;
+	gint bytes_read, bytes_written;
+	struct stat st;
+	mode_t default_mode = 00666; /* We set this relaxed to respect the users umask */
+
+	g_return_val_if_fail(source != NULL, FALSE);
+	g_return_val_if_fail(source[0] != '\0', FALSE);
+	g_return_val_if_fail(g_path_is_absolute(source), FALSE);
+
+	g_return_val_if_fail(destination != NULL, FALSE);
+	g_return_val_if_fail(destination[0] != '\0', FALSE);
+	g_return_val_if_fail(g_path_is_absolute(destination), FALSE);
+
+	source_fd = open(source, O_RDONLY);
+	if (source_fd > 0)
+	{
+		/* Try to copy permissions too */
+		if (fstat(source_fd, &st) == 0)
+			default_mode = st.st_mode;
+		destination_fd = creat(destination, default_mode);
+
+		if (destination_fd > 0)
+		{
+			gpointer buffer = g_malloc(buffer_size);
+			do {
+				bytes_read = read(source_fd, buffer, buffer_size);
+				bytes_written = write(destination_fd, buffer, bytes_read);
+				if (bytes_written != bytes_read)
+					g_warning("%s was truncated", destination);
+			} while(bytes_read > 0);
+			g_free(buffer);
+
+			ret = TRUE;
+
+			close(destination_fd);
+		}
+		close(source_fd);
+	}
+
+	return ret;
+}
