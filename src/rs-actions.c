@@ -883,6 +883,66 @@ ACTION(filter_graph)
 	rs_filter_graph(rs->filter_input);
 }
 
+ACTION(add_profile)
+{
+	GtkWidget *dialog = gtk_file_chooser_dialog_new(
+		_("Add Profile ..."),
+		rawstudio_window,
+		GTK_FILE_CHOOSER_ACTION_OPEN,
+		GTK_STOCK_CANCEL,
+		GTK_RESPONSE_CANCEL,
+		GTK_STOCK_OPEN,
+		GTK_RESPONSE_ACCEPT,
+		NULL);
+
+	GtkFileFilter *filter_icc = gtk_file_filter_new();
+	GtkFileFilter *filter_all = gtk_file_filter_new();
+
+	GtkFileFilter *filter_profiles = gtk_file_filter_new();
+	gtk_file_filter_set_name(filter_profiles, _("All Profiles"));
+	gtk_file_filter_add_pattern(filter_profiles, "*.dcp");
+	gtk_file_filter_add_pattern(filter_profiles, "*.DCP");
+	gtk_file_filter_add_pattern(filter_profiles, "*.icc");
+	gtk_file_filter_add_pattern(filter_profiles, "*.ICC");
+	gtk_file_filter_add_pattern(filter_profiles, "*.icm");
+	gtk_file_filter_add_pattern(filter_profiles, "*.ICM");
+	gtk_file_chooser_add_filter(GTK_FILE_CHOOSER(dialog), filter_profiles);
+
+	GtkFileFilter *filter_dcp = gtk_file_filter_new();
+	gtk_file_filter_set_name(filter_dcp, _("Camera Profiles (DCP)"));
+	gtk_file_filter_add_pattern(filter_dcp, "*.dcp");
+	gtk_file_filter_add_pattern(filter_dcp, "*.DCP");
+	gtk_file_chooser_add_filter(GTK_FILE_CHOOSER(dialog), filter_dcp);
+
+	gtk_file_filter_set_name(filter_icc, _("Color Profiles (ICC and ICM)"));
+	gtk_file_filter_add_pattern(filter_icc, "*.icc");
+	gtk_file_filter_add_pattern(filter_icc, "*.ICC");
+	gtk_file_filter_add_pattern(filter_icc, "*.icm");
+	gtk_file_filter_add_pattern(filter_icc, "*.ICM");
+	gtk_file_chooser_add_filter(GTK_FILE_CHOOSER(dialog), filter_icc);
+
+	gtk_file_filter_set_name(filter_all, _("All files"));
+	gtk_file_filter_add_pattern(filter_all, "*");
+	gtk_file_chooser_add_filter(GTK_FILE_CHOOSER(dialog), filter_all);
+
+	if (gtk_dialog_run(GTK_DIALOG(dialog)) == GTK_RESPONSE_ACCEPT)
+	{
+		RSProfileFactory *factory = rs_profile_factory_new_default();
+		gchar *path = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(dialog));
+		gchar *basename = g_path_get_basename(path);
+		const gchar *userdir = rs_profile_factory_get_user_profile_directory();
+		gchar *new_path = g_build_filename(userdir, basename, NULL);
+
+		if (rs_file_copy(path, new_path))
+			rs_profile_factory_add_profile(factory, new_path);
+		g_free(path);
+		g_free(basename);
+		g_free(new_path);
+	}
+
+	gtk_widget_destroy (dialog);
+}
+
 ACTION(about)
 {
 	const static gchar *authors[] = {
@@ -996,6 +1056,9 @@ rs_get_core_action_group(RS_BLOB *rs)
 
 	/* debug menu */
 	{ "FilterGraph", NULL, "_Filter Graph", NULL, NULL, ACTION_CB(filter_graph) },
+
+	/* Not in any menu (yet) */
+	{ "AddProfile", NULL, _("Add Profile ..."), NULL, NULL, ACTION_CB(add_profile) },
 	};
 	static guint n_actionentries = G_N_ELEMENTS (actionentries);
 

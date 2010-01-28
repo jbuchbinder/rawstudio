@@ -241,7 +241,7 @@ icc_profile_selected(RSProfileSelector *selector, RSIccProfile *icc, RSToolbox *
 static void
 add_profile_selected(RSProfileSelector *selector, RSToolbox *toolbox)
 {
-	g_debug("FIXME: stub @ %s:%d %s()", __FILE__, __LINE__, __FUNCTION__);
+	rs_core_action_group_activate("AddProfile");
 }
 
 static void
