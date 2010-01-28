@@ -105,42 +105,42 @@ rs_settings_class_init (RSSettingsClass *klass)
 			0.0, 100.0, 0.0, G_PARAM_READWRITE)
 	);
 	g_object_class_install_property(object_class,
-		PROP_DENOISE_LUMA, g_param_spec_float( /* FIXME: ? */
+		PROP_DENOISE_LUMA, g_param_spec_float(
 			"denoise_luma", _("Denoise"), _("Denoi"),
 			0.0, 100.0, 0.0, G_PARAM_READWRITE)
 	);
 	g_object_class_install_property(object_class,
-		PROP_DENOISE_CHROMA, g_param_spec_float( /* FIXME: ? */
+		PROP_DENOISE_CHROMA, g_param_spec_float(
 			"denoise_chroma", _("Color Denoise"), _("ColDn"),
 			0.0, 100.0, 0.0, G_PARAM_READWRITE)
 	);
 	g_object_class_install_property(object_class,
-		PROP_TCA_KR, g_param_spec_float( /* FIXME: ? */
+		PROP_TCA_KR, g_param_spec_float(
 			"tca_kr", _("CA Red"), _("CA R"),
 			-0.5, 0.5, 0.0, G_PARAM_READWRITE)
 	);
 	g_object_class_install_property(object_class,
-		PROP_TCA_KB, g_param_spec_float( /* FIXME: ? */
+		PROP_TCA_KB, g_param_spec_float(
 			"tca_kb", _("CA Blue"), _("CA B"),
 			-0.5, 0.5, 0.0, G_PARAM_READWRITE)
 	);
 	g_object_class_install_property(object_class,
-		PROP_VIGNETTING_K2, g_param_spec_float( /* FIXME: ? */
+		PROP_VIGNETTING_K2, g_param_spec_float(
 			"vignetting_k2", _("Vignetting"), _("Vign"),
 			-1.5, 1.5, 0.0, G_PARAM_READWRITE)
 	);
 	g_object_class_install_property(object_class,
-		PROP_CHANNELMIXER_RED, g_param_spec_float( /* FIXME: ? */
+		PROP_CHANNELMIXER_RED, g_param_spec_float(
 			"channelmixer_red", _("Red"), _("Red"),
 			0.0, 300.0, 100.0, G_PARAM_READWRITE)
 	);
 	g_object_class_install_property(object_class,
-		PROP_CHANNELMIXER_GREEN, g_param_spec_float( /* FIXME: ? */
+		PROP_CHANNELMIXER_GREEN, g_param_spec_float(
 			"channelmixer_green", _("Green"), _("Green"),
 			0.0, 300.0, 100.0, G_PARAM_READWRITE)
 	);
 	g_object_class_install_property(object_class,
-		PROP_CHANNELMIXER_BLUE, g_param_spec_float( /* FIXME: ? */
+		PROP_CHANNELMIXER_BLUE, g_param_spec_float(
 			"channelmixer_blue", _("Blue"), _("Blue"),
 			0.0, 300.0, 100.0, G_PARAM_READWRITE)
 	);
