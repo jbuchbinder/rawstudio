@@ -560,6 +560,7 @@ rs_batch_process(RS_QUEUE *queue)
 			/* Render preview image */
 			RSFilterRequest *request = rs_filter_request_new();
 			rs_filter_request_set_quick(RS_FILTER_REQUEST(request), FALSE);
+			/* FIXME: Should be set to output colorspace, not forced to sRGB */
 			rs_filter_param_set_object(RS_FILTER_PARAM(request), "colorspace", rs_color_space_new_singleton("RSSrgb"));	
 			filter_response = rs_filter_get_image8(fend, request);
 			pixbuf = rs_filter_response_get_image8(filter_response);
