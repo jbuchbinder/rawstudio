@@ -61,7 +61,7 @@
 #include <libxml/encoding.h>
 #include <libxml/xmlwriter.h>
 
-#define LIBRARY_VERSION 1
+#define LIBRARY_VERSION 2
 
 struct _RSLibrary {
 	GObject parent;
@@ -147,7 +147,8 @@ static void
 library_check_version(sqlite3 *db)
 {
 	sqlite3_stmt *stmt, *stmt_update;
-	gint rc, version = 0;
+	gint rc, version = 0, id;
+	gchar *filename;
 
 	rc = sqlite3_prepare_v2(db, "SELECT version FROM version", -1, &stmt, NULL);
 	rc = sqlite3_step(stmt);
@@ -167,7 +168,7 @@ library_check_version(sqlite3 *db)
 			sqlite3_finalize(stmt);
 
 			/* Run through all photos in library and insert unique identifier in library */
-			gchar *filename, *identifier;
+			gchar *identifier;
 			sqlite3_prepare_v2(db, "select filename from library", -1, &stmt, NULL);
 			while (sqlite3_step(stmt) == SQLITE_ROW)
 			{
@@ -187,6 +188,29 @@ library_check_version(sqlite3 *db)
 			sqlite3_finalize(stmt);
 
 			library_set_version(db, version+1);
+			break;
+
+		case 1:
+			library_execute_sql(db, "BEGIN TRANSACTION;");
+			sqlite3_prepare_v2(db, "select id,filename from library", -1, &stmt, NULL);
+			while (sqlite3_step(stmt) == SQLITE_ROW)
+			{
+				id = (gint) sqlite3_column_int(stmt, 0);
+				filename = g_strdup(rs_normalize_path((gchar *) sqlite3_column_text(stmt, 1)));
+				if (filename) /* FIXME: This will only work for paths that exists */
+				{
+					rc = sqlite3_prepare_v2(db, "update library set filename = ?1 WHERE id = ?2;", -1, &stmt_update, NULL);
+					rc = sqlite3_bind_text(stmt_update, 1, filename, strlen(filename), SQLITE_TRANSIENT);
+					rc = sqlite3_bind_int(stmt_update, 2, id);
+					rc = sqlite3_step(stmt_update);
+					library_sqlite_error(db, rc);
+					sqlite3_finalize(stmt_update);
+					g_free(filename);
+				}
+			}
+			sqlite3_finalize(stmt);
+			library_set_version(db, version+1);
+			library_execute_sql(db, "COMMIT;");
 			break;
 
 		default:
