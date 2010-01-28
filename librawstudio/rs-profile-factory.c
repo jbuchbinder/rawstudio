@@ -143,13 +143,26 @@ rs_profile_factory_new_default(void)
 	{
 		factory = rs_profile_factory_new(PROFILE_FACTORY_DEFAULT_SEARCH_PATH);
 
-		gchar *user_profiles = g_strdup_printf("%s/profiles/", rs_confdir_get());
+		const gchar *user_profiles = rs_profile_factory_get_user_profile_directory();
 		load_profiles(factory, user_profiles, TRUE, TRUE);
-		g_free(user_profiles);
 	}
 	g_static_mutex_unlock(&lock);
 
 	return factory;
+}
+
+const gchar *
+rs_profile_factory_get_user_profile_directory(void)
+{
+	GStaticMutex lock = G_STATIC_MUTEX_INIT;
+	gchar *directory = NULL;
+
+	g_static_mutex_lock(&lock);
+	if (!directory)
+		directory = g_strdup_printf("%s/profiles/", rs_confdir_get());
+	g_static_mutex_unlock(&lock);
+
+	return directory;
 }
 
 gboolean

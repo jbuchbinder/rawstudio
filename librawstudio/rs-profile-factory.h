@@ -31,6 +31,8 @@ RSProfileFactory *rs_profile_factory_new(const gchar *search_path);
 
 RSProfileFactory *rs_profile_factory_new_default(void);
 
+const gchar *rs_profile_factory_get_user_profile_directory(void);
+
 gboolean rs_profile_factory_add_profile(RSProfileFactory *factory, const gchar *path);
 
 GtkTreeModelFilter *rs_dcp_factory_get_compatible_as_model(RSProfileFactory *factory, const gchar *make, const gchar *model);
