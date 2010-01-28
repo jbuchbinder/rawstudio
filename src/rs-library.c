@@ -196,7 +196,7 @@ library_check_version(sqlite3 *db)
 			while (sqlite3_step(stmt) == SQLITE_ROW)
 			{
 				id = (gint) sqlite3_column_int(stmt, 0);
-				filename = g_strdup(rs_normalize_path((gchar *) sqlite3_column_text(stmt, 1)));
+				filename = rs_normalize_path((gchar *) sqlite3_column_text(stmt, 1));
 				if (filename) /* FIXME: This will only work for paths that exists */
 				{
 					rc = sqlite3_prepare_v2(db, "update library set filename = ?1 WHERE id = ?2;", -1, &stmt_update, NULL);
@@ -1177,7 +1177,7 @@ rs_library_restore_tags(const gchar *directory)
 		{
 			val = xmlGetProp(cur, BAD_CAST "name");
 			temp = g_build_filename(directory, val, NULL);
-			filename = g_strdup(rs_normalize_path(temp));
+			filename = rs_normalize_path(temp);
 			g_free(temp);
 			xmlFree(val);
 

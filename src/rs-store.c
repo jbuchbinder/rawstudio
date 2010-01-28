@@ -1084,7 +1084,7 @@ load_directory(RSStore *store, const gchar *path, RSLibrary *library, const gboo
 			continue;
 
 		gchar *temp = g_build_filename(path, name, NULL);
-		fullname = g_strdup(rs_normalize_path(temp));
+		fullname = rs_normalize_path(temp);
 		g_free(temp);
 
 		if (rs_filetype_can_load(fullname))

@@ -676,10 +676,23 @@ rs_human_focal(gdouble min, gdouble max)
 }
 
 gchar *
-rs_normalize_path(gchar *path)
+rs_normalize_path(const gchar *path)
 {
-	char temp [PATH_MAX+1];
-	return realpath(path, temp);
+#ifdef PATH_MAX
+	gint path_max = PATH_MAX;
+#else
+	gint path_max = pathconf(path, _PC_PATH_MAX);
+	if (path_max <= 0)
+		path_max = 4096;
+#endif
+	gchar *buffer = g_new0(gchar, path_max);
+
+	gchar *ret = realpath(path, buffer);
+
+	if (ret == NULL)
+		g_free(buffer);
+
+	return ret;
 }
 
 /**
