@@ -2,7 +2,7 @@ plugindir = $(libdir)/rawstudio/plugins
 
 AM_CFLAGS =\
 	-Wall\
-	-g3
+	-O4
 
 AM_CXXFLAGS = $(AM_CFLAGS)
 
