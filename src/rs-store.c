@@ -1073,9 +1073,11 @@ load_directory(RSStore *store, const gchar *path, RSLibrary *library, const gboo
 	GDir *dir;
 	gint count = 0;
 
-	rs_library_restore_tags(path);
+	gchar *path_normalized = rs_normalize_path(path);
 
-	dir = g_dir_open(path, 0, NULL); /* FIXME: check errors */
+	rs_library_restore_tags(path_normalized);
+
+	dir = g_dir_open(path_normalized, 0, NULL); /* FIXME: check errors */
 
 	while((dir != NULL) && (name = g_dir_read_name(dir)))
 	{
@@ -1083,9 +1085,7 @@ load_directory(RSStore *store, const gchar *path, RSLibrary *library, const gboo
 		if (name[0] == '.')
 			continue;
 
-		gchar *temp = g_build_filename(path, name, NULL);
-		fullname = rs_normalize_path(temp);
-		g_free(temp);
+		fullname = g_build_filename(path, name, NULL);
 
 		if (rs_filetype_can_load(fullname))
 		{
@@ -1098,6 +1098,7 @@ load_directory(RSStore *store, const gchar *path, RSLibrary *library, const gboo
 		g_free(fullname);
 	}
 
+	g_free(path_normalized);
 	if (dir)
 		g_dir_close(dir);
 
