@@ -235,7 +235,8 @@ dcp_profile_selected(RSProfileSelector *selector, RSDcpFile *dcp, RSToolbox *too
 static void
 icc_profile_selected(RSProfileSelector *selector, RSIccProfile *icc, RSToolbox *toolbox)
 {
-	g_debug("FIXME: stub @ %s:%d %s()", __FILE__, __LINE__, __FUNCTION__);
+	if (toolbox->photo)
+		rs_photo_set_icc_profile(toolbox->photo, icc);
 }
 
 static void

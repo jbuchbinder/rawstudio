@@ -223,7 +223,7 @@ static void adjustment_changed(GtkAdjustment *adjustment, gpointer user_data);
 static gboolean button(GtkWidget *widget, GdkEventButton *event, RSPreviewWidget *preview);
 static gboolean motion(GtkWidget *widget, GdkEventMotion *event, gpointer user_data);
 static gboolean leave(GtkWidget *widget, GdkEventCrossing *event, gpointer user_data);
-static void dcp_profile_changed(RS_PHOTO *photo, RSDcpFile *dcp, RSPreviewWidget *preview);
+static void profile_changed(RS_PHOTO *photo, gpointer profile, RSPreviewWidget *preview);
 static void settings_changed(RS_PHOTO *photo, RSSettingsMask mask, RSPreviewWidget *preview);
 static void filter_changed(RSFilter *filter, RSFilterChangedMask mask, RSPreviewWidget *preview);
 static gboolean get_image_coord(RSPreviewWidget *preview, gint view, const gint x, const gint y, gint *scaled_x, gint *scaled_y, gint *real_x, gint *real_y, gint *max_w, gint *max_h);
@@ -567,7 +567,10 @@ rs_preview_widget_set_loupe_enabled(RSPreviewWidget *preview, gboolean enabled)
 
 			rs_filter_set_previous(preview->loupe_filter_start, preview->filter_input);
 			/* FIXME: view is hardcoded to 0 */
-			g_object_set(preview->loupe_filter_dcp, "profile", rs_photo_get_dcp_profile(preview->photo), NULL);
+			if (rs_photo_get_dcp_profile(preview->photo))
+				g_object_set(preview->loupe_filter_dcp, "profile", rs_photo_get_dcp_profile(preview->photo), NULL);
+			else
+				g_object_set(preview->loupe_filter_dcp, "use-profile", FALSE, NULL);
 			rs_filter_set_recursive(preview->loupe_filter_end, "settings", preview->photo->settings[preview->snapshot[0]], NULL);
 			rs_loupe_set_colorspace(preview->loupe, preview->display_color_space);
 
@@ -607,7 +610,7 @@ rs_preview_widget_set_photo(RSPreviewWidget *preview, RS_PHOTO *photo)
 	if (preview->photo)
 	{
 		g_signal_connect(G_OBJECT(preview->photo), "settings-changed", G_CALLBACK(settings_changed), preview);
-		g_signal_connect(G_OBJECT(preview->photo), "profile-changed", G_CALLBACK(dcp_profile_changed), preview);
+		g_signal_connect(G_OBJECT(preview->photo), "profile-changed", G_CALLBACK(profile_changed), preview);
 		for(view=0;view<MAX_VIEWS;view++) 
 		{
 			rs_filter_request_set_quick(preview->request[view], TRUE);
@@ -2249,7 +2252,7 @@ settings_changed(RS_PHOTO *photo, RSSettingsMask mask, RSPreviewWidget *preview)
 }
 
 static void
-dcp_profile_changed(RS_PHOTO *photo, RSDcpFile *dcp, RSPreviewWidget *preview)
+profile_changed(RS_PHOTO *photo, gpointer profile, RSPreviewWidget *preview)
 {
 	gint view;
 
@@ -2258,11 +2261,21 @@ dcp_profile_changed(RS_PHOTO *photo, RSDcpFile *dcp, RSPreviewWidget *preview)
 		/* Set view profile */
 		for(view=0;view<MAX_VIEWS;view++)
 		{
-			g_object_set(preview->filter_dcp[view], "profile", dcp, NULL);
+			/* We should only deal with this, if it's DCP, ICC is catched elsewhere */
+			if (RS_IS_DCP_FILE(profile))
+				g_object_set(preview->filter_dcp[view], "profile", profile, NULL);
+			else
+				g_object_set(preview->filter_dcp[view], "use-profile", FALSE, NULL);
+
 			rs_filter_set_recursive(preview->filter_end[view], "settings", preview->photo->settings[preview->snapshot[view]], NULL);
 		}
+
 		/* Set navigator profile, uses view 0 */
-		g_object_set(preview->navigator_filter_dcp, "profile", dcp, NULL);
+		if (RS_IS_DCP_FILE(profile))
+			g_object_set(preview->navigator_filter_dcp, "profile", profile, NULL);
+		else
+			g_object_set(preview->navigator_filter_dcp, "use-profile", FALSE, NULL);
+
 		rs_filter_set_recursive(preview->navigator_filter_end, "settings", preview->photo->settings[preview->snapshot[0]], NULL);
 	}
 }

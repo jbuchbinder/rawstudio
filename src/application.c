@@ -45,6 +45,7 @@
 #include "lensfun.h"
 
 static void photo_spatial_changed(RS_PHOTO *photo, RS_BLOB *rs);
+static void photo_profile_changed(RS_PHOTO *photo, gpointer profile, RS_BLOB *rs);
 
 void
 rs_free(RS_BLOB *rs)
@@ -103,6 +104,7 @@ rs_set_photo(RS_BLOB *rs, RS_PHOTO *photo)
 			NULL);
 
 		g_signal_connect(G_OBJECT(rs->photo), "spatial-changed", G_CALLBACK(photo_spatial_changed), rs);
+		g_signal_connect(G_OBJECT(rs->photo), "profile-changed", G_CALLBACK(photo_profile_changed), rs);
 	}
 }
 
@@ -119,6 +121,30 @@ photo_spatial_changed(RS_PHOTO *photo, RS_BLOB *rs)
 			NULL);
 	}
 
+}
+
+static void
+photo_profile_changed(RS_PHOTO *photo, gpointer profile, RS_BLOB *rs)
+{
+	if (photo == rs->photo)
+	{
+		if (RS_IS_ICC_PROFILE(profile))
+		{
+			RSColorSpace *cs = rs_color_space_icc_new_from_icc(profile);
+
+			g_object_set(rs->filter_input, "color-space", cs, NULL);
+
+			/* We unref at once, and the the filter keep the only reference */
+			g_object_unref(cs);
+		}
+		else
+		{
+			/* If we don't have a specific ICC profile, we will simply assign
+			   a Prophoto colorspace to stop RSColorTransform from doing
+			   anything - this works because RSDcp is requesting Prophoto. */
+			g_object_set(rs->filter_input, "color-space", rs_color_space_new_singleton("RSProphoto"), NULL);
+		}
+	}
 }
 
 gboolean

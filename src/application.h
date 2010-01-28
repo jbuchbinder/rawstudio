@@ -51,6 +51,7 @@ typedef struct _photo {
 	gdouble angle;
 	gboolean exported;
 	RSDcpFile *dcp;
+	RSIccProfile *icc;
 	gboolean dispose_has_run;
 } RS_PHOTO;
 

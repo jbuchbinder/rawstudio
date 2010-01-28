@@ -107,8 +107,8 @@ rs_photo_class_init (RS_PHOTOClass *klass)
 		0, /* Is this right? */
 		NULL,
 		NULL,
-		g_cclosure_marshal_VOID__OBJECT,
-		G_TYPE_NONE, 1, RS_TYPE_DCP_FILE);
+		g_cclosure_marshal_VOID__POINTER,
+		G_TYPE_NONE, 1, G_TYPE_POINTER);
 
 	parent_class = g_type_class_peek_parent (klass);
 }
@@ -378,6 +378,7 @@ rs_photo_set_dcp_profile(RS_PHOTO *photo, RSDcpFile *dcp)
 	g_assert(RS_IS_PHOTO(photo));
 
 	photo->dcp = dcp;
+	photo->icc = NULL;
 
 	g_signal_emit(photo, signals[PROFILE_CHANGED], 0, photo->dcp);
 }
@@ -392,6 +393,34 @@ extern RSDcpFile *rs_photo_get_dcp_profile(RS_PHOTO *photo)
 	g_assert(RS_IS_PHOTO(photo));
 
 	return photo->dcp;
+}
+
+/**
+ * Assign a ICC profile to a photo
+ * @param photo A RS_PHOTO
+ * @param dcp An ICC profile
+ */
+void
+rs_photo_set_icc_profile(RS_PHOTO *photo, RSIccProfile *icc)
+{
+	g_assert(RS_IS_PHOTO(photo));
+
+	photo->icc = icc;
+	photo->dcp = NULL;
+
+	g_signal_emit(photo, signals[PROFILE_CHANGED], 0, photo->icc);
+}
+
+/**
+ * Get the assigned ICC profile for a RS_PHOTO
+ * @param photo A RS_PHOTO
+ * @return An ICC profile or NULL
+ */
+RSIccProfile *rs_photo_get_icc_profile(RS_PHOTO *photo)
+{
+	g_assert(RS_IS_PHOTO(photo));
+
+	return photo->icc;
 }
 
 /**
