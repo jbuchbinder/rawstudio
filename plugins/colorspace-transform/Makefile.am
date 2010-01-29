@@ -1,7 +1,7 @@
 plugindir = $(libdir)/rawstudio/plugins
 
 AM_CFLAGS =\
-	-Wall\
+	-Wall -fno-strict-aliasing\
 	-O4
 
 AM_CXXFLAGS = $(AM_CFLAGS)

@@ -20,6 +20,8 @@
 #include <lcms.h>
 #include "rs-cmm.h"
 
+static gushort gammatable22[65536];
+
 struct _RSCmm {
 	GObject parent;
 
@@ -52,9 +54,19 @@ rs_cmm_dispose(GObject *object)
 static void
 rs_cmm_class_init(RSCmmClass *klass)
 {
+	gint n;
+	gdouble nd;
 	GObjectClass *object_class = G_OBJECT_CLASS(klass);
 
 	object_class->dispose = rs_cmm_dispose;
+
+	/* Build our 2.2 gamma table */
+	for (n=0;n<65536;n++)
+	{
+		nd = ((gdouble) n) / 65535.0;
+		nd = pow(nd, 1.0/2.2);
+		gammatable22[n] = CLAMP((gint) (nd*65535.0), 0, 65535);
+	}
 }
 
 static void
@@ -159,6 +171,16 @@ unroll_rgb_w4(void *info, register WORD wIn[], register LPBYTE accum)
 	return(accum);
 }
 
+static guchar *
+unroll_rgb_w4_gammatable22(void *info, register WORD wIn[], register LPBYTE accum)
+{
+	wIn[0] = gammatable22[*(LPWORD) accum]; accum+= 2;
+	wIn[1] = gammatable22[*(LPWORD) accum]; accum+= 2;
+	wIn[2] = gammatable22[*(LPWORD) accum]; accum+= 4;
+
+	return(accum);
+}
+
 static void
 load_profile(RSCmm *cmm, const RSIccProfile *profile, const RSIccProfile **profile_target, cmsHPROFILE *lcms_target)
 {
@@ -193,26 +215,75 @@ prepare8(RSCmm *cmm)
 {
 }
 
-gdouble
-estimate_gamma(cmsHPROFILE *profile)
+static gboolean
+is_profile_gamma_22_corrected(cmsHPROFILE *profile)
 {
-	gdouble gamma_value[3] = {1.0, 1.0, 1.0};
-	LPGAMMATABLE gamma[3];
+	cmsHTRANSFORM testtransform;
+	cmsHPROFILE linear = NULL;
+	gint n;
+	gint lin = 0;
+	gint g045 = 0;
 
-	gamma[0] = cmsReadICCGamma(profile, icSigRedTRCTag);
-	gamma[1] = cmsReadICCGamma(profile, icSigGreenTRCTag);
-	gamma[2] = cmsReadICCGamma(profile, icSigBlueTRCTag);
+	gushort buffer[27];
+	gushort table_lin[] = {
+		6553,   6553,  6553,
+		13107, 13107, 13107,
+		19661, 19661, 19661,
+		26214, 26214, 26214,
+		32768, 32768, 32768,
+		39321, 39321, 39321,
+		45875, 45875, 45875,
+		52428, 52428, 52428,
+		58981, 58981, 58981
+		};
 
-	if (gamma[0] && gamma[1] && gamma[2])
+	const gushort table_g045[] = {
+		392,   392,   392,
+		1833,  1833,  1833,
+		4514,  4514,  4514,
+		8554,  8554,  8554,
+		14045, 14045, 14045,
+		21061, 21061, 21061,
+		29665, 29665, 29665,
+		39913, 39913, 39913,
+		51855, 51855, 51855
+		};
+
+	GStaticMutex lock = G_STATIC_MUTEX_INIT;
+
+	g_static_mutex_lock(&lock);
+	if (linear == NULL)
 	{
-		gamma_value[0] = cmsEstimateGamma(gamma[0]);
-		gamma_value[1] = cmsEstimateGamma(gamma[1]);
-		gamma_value[2] = cmsEstimateGamma(gamma[2]);
-	}
-	else
-		printf("No tables\n");
+		static cmsCIExyYTRIPLE srgb_primaries = {
+			{0.64, 0.33, 0.212656},
+			{0.115, 0.826, 0.724938},
+			{0.157, 0.018, 0.016875}};
+		cmsCIExyY D65;
+		LPGAMMATABLE gamma[3];
 
-	return (gamma_value[0] + gamma_value[1] + gamma_value[2]) / 3.0;
+		cmsWhitePointFromTemp(6504, &D65);
+		gamma[0] = gamma[1] = gamma[2] = cmsBuildGamma(2,1.0);
+		linear = cmsCreateRGBProfile(&D65, &srgb_primaries, gamma);
+	}
+	g_static_mutex_unlock(&lock);
+
+	testtransform = cmsCreateTransform(profile, TYPE_RGB_16, linear, TYPE_RGB_16, INTENT_PERCEPTUAL, 0);
+	cmsDoTransform(testtransform, table_lin, buffer, 9);
+	cmsDeleteTransform(testtransform);
+
+	/* We compare the transformed values to the original linear values to
+	   determine if we're closer to a gamma 2.2 correction or 1.0 */
+	for (n=0;n<9;n++)
+	{
+		lin += abs(buffer[n*3]-table_lin[n*3]);
+		lin += abs(buffer[n*3+1]-table_lin[n*3+1]);
+		lin += abs(buffer[n*3+2]-table_lin[n*3+2]);
+		g045 += abs(buffer[n*3]-table_g045[n*3]);
+		g045 += abs(buffer[n*3+1]-table_g045[n*3+1]);
+		g045 += abs(buffer[n*3+2]-table_g045[n*3+2]);
+	}
+
+	return (g045 < lin);
 }
 
 static void
@@ -224,9 +295,6 @@ prepare16(RSCmm *cmm)
 	if (cmm->lcms_transform16)
 		cmsDeleteTransform(cmm->lcms_transform16);
 
-	printf("INPUT GAMMA: %f\n", estimate_gamma(cmm->lcms_input_profile));
-	printf("OUTPUT GAMMA: %f\n", estimate_gamma(cmm->lcms_output_profile));
-
 	cmm->lcms_transform16 = cmsCreateTransform(
 		cmm->lcms_input_profile, TYPE_RGB_16,
 		cmm->lcms_output_profile, TYPE_RGB_16,
@@ -235,9 +303,16 @@ prepare16(RSCmm *cmm)
 	g_warn_if_fail(cmm->lcms_transform16 != NULL);
 
 	/* Enable packing/unpacking for pixelsize==4 */
-	cmsSetUserFormatters(cmm->lcms_transform16,
-		TYPE_RGB_16, unroll_rgb_w4,
-		TYPE_RGB_16, pack_rgb_w4);
+	/* If we estimate that the input profile will apply gamma correction,
+	   we try to undo it in 16 bit transform */
+	if (is_profile_gamma_22_corrected(cmm->lcms_input_profile))
+		cmsSetUserFormatters(cmm->lcms_transform16,
+			TYPE_RGB_16, unroll_rgb_w4_gammatable22,
+			TYPE_RGB_16, pack_rgb_w4);
+	else
+		cmsSetUserFormatters(cmm->lcms_transform16,
+			TYPE_RGB_16, unroll_rgb_w4,
+			TYPE_RGB_16, pack_rgb_w4);
 
 	cmm->dirty16 = FALSE;
 }
