@@ -32,6 +32,9 @@ struct _RSCmm {
 	gboolean dirty8;
 	gboolean dirty16;
 
+	gfloat premul[3];
+	gushort clip[3];
+
 	cmsHPROFILE lcms_input_profile;
 	cmsHPROFILE lcms_output_profile;
 
@@ -112,11 +115,26 @@ rs_cmm_set_num_threads(RSCmm *cmm, const gint num_threads)
 	cmm->num_threads = MAX(1, num_threads);
 }
 
+void
+rs_cmm_set_premul(RSCmm *cmm, const gfloat premul[3])
+{
+	g_assert(RS_IS_CMM(cmm));
+
+	cmm->premul[R] = CLAMP(premul[R], 0.0001, 100.0);
+	cmm->premul[G] = CLAMP(premul[G], 0.0001, 100.0);
+	cmm->premul[B] = CLAMP(premul[B], 0.0001, 100.0);
+
+	cmm->clip[R] = (gushort) 65535.0 / cmm->premul[R];
+	cmm->clip[G] = (gushort) 65535.0 / cmm->premul[G];
+	cmm->clip[B] = (gushort) 65535.0 / cmm->premul[B];
+}
+
 gboolean
 rs_cmm_transform16(RSCmm *cmm, RS_IMAGE16 *input, RS_IMAGE16 *output)
 {
+	gushort *buffer;
 	printf("rs_cms_transform16()\n");
-	gint y;
+	gint y, x;
 	g_assert(RS_IS_CMM(cmm));
 	g_assert(RS_IS_IMAGE16(input));
 	g_assert(RS_IS_IMAGE16(output));
@@ -128,12 +146,39 @@ rs_cmm_transform16(RSCmm *cmm, RS_IMAGE16 *input, RS_IMAGE16 *output)
 	if (cmm->dirty16)
 		prepare16(cmm);
 
+	buffer = g_new(gushort, input->w * 4);
 	for(y=0;y<input->h;y++)
 	{
 		gushort *in = GET_PIXEL(input, 0, y);
 		gushort *out = GET_PIXEL(output, 0, y);
-		cmsDoTransform(cmm->lcms_transform16, in, out, input->w);
+		gushort *buffer_pointer = buffer;
+		for(x=0;x<input->w;x++)
+		{
+			register gfloat r = (gfloat) MIN(*in, cmm->clip[R]); in++;
+			register gfloat g = (gfloat) MIN(*in, cmm->clip[G]); in++;
+			register gfloat b = (gfloat) MIN(*in, cmm->clip[B]); in++;
+			in++;
+
+			r = MIN(r, cmm->clip[R]);
+			g = MIN(g, cmm->clip[G]);
+			b = MIN(b, cmm->clip[B]);
+
+			r = r * cmm->premul[R];
+			g = g * cmm->premul[G];
+			b = b * cmm->premul[B];
+
+			r = MIN(r, 65535.0);
+			g = MIN(g, 65535.0);
+			b = MIN(b, 65535.0);
+
+			*(buffer_pointer++) = (gushort) r;
+			*(buffer_pointer++) = (gushort) g;
+			*(buffer_pointer++) = (gushort) b;
+			buffer_pointer++;
+		}
+		cmsDoTransform(cmm->lcms_transform16, buffer, out, input->w);
 	}
+	g_free(buffer);
 	return TRUE;
 }
 

@@ -100,6 +100,10 @@ get_image(RSFilter *filter, const RSFilterRequest *request)
 
 	if (input_space && output_space && (input_space != output_space))
 	{
+		gfloat premul[4] = { 1.0, 1.0, 1.0, 1.0 };
+		rs_filter_param_get_float4(RS_FILTER_PARAM(request), "premul", premul);
+		rs_cmm_set_premul(colorspace_transform->cmm, premul);
+
 		output = rs_image16_copy(input, FALSE);
 
 		if (convert_colorspace16(colorspace_transform, input, output, input_space, output_space))
