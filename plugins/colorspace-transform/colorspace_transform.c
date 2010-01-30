@@ -98,7 +98,7 @@ get_image(RSFilter *filter, const RSFilterRequest *request)
 	RSColorSpace *output_space = rs_filter_param_get_object_with_type(RS_FILTER_PARAM(request), "colorspace", RS_TYPE_COLOR_SPACE);
 
 
-	if (input_space && output_space)
+	if (input_space && output_space && (input_space != output_space))
 	{
 		output = rs_image16_copy(input, FALSE);
 
