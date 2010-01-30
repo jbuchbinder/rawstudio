@@ -374,6 +374,19 @@ get_image(RSFilter *filter, const RSFilterRequest *request)
 	RS_IMAGE16 *tmp;
 
 	RSFilterRequest *request_clone = rs_filter_request_clone(request);
+
+	/* If we don't apply the DCP profile, we provide premultipliers to an
+	   earlier filter (RSColorspaceTransform) for white balancing before ICC
+	   transform */
+	if (!dcp->use_profile)
+	{
+		gfloat premul[4] = {1.0, 1.0, 1.0, 1.0};
+		premul[0] = 1.0 / dcp->camera_white.x;
+		premul[1] = 1.0 / dcp->camera_white.y;
+		premul[2] = 1.0 / dcp->camera_white.z;
+		rs_filter_param_set_float4(RS_FILTER_PARAM(request_clone), "premul", premul);
+	}
+
 	rs_filter_param_set_object(RS_FILTER_PARAM(request_clone), "colorspace", klass->prophoto);
 	previous_response = rs_filter_get_image(filter->previous, request_clone);
 	g_object_unref(request_clone);
