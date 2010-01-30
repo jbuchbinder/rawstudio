@@ -85,6 +85,24 @@ rs_filter_param_set_float(RSFilterParam *filter_param, const gchar *name, const 
 gboolean rs_filter_param_get_float(const RSFilterParam *filter_param, const gchar *name, gfloat *value);
 
 /**
+ * Set a float[4] property
+ * @param filter_param A RSFilterParam
+ * @param name The name of the property
+ * @param value A value to store
+ */
+void
+rs_filter_param_set_float4(RSFilterParam *filter_param, const gchar *name, const gfloat value[4]);
+
+/**
+ * Get a float property
+ * @param filter_param A RSFilterParam
+ * @param name The name of the property
+ * @param value A pointer to a gfloat [4] where the values will be stored
+ * @return TRUE if the property was found, FALSE otherwise
+ */
+gboolean rs_filter_param_get_float4(const RSFilterParam *filter_param, const gchar *name, gfloat value[4]);
+
+/**
  * Set an object property
  * @param filter_param A RSFilterParam
  * @param name The name of the property

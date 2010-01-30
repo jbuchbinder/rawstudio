@@ -19,6 +19,23 @@
 
 #include "rs-filter-param.h"
 
+#define RS_TYPE_FLOAT4 rs_float4_get_type()
+
+gpointer
+float4_copy(const gpointer boxed)
+{
+	return g_memdup(boxed, sizeof(gfloat)*4);
+}
+
+GType
+rs_float4_get_type(void)
+{
+	static GType type = 0;
+	if (!type)
+		type = g_boxed_type_register_static(g_intern_static_string("RSFloat4"), float4_copy, g_free);
+	return type;
+}
+
 G_DEFINE_TYPE(RSFilterParam, rs_filter_param, G_TYPE_OBJECT)
 
 static void
@@ -188,6 +205,47 @@ rs_filter_param_get_float(const RSFilterParam *filter_param, const gchar *name, 
 
 	if (val && G_VALUE_HOLDS_FLOAT(val))
 		*value = g_value_get_float(val);
+
+	return (val != NULL);
+}
+
+/**
+ * Set a float[4] property
+ * @param filter_param A RSFilterParam
+ * @param name The name of the property
+ * @param value A value to store
+ */
+void
+rs_filter_param_set_float4(RSFilterParam *filter_param, const gchar *name, const gfloat value[4])
+{
+	GValue *val = new_value(RS_TYPE_FLOAT4);
+	g_value_set_boxed(val, value);
+
+	rs_filter_param_set_gvalue(filter_param, name, val);
+}
+
+/**
+ * Get a float property
+ * @param filter_param A RSFilterParam
+ * @param name The name of the property
+ * @param value A pointer to a gfloat [4] where the values will be stored
+ * @return TRUE if the property was found, FALSE otherwise
+ */
+gboolean
+rs_filter_param_get_float4(const RSFilterParam *filter_param, const gchar *name, gfloat value[4])
+{
+	typedef gfloat buh[4];
+	GValue *val = rs_filter_param_get_gvalue(filter_param, name);
+
+	if (val && G_TYPE_CHECK_VALUE_TYPE(val, RS_TYPE_FLOAT4))
+	{
+		gfloat *boxed = g_value_get_boxed(val);
+
+		value[0] = boxed[0];
+		value[1] = boxed[1];
+		value[2] = boxed[2];
+		value[3] = boxed[3];
+	}
 
 	return (val != NULL);
 }
