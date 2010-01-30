@@ -144,6 +144,20 @@ rs_filter_param_get_gvalue(const RSFilterParam *filter_param, const gchar *name)
 }
 
 /**
+ * Delete a property from a RSFilterParam
+ * @param filter_param A RSFilterParam
+ * @param name The name of the property
+ * @return TRUE if the property was found, FALSE otherwise
+ */
+gboolean
+rs_filter_param_delete(RSFilterParam *filter_param, const gchar *name)
+{
+	g_assert(RS_IS_FILTER_PARAM(filter_param));
+
+	return g_hash_table_remove(filter_param->properties, name);
+}
+
+/**
  * Set a string property
  * @param filter_param A RSFilterParam
  * @param name The name of the property

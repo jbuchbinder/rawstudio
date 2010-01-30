@@ -50,6 +50,15 @@ void
 rs_filter_param_clone(RSFilterParam *destination, const RSFilterParam *source);
 
 /**
+ * Delete a property from a RSFilterParam
+ * @param filter_param A RSFilterParam
+ * @param name The name of the property
+ * @return TRUE if the property was found, FALSE otherwise
+ */
+gboolean
+rs_filter_param_delete(RSFilterParam *filter_param, const gchar *name);
+
+/**
  * Set a string property
  * @param filter_param A RSFilterParam
  * @param name The name of the property
