@@ -45,6 +45,8 @@ static void load_profile(RSCmm *cmm, const RSIccProfile *profile, const RSIccPro
 static void prepare8(RSCmm *cmm);
 static void prepare16(RSCmm *cmm);
 
+static GMutex *is_profile_gamma_22_corrected_linear_lock = NULL;
+
 static void
 rs_cmm_dispose(GObject *object)
 {
@@ -67,6 +69,10 @@ rs_cmm_class_init(RSCmmClass *klass)
 		nd = pow(nd, 1.0/2.2);
 		gammatable22[n] = CLAMP((gint) (nd*65535.0), 0, 65535);
 	}
+
+	/* GObject locking will protect us here */
+	if (!is_profile_gamma_22_corrected_linear_lock)
+		is_profile_gamma_22_corrected_linear_lock = g_mutex_new();
 }
 
 static void
@@ -249,9 +255,7 @@ is_profile_gamma_22_corrected(cmsHPROFILE *profile)
 		51855, 51855, 51855
 		};
 
-	GStaticMutex lock = G_STATIC_MUTEX_INIT;
-
-	g_static_mutex_lock(&lock);
+	g_mutex_lock(is_profile_gamma_22_corrected_linear_lock);
 	if (linear == NULL)
 	{
 		static cmsCIExyYTRIPLE srgb_primaries = {
@@ -265,7 +269,7 @@ is_profile_gamma_22_corrected(cmsHPROFILE *profile)
 		gamma[0] = gamma[1] = gamma[2] = cmsBuildGamma(2,1.0);
 		linear = cmsCreateRGBProfile(&D65, &srgb_primaries, gamma);
 	}
-	g_static_mutex_unlock(&lock);
+	g_mutex_unlock(is_profile_gamma_22_corrected_linear_lock);
 
 	testtransform = cmsCreateTransform(profile, TYPE_RGB_16, linear, TYPE_RGB_16, INTENT_PERCEPTUAL, 0);
 	cmsDoTransform(testtransform, table_lin, buffer, 9);
