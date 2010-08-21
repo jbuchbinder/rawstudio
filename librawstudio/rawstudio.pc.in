@@ -7,6 +7,6 @@ plugindir=@prefix@/share/rawstudio/plugins
 Name: @PACKAGE@
 Description: Rawstudio backend library
 Version: @VERSION@
-Libs: -L${libdir} -l@PACKAGE@-@VERSION@
-Cflags: -I${includedir}/@PACKAGE@-@VERSION@ -I${libdir}/@PACKAGE@-@VERSION@/include
+Libs: -L${libdir} -l@PACKAGE@
+Cflags: -I${includedir}/@PACKAGE@ -I${libdir}/@PACKAGE@/include
 Requires: gtk+-2.0

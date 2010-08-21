@@ -106,7 +106,7 @@ AM_CONDITIONAL(CAN_COMPILE_SSE2, test "$_CAN_COMPILE_SSE2" = yes)
 AC_OUTPUT([
 Makefile
 librawstudio/Makefile
-librawstudio/rawstudio-1.1.pc
+librawstudio/rawstudio.pc
 plugins/Makefile
 plugins/cache/Makefile
 plugins/colorspace-adobergb/Makefile

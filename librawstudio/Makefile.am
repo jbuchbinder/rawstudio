@@ -10,7 +10,7 @@ INCLUDES = \
 	-DPACKAGE_LOCALE_DIR=\""$(prefix)/$(DATADIRNAME)/locale"\" \
 	@PACKAGE_CFLAGS@
 
-library_includedir=$(includedir)/@PACKAGE@-@VERSION@/
+library_includedir=$(includedir)/@PACKAGE@/
 library_include_HEADERS = rawstudio.h rs-types.h rs-macros.h \
 	rs-io-job.h \
 	rs-io-job-checksum.h \
@@ -56,8 +56,8 @@ library_include_HEADERS = rawstudio.h rs-types.h rs-macros.h \
 	rs-profile-camera.h \
 	x86-cpu.h
 
-lib_LTLIBRARIES = librawstudio-1.1.la
-librawstudio_1_1_la_SOURCES = \
+lib_LTLIBRARIES = librawstudio.la
+librawstudio_la_SOURCES = \
 	rs-io-job.c rs-io-job.h \
 	rs-io-job-checksum.c rs-io-job-checksum.h \
 	rs-io-job-metadata.c rs-io-job-metadata.h \
@@ -102,7 +102,7 @@ librawstudio_1_1_la_SOURCES = \
 	conf_interface.c conf_interface.h \
 	rs-stock.c rs-stock.h
 
-librawstudio_1_1_la_LIBADD = @PACKAGE_LIBS@ @LIBJPEG@ @LIBTIFF@ $(INTLLIBS)
+librawstudio_la_LIBADD = @PACKAGE_LIBS@ @LIBJPEG@ @LIBTIFF@ $(INTLLIBS)
 
 pkgconfigdir = $(libdir)/pkgconfig
-pkgconfig_DATA = rawstudio-1.1.pc
+pkgconfig_DATA = rawstudio.pc
