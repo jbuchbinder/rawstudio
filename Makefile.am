@@ -10,7 +10,7 @@ EXTRA_DIST = \
 	ChangeLog \
 	rawstudio.desktop \
 	gettext.h \
-	.version $(SVNINFO)
+	.version
 
 ChangeLog:
 	svn2cl -i
