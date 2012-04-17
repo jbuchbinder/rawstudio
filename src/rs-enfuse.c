@@ -56,11 +56,18 @@ GList * export_images(GList *files)
   RSFilter *ftransform_display = rs_filter_new("RSColorspaceTransform", fdenoise);
   RSFilter *fend = ftransform_display;
   
-  RSOutput *output = rs_output_new("RSJpegfile");
+  RSOutput *output = rs_output_new("RSTifffile");
 
   RS_PHOTO *photo = NULL;
 
   GList *exported_names = NULL;
+
+  if (g_object_class_find_property(G_OBJECT_GET_CLASS(output), "uncompressed"))
+    g_object_set(output, "uncompressed", FALSE, NULL);
+  if (g_object_class_find_property(G_OBJECT_GET_CLASS(output), "save16bit"))
+    g_object_set(output, "save16bit", TRUE, NULL);
+  if (g_object_class_find_property(G_OBJECT_GET_CLASS(output), "copy-metadata"))
+    g_object_set(output, "copy-metadata", FALSE, NULL);
 
   num_selected = g_list_length(files);
   if (g_list_length(files))
@@ -70,7 +77,7 @@ GList * export_images(GList *files)
 	  name = (gchar*) g_list_nth_data(files, i);
 	  output_unique = g_string_new(output_str->str);
 	  g_string_append_printf(output_unique, "%d", i);
-	  output_unique = g_string_append(output_unique, ".jpg");
+	  output_unique = g_string_append(output_unique, ".tif");
   	  exported_names = g_list_append(exported_names, output_unique->str);
 
 	  photo = rs_photo_load_from_file(name);
