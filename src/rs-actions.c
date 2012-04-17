@@ -42,6 +42,7 @@
 #include "rs-camera-db.h"
 #include "rs-toolbox.h"
 #include "rs-tethered-shooting.h"
+#include "rs-enfuse.h"
 
 static GtkActionGroup *core_action_group = NULL;
 static GStaticMutex rs_actions_spinlock = G_STATIC_MUTEX_INIT;
@@ -1415,6 +1416,14 @@ ACTION(about)
 	);
 }
 
+ACTION(enfuse)
+{
+  GList *selected_names = rs_store_get_selected_names(rs->store);
+  gchar *filename = rs_enfuse(selected_names);
+  g_list_free(selected_names);
+  rs_store_load_file(rs->store, filename);
+}
+
 RADIOACTION(right_popup)
 {
 	rs_preview_widget_set_snapshot(RS_PREVIEW_WIDGET(rs->preview), 1, gtk_radio_action_get_current_value(radioaction));
@@ -1494,6 +1503,7 @@ rs_get_core_action_group(RS_BLOB *rs)
 	{ "RotateCounterClockwise", RS_STOCK_ROTATE_COUNTER_CLOCKWISE, _("Rotate Counterclockwise"), "<alt>Left", NULL, ACTION_CB(rotate_counter_clockwise) },
 	{ "Flip", RS_STOCK_FLIP, _("Flip"), NULL, NULL, ACTION_CB(flip) },
 	{ "Mirror", RS_STOCK_MIRROR, _("Mirror"), NULL, NULL, ACTION_CB(mirror) },
+	{ "Enfuse", NULL, _("Enfuse"), "<ctrl><alt>E", NULL, ACTION_CB(enfuse) },
 
 	/* View menu */
 	{ "PreviousPhoto", GTK_STOCK_GO_BACK, _("_Previous Photo"), "<control>Left", NULL, ACTION_CB(previous_photo) },

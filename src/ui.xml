@@ -43,6 +43,7 @@
    <menuitem action="RotateCounterClockwise" />
    <menuitem action="Flip" />
    <menuitem action="Mirror" />
+   <menuitem action="Enfuse" />
   </menu>
   <menu action="ViewMenu">
    <menuitem action="PreviousPhoto" />
