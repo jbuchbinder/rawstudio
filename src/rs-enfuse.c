@@ -180,3 +180,57 @@ gchar * rs_enfuse(GList *files)
   enfuse_images(aligned_names, fullpath->str);
   return fullpath->str;
 }
+
+gboolean rs_has_enfuse (gint major, gint minor)
+{
+  FILE *fp;
+  char line1[128];
+  char line2[128];
+  int _major = 0, _minor = 0;
+  gboolean retval = FALSE;
+
+  fp = popen("enfuse -V","r"); /* enfuse 4.0-753b534c819d */
+  if (fgets(line1, sizeof line1, fp) == NULL)
+    {
+      g_warning("fgets returned: %d\n", retval);
+      return FALSE;
+    }
+  pclose(fp);
+
+  fp = popen("enfuse -h","r"); /* ==== enfuse, version 3.2 ==== */
+  if (fgets(line2, sizeof line2, fp) == NULL)
+    {
+      g_warning("fgets returned: %d\n", retval);
+      return FALSE;
+    }
+  pclose(fp);
+
+  GRegex *regex;
+  gchar **tokens;
+
+  regex = g_regex_new("(enfuse|.* enfuse, version) ([0-9])\x2E([0-9]+).*", 0, 0, NULL);
+  tokens = g_regex_split(regex, line1, 0);
+  if (tokens)
+    {
+      g_regex_unref(regex);
+    }
+  else 
+    {
+      tokens = g_regex_split(regex, line2, 0);
+      g_regex_unref(regex);
+      if (!tokens)
+	return FALSE;
+    }
+
+  _major = atoi(tokens[2]);
+  _minor = atoi(tokens[3]);
+
+  if (_major > major) {
+    retval = TRUE;
+  } else if (_major == major) {
+    if (_minor >= minor) {
+      retval = TRUE;
+    }
+  }
+  return retval;
+}

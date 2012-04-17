@@ -23,5 +23,6 @@
 #include "application.h"
 
 extern gchar * rs_enfuse(GList *files);
+extern gboolean rs_has_enfuse (gint major, gint minor);
 
 #endif /* RS_ENFUSE_H  */

@@ -111,6 +111,7 @@ rs_core_actions_update_menu_items(RS_BLOB *rs)
 	rs_core_action_group_set_sensivity("RotateCounterClockwise", RS_IS_PHOTO(rs->photo));
 	rs_core_action_group_set_sensivity("Flip", RS_IS_PHOTO(rs->photo));
 	rs_core_action_group_set_sensivity("Mirror", RS_IS_PHOTO(rs->photo));
+	rs_core_action_group_set_sensivity("Enfuse", rs_has_enfuse(4,0));
 #ifndef EXPERIMENTAL
 	rs_core_action_group_set_visibility("Group", FALSE);
 	rs_core_action_group_set_visibility("Ungroup", FALSE);
