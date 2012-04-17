@@ -32,6 +32,8 @@
 #include "rs-photo.h"
 #include "rs-cache.h"
 
+gboolean has_align_image_stack ();
+
 GList * export_images(GList *files)
 {
   gint num_selected = g_list_length(files);
@@ -176,7 +178,11 @@ gchar * rs_enfuse(GList *files)
       fullpath = g_string_append(fullpath, ".tif");
     }
   GList *exported_names = export_images(files);
-  GList *aligned_names = align_images(exported_names);
+  GList *aligned_names = NULL;
+  if (has_align_image_stack())
+      aligned_names = align_images(exported_names);
+  else
+      aligned_names = exported_names;
   enfuse_images(aligned_names, fullpath->str);
   return fullpath->str;
 }
@@ -233,4 +239,20 @@ gboolean rs_has_enfuse (gint major, gint minor)
     }
   }
   return retval;
+}
+
+gboolean has_align_image_stack ()
+{
+  FILE *fp;
+  char line[128];
+  gboolean retval = FALSE;
+
+  fp = popen("align_image_stack 2>&1","r");
+  if (fgets(line, sizeof line, fp) == NULL)
+    {
+      g_warning("fgets returned: %d\n", retval);
+      return FALSE;
+    }
+  pclose(fp);
+  return TRUE;
 }
