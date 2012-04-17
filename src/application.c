@@ -164,7 +164,7 @@ rs_photo_save(RS_PHOTO *photo, RSFilter *prior_to_resample, RSOutput *output, gi
 	rs_cache_save(photo, MASK_ALL);
 
 	/* Set the exported flag */
-	rs_store_set_flags(NULL, photo->filename, NULL, NULL, &photo->exported);
+	rs_store_set_flags(NULL, photo->filename, NULL, NULL, &photo->exported, &photo->hdr);
 
 	g_object_unref(ftransform_input);
 	g_object_unref(ftransform_display);

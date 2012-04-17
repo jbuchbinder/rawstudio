@@ -1423,6 +1423,11 @@ ACTION(enfuse)
   gchar *filename = rs_enfuse(selected_names);
   g_list_free(selected_names);
   rs_store_load_file(rs->store, filename);
+
+  gboolean hdr = TRUE;
+
+  rs_store_set_flags(rs->store, filename, NULL, NULL, NULL, &hdr);
+
 }
 
 RADIOACTION(right_popup)

@@ -379,7 +379,7 @@ gui_setprio(RS_BLOB *rs, guint prio)
 /* Iterate throuh all selected thumbnails */
 	for(i=0;i<num_selected;i++)
 	{
-		rs_store_set_flags(rs->store, NULL, g_list_nth_data(selected, i), &prio, NULL);
+		rs_store_set_flags(rs->store, NULL, g_list_nth_data(selected, i), &prio, NULL, NULL);
 	}
 	g_list_free(selected);
 
@@ -387,7 +387,7 @@ gui_setprio(RS_BLOB *rs, guint prio)
 	if (rs->photo && rs_store_is_photo_selected(rs->store, rs->photo->filename))
 	{
 		rs->photo->priority = prio;
-		rs_store_set_flags(rs->store, rs->photo->filename, NULL, &prio, NULL);
+		rs_store_set_flags(rs->store, rs->photo->filename, NULL, &prio, NULL, NULL);
 	}
 
 	/* Generate text for statusbar notification */
