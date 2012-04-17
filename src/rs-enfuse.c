@@ -160,12 +160,15 @@ gchar * rs_enfuse(GList *files)
   gchar *file = NULL;
   GString *outname = g_string_new("");
   GString *fullpath = NULL;
+  gchar *first;
 
   if (g_list_length(files))
     {
       for(i=0; i<num_selected; i++)
 	{
 	  name = (gchar*) g_list_nth_data(files, i);
+	  if (i == 0)
+	    first = g_strdup(name);
 	  file = g_malloc(sizeof(char)*strlen(name));
 	  sscanf(g_path_get_basename(name), "%[^.]", file);
 	  outname = g_string_append(outname, file);
@@ -184,6 +187,9 @@ gchar * rs_enfuse(GList *files)
   else
       aligned_names = exported_names;
   enfuse_images(aligned_names, fullpath->str);
+
+  rs_exif_copy(first, fullpath->str, "sRGB", RS_EXIF_FILE_TYPE_TIFF);
+
   return fullpath->str;
 }
 
