@@ -163,6 +163,7 @@ gchar * rs_enfuse(GList *files)
   GString *outname = g_string_new("");
   GString *fullpath = NULL;
   gchar *first;
+  gchar *last;
   gchar *align_options = NULL;
   gchar *enfuse_options = NULL;
 
@@ -171,8 +172,10 @@ gchar * rs_enfuse(GList *files)
       for(i=0; i<num_selected; i++)
 	{
 	  name = (gchar*) g_list_nth_data(files, i);
-	  if (i == 0)
+	  if (i == 0) /* FIXME: need to find the darkest */
 	    first = g_strdup(name);
+	  if (i == num_selected-1) /* FIXME: need to find the brightest */
+	    last = g_strdup(name); 
 	  file = g_malloc(sizeof(char)*strlen(name));
 	  sscanf(g_path_get_basename(name), "%[^.]", file);
 	  outname = g_string_append(outname, file);
