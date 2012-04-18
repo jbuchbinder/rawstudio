@@ -108,7 +108,7 @@ GList * export_images(GList *files)
   return exported_names;
 }
 
-GList * align_images (GList *files) {
+GList * align_images (GList *files, gchar *options) {
   gint num_selected = g_list_length(files);
   gint i;
   gchar *name;
@@ -117,6 +117,8 @@ GList * align_images (GList *files) {
   if (g_list_length(files))
     {
       GString *command = g_string_new("align_image_stack -a /tmp/.rawstudio-enfuse-aligned- ");
+      command = g_string_append(command, options);
+      command = g_string_append(command, " ");
       for(i=0; i<num_selected; i++)
 	{
 	  name = (gchar*) g_list_nth_data(files, i);
@@ -130,7 +132,7 @@ GList * align_images (GList *files) {
   return aligned_names;
 }
 
-void enfuse_images(GList *files, gchar *out) {
+void enfuse_images(GList *files, gchar *out, gchar *options) {
   gint num_selected = g_list_length(files);
   gint i;
   gchar *name;
@@ -144,8 +146,8 @@ void enfuse_images(GList *files, gchar *out) {
 	  command = g_string_append(command, name);
 	  command = g_string_append(command, " ");
 	}
-      //      command = g_string_append(command, "-d 16 -o /tmp/hdr.tif");
-      command = g_string_append(command, "-o ");
+      command = g_string_append(command, options);
+      command = g_string_append(command, " -o ");
       command = g_string_append(command, out);
       printf("command: %s\n", command->str);
       if(system(command->str));
@@ -161,6 +163,8 @@ gchar * rs_enfuse(GList *files)
   GString *outname = g_string_new("");
   GString *fullpath = NULL;
   gchar *first;
+  gchar *align_options = NULL;
+  gchar *enfuse_options = NULL;
 
   if (g_list_length(files))
     {
@@ -183,10 +187,10 @@ gchar * rs_enfuse(GList *files)
   GList *exported_names = export_images(files);
   GList *aligned_names = NULL;
   if (has_align_image_stack())
-      aligned_names = align_images(exported_names);
+      aligned_names = align_images(exported_names, align_options);
   else
       aligned_names = exported_names;
-  enfuse_images(aligned_names, fullpath->str);
+  enfuse_images(aligned_names, fullpath->str, enfuse_options);
 
   rs_exif_copy(first, fullpath->str, "sRGB", RS_EXIF_FILE_TYPE_TIFF);
 
