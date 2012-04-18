@@ -34,7 +34,7 @@
 
 gboolean has_align_image_stack ();
 
-GList * export_images(GList *files)
+GList * export_images(GList *files, gchar *first, gchar *last)
 {
   gint num_selected = g_list_length(files);
   gint i;
@@ -90,7 +90,6 @@ GList * export_images(GList *files)
 
 	      GList *filters = g_list_append(NULL, fend);
 	      rs_photo_apply_to_filters(photo, filters, 0); /* FIXME: hardcoded */
-	      g_list_free(filters);
       
 	      rs_filter_set_recursive(fend,
 				      "image", photo->input_response,
@@ -102,6 +101,33 @@ GList * export_images(GList *files)
 
 	      rs_output_set_from_conf(output, "batch");
 	      rs_output_execute(output, fend);
+	      if (g_strcmp0(name, first) == 0) {
+		photo->settings[0]->exposure = -2.0;
+		  rs_photo_set_exposure(photo, 0, -2.0); /* FIXME: hardcoded */
+	      rs_photo_apply_to_filters(photo, filters, 0); /* FIXME: hardcoded */
+		  output_unique = g_string_new(output_str->str);
+		  g_string_append_printf(output_unique, "%d", i);
+		  output_unique = g_string_append(output_unique, "-2");
+		  output_unique = g_string_append(output_unique, ".tif");
+		  exported_names = g_list_append(exported_names, output_unique->str);
+		  if (g_object_class_find_property(G_OBJECT_GET_CLASS(output), "filename"))
+		    g_object_set(output, "filename", output_unique->str, NULL);
+		  rs_output_execute(output, fend);
+		}
+	      if (g_strcmp0(name, last) == 0) {
+		photo->settings[0]->exposure = 2.0;
+		  rs_photo_set_exposure(photo, 0, 2.0); /* FIXME: hardcoded */
+	      rs_photo_apply_to_filters(photo, filters, 0); /* FIXME: hardcoded */
+		  output_unique = g_string_new(output_str->str);
+		  g_string_append_printf(output_unique, "%d", i);
+		  output_unique = g_string_append(output_unique, "+2");
+		  output_unique = g_string_append(output_unique, ".tif");
+		  exported_names = g_list_append(exported_names, output_unique->str);
+		  if (g_object_class_find_property(G_OBJECT_GET_CLASS(output), "filename"))
+		    g_object_set(output, "filename", output_unique->str, NULL);
+		  rs_output_execute(output, fend);
+		}
+	      g_list_free(filters);
 	    }
 	}
     }
@@ -162,10 +188,10 @@ gchar * rs_enfuse(GList *files)
   gchar *file = NULL;
   GString *outname = g_string_new("");
   GString *fullpath = NULL;
-  gchar *first;
-  gchar *last;
+  gchar *first = NULL;
+  gchar *last = NULL;
   gchar *align_options = NULL;
-  gchar *enfuse_options = NULL;
+  gchar *enfuse_options = g_strdup("-d 16");
 
   if (g_list_length(files))
     {
@@ -187,9 +213,9 @@ gchar * rs_enfuse(GList *files)
       fullpath = g_string_append(fullpath, outname->str);
       fullpath = g_string_append(fullpath, ".tif");
     }
-  GList *exported_names = export_images(files);
+  GList *exported_names = export_images(files, first, last);
   GList *aligned_names = NULL;
-  if (has_align_image_stack())
+  if (has_align_image_stack() && num_selected > 1)
       aligned_names = align_images(exported_names, align_options);
   else
       aligned_names = exported_names;
