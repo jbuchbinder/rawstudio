@@ -7,7 +7,7 @@ rawstudio_DATA = 	overlay_deleted.png \
 		overlay_priority2.png \
 		overlay_priority3.png \
 		overlay_exported.png \
-		overlay_hdr.png \
+		overlay_enfuse.png \
 		transform_flip.png \
 		transform_mirror.png \
 		transform_90.png \
