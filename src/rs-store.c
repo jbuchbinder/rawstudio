@@ -1543,7 +1543,7 @@ rs_store_set_flags(RSStore *store, const gchar *filename, GtkTreeIter *iter,
 		if (enfuse)
 			enfu = *enfuse;
 
-		thumbnail_update(pixbuf, pixbuf_clean, prio, expo, hd, DROPSHADOWOFFSET);
+		thumbnail_update(pixbuf, pixbuf_clean, prio, expo, enfu, DROPSHADOWOFFSET);
 
 		gtk_list_store_set (store->store, iter,
 				PRIORITY_COLUMN, prio,
