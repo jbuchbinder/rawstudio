@@ -66,7 +66,7 @@ static GdkPixbuf *icon_priority_2 = NULL;
 static GdkPixbuf *icon_priority_3 = NULL;
 static GdkPixbuf *icon_priority_D = NULL;
 static GdkPixbuf *icon_exported = NULL;
-static GdkPixbuf *icon_hdr = NULL;
+static GdkPixbuf *icon_enfuse = NULL;
 static GdkPixbuf *icon_default = NULL;
 
 enum {
@@ -77,7 +77,7 @@ enum {
 	FULLNAME_COLUMN, /* Full path to image */
 	PRIORITY_COLUMN,
 	EXPORTED_COLUMN,
-	HDR_COLUMN,
+	ENFUSE_COLUMN,
 	METADATA_COLUMN, /* RSMetadata for image */
 	TYPE_COLUMN,
 	GROUP_LIST_COLUMN,
@@ -143,7 +143,7 @@ const static guint priorities[NUM_VIEWS] = {PRIO_ALL, PRIO_1, PRIO_2, PRIO_3, PR
 static gboolean scroll_event(GtkWidget *widget, GdkEventScroll *event, gpointer user_data);
 static void selection_changed(GtkIconView *iconview, gpointer data);
 static void thumbnail_overlay(GdkPixbuf *pixbuf, GdkPixbuf *lowerleft, GdkPixbuf *lowerright, GdkPixbuf *topleft, GdkPixbuf *topright, gint shadow);
-static void thumbnail_update(GdkPixbuf *pixbuf, GdkPixbuf *pixbuf_clean, gint priority, gboolean exported, gboolean hdr, gint shadow);
+static void thumbnail_update(GdkPixbuf *pixbuf, GdkPixbuf *pixbuf_clean, gint priority, gboolean exported, gboolean enfuse, gint shadow);
 static void switch_page(GtkNotebook *notebook, GtkNotebookPage *page, guint page_num, gpointer data);
 static void selection_changed(GtkIconView *iconview, gpointer data);
 static GtkWidget *make_iconview(GtkWidget *iconview, RSStore *store, gint prio);
@@ -212,7 +212,7 @@ rs_store_class_init(RSStoreClass *klass)
 		icon_priority_3 = gdk_pixbuf_new_from_file(PACKAGE_DATA_DIR G_DIR_SEPARATOR_S "pixmaps" G_DIR_SEPARATOR_S PACKAGE G_DIR_SEPARATOR_S "overlay_priority3.png", NULL);
 		icon_priority_D = gdk_pixbuf_new_from_file(PACKAGE_DATA_DIR G_DIR_SEPARATOR_S "pixmaps" G_DIR_SEPARATOR_S PACKAGE G_DIR_SEPARATOR_S "overlay_deleted.png", NULL);
 		icon_exported = gdk_pixbuf_new_from_file(PACKAGE_DATA_DIR G_DIR_SEPARATOR_S "pixmaps" G_DIR_SEPARATOR_S PACKAGE G_DIR_SEPARATOR_S "overlay_exported.png", NULL);
-		icon_hdr = gdk_pixbuf_new_from_file(PACKAGE_DATA_DIR G_DIR_SEPARATOR_S "pixmaps" G_DIR_SEPARATOR_S PACKAGE G_DIR_SEPARATOR_S "overlay_hdr.png", NULL);
+		icon_enfuse = gdk_pixbuf_new_from_file(PACKAGE_DATA_DIR G_DIR_SEPARATOR_S "pixmaps" G_DIR_SEPARATOR_S PACKAGE G_DIR_SEPARATOR_S "overlay_enfuse.png", NULL);
 	}
 }
 
@@ -1097,11 +1097,11 @@ thumbnail_overlay(GdkPixbuf *pixbuf, GdkPixbuf *lowerleft, GdkPixbuf *lowerright
 }
 
 static void
-thumbnail_update(GdkPixbuf *pixbuf, GdkPixbuf *pixbuf_clean, gint priority, gboolean exported, gboolean hdr, gint shadow)
+thumbnail_update(GdkPixbuf *pixbuf, GdkPixbuf *pixbuf_clean, gint priority, gboolean exported, gboolean enfuse, gint shadow)
 {
 	GdkPixbuf *icon_priority_temp;
 	GdkPixbuf *icon_exported_temp;
-	GdkPixbuf *icon_hdr_temp;
+	GdkPixbuf *icon_enfuse_temp;
 
 	if (!pixbuf_clean)
 		return;
@@ -1136,12 +1136,12 @@ thumbnail_update(GdkPixbuf *pixbuf, GdkPixbuf *pixbuf_clean, gint priority, gboo
 	else
 		icon_exported_temp = NULL;
 
-	if (hdr)
-		icon_hdr_temp = icon_hdr;
+	if (enfuse)
+		icon_enfuse_temp = icon_enfuse;
 	else
-		icon_hdr_temp = NULL;
+		icon_enfuse_temp = NULL;
 
-	thumbnail_overlay(pixbuf, icon_exported_temp, icon_priority_temp, icon_hdr_temp, NULL, shadow);
+	thumbnail_overlay(pixbuf, icon_exported_temp, icon_priority_temp, icon_enfuse_temp, NULL, shadow);
 }
 
 static void
@@ -1495,7 +1495,7 @@ rs_store_load_directory(RSStore *store, const gchar *path)
  */
 gboolean
 rs_store_set_flags(RSStore *store, const gchar *filename, GtkTreeIter *iter,
-		   const guint *priority, const gboolean *exported, const gboolean *hdr)
+		   const guint *priority, const gboolean *exported, const gboolean *enfuse)
 {
 	GtkTreeIter i;
 
@@ -1505,7 +1505,7 @@ rs_store_set_flags(RSStore *store, const gchar *filename, GtkTreeIter *iter,
 		gboolean ret = FALSE;
 		for (i=0;i<g_list_length(all_stores);i++)
 		{
-		  if(rs_store_set_flags(g_list_nth_data(all_stores, i), filename, iter, priority, exported, hdr))
+		  if(rs_store_set_flags(g_list_nth_data(all_stores, i), filename, iter, priority, exported, enfuse))
 				ret = TRUE;
 		}
 		return ret;
@@ -1522,7 +1522,7 @@ rs_store_set_flags(RSStore *store, const gchar *filename, GtkTreeIter *iter,
 	if (iter)
 	{
 		guint prio;
-		gboolean expo, hd;
+		gboolean expo, enfu;
 		GdkPixbuf *pixbuf;
 		GdkPixbuf *pixbuf_clean;
 		gchar *fullname;
@@ -1532,7 +1532,7 @@ rs_store_set_flags(RSStore *store, const gchar *filename, GtkTreeIter *iter,
 			PIXBUF_CLEAN_COLUMN, &pixbuf_clean,
 			PRIORITY_COLUMN, &prio,
 			EXPORTED_COLUMN, &expo,
-			HDR_COLUMN, &hd,
+			ENFUSE_COLUMN, &enfu,
 			FULLNAME_COLUMN, &fullname,
 			-1);
 
@@ -1540,8 +1540,8 @@ rs_store_set_flags(RSStore *store, const gchar *filename, GtkTreeIter *iter,
 			prio = *priority;
 		if (exported)
 			expo = *exported;
-		if (hdr)
-			hd = *hdr;
+		if (enfuse)
+			enfu = *enfuse;
 
 		thumbnail_update(pixbuf, pixbuf_clean, prio, expo, hd, DROPSHADOWOFFSET);
 
@@ -1551,7 +1551,7 @@ rs_store_set_flags(RSStore *store, const gchar *filename, GtkTreeIter *iter,
 
 		/* Update the cache */
 		if (priority || exported)
-		  rs_cache_save_flags(fullname, priority, exported, hdr);
+		  rs_cache_save_flags(fullname, priority, exported, enfuse);
 		return TRUE;
 	}
 
@@ -2168,7 +2168,7 @@ store_group_select_n(GtkListStore *store, GtkTreeIter iter, guint n)
 	gchar *name_full = NULL;
 	guint priority;
 	gboolean exported;
-	gboolean hdr;
+	gboolean enfuse;
 
 	store_get_members(store, &iter, &members);
 
@@ -2182,13 +2182,13 @@ store_group_select_n(GtkListStore *store, GtkTreeIter iter, guint n)
 					   FULLNAME_COLUMN, &fullname,
 					   PRIORITY_COLUMN, &priority,
 					   EXPORTED_COLUMN, &exported,
-					   HDR_COLUMN, &hdr,
+					   ENFUSE_COLUMN, &enfuse,
 					   -1);
 
 	pixbuf_clean = store_group_update_pixbufs(pixbuf, pixbuf_clean);
 	pixbuf = gdk_pixbuf_copy(pixbuf_clean);
 	
-	thumbnail_update(pixbuf, pixbuf_clean, priority, exported, hdr, DROPSHADOWOFFSET);
+	thumbnail_update(pixbuf, pixbuf_clean, priority, exported, enfuse, DROPSHADOWOFFSET);
 
 	gtk_list_store_set (store, &iter,
 					PIXBUF_COLUMN, pixbuf,
@@ -2198,7 +2198,7 @@ store_group_select_n(GtkListStore *store, GtkTreeIter iter, guint n)
 					FULLNAME_COLUMN, fullname,
 					PRIORITY_COLUMN, priority,
 					EXPORTED_COLUMN, exported,
-					HDR_COLUMN, hdr,
+					ENFUSE_COLUMN, enfuse,
 					-1);
 
 	store_save_groups(store);
@@ -2823,7 +2823,7 @@ rs_store_update_thumbnail(RSStore *store, const gchar *filename, GdkPixbuf *pixb
 	GtkTreeIter i;
 	guint prio;
 	gboolean expo;
-	gboolean hdr;
+	gboolean enfuse;
 
 	if (!pixbuf || !filename || !store || !store->store)
 		return;
@@ -2838,11 +2838,11 @@ rs_store_update_thumbnail(RSStore *store, const gchar *filename, GdkPixbuf *pixb
 		gtk_tree_model_get(GTK_TREE_MODEL(store->store), &i,
 			PRIORITY_COLUMN, &prio,
 			EXPORTED_COLUMN, &expo,
-			HDR_COLUMN, &hdr,
+			ENFUSE_COLUMN, &enfuse,
 			-1);
 
 		gdk_threads_enter();
-		thumbnail_update(pixbuf, pixbuf_clean, prio, expo, hdr, DROPSHADOWOFFSET);
+		thumbnail_update(pixbuf, pixbuf_clean, prio, expo, enfuse, DROPSHADOWOFFSET);
 
 		gtk_list_store_set(GTK_LIST_STORE(store->store), &i,
 			PIXBUF_COLUMN, pixbuf,
@@ -2860,7 +2860,7 @@ got_metadata(RSMetadata *metadata, gpointer user_data)
 {
 	WORKER_JOB *job = user_data;
 	gboolean exported;
-	gboolean hdr;
+	gboolean enfuse;
 	gint priority;
 	GdkPixbuf *pixbuf, *pixbuf_clean, *pixbuf2;
 
@@ -2884,10 +2884,10 @@ got_metadata(RSMetadata *metadata, gpointer user_data)
 #endif
 	pixbuf_clean = gdk_pixbuf_copy(pixbuf);
 
-	rs_cache_load_quick(job->filename, &priority, &exported, &hdr);
+	rs_cache_load_quick(job->filename, &priority, &exported, &enfuse);
 
 	/* Update thumbnail */
-	thumbnail_update(pixbuf, pixbuf_clean, priority, exported, hdr, DROPSHADOWOFFSET);
+	thumbnail_update(pixbuf, pixbuf_clean, priority, exported, enfuse, DROPSHADOWOFFSET);
 
 	g_assert(pixbuf != NULL);
 	g_assert(pixbuf_clean != NULL);
@@ -2900,7 +2900,7 @@ got_metadata(RSMetadata *metadata, gpointer user_data)
 		PIXBUF_CLEAN_COLUMN, pixbuf_clean,
 		PRIORITY_COLUMN, priority,
 		EXPORTED_COLUMN, exported,
-		HDR_COLUMN, hdr,
+		ENFUSE_COLUMN, enfuse,
 		-1);
 	gdk_threads_leave();
 

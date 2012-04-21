@@ -55,7 +55,7 @@ typedef struct _photo {
 	RS_RECT *crop;
 	gdouble angle;
 	gboolean exported;
-	gboolean hdr;
+	gboolean enfuse;
 	RSColorSpace *embedded_profile;
 	RSDcpFile *dcp;
 	RSIccProfile *icc;

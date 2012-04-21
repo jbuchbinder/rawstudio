@@ -1424,9 +1424,9 @@ ACTION(enfuse)
   g_list_free(selected_names);
   rs_store_load_file(rs->store, filename);
 
-  gboolean hdr = TRUE;
+  gboolean enfuse = TRUE;
 
-  rs_store_set_flags(rs->store, filename, NULL, NULL, NULL, &hdr);
+  rs_store_set_flags(rs->store, filename, NULL, NULL, NULL, &enfuse);
 
 }
 
