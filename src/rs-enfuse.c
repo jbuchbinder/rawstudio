@@ -225,7 +225,8 @@ gchar * rs_enfuse(GList *files)
       aligned_names = exported_names;
   enfuse_images(aligned_names, fullpath->str, enfuse_options);
 
-  rs_exif_copy(first, fullpath->str, "sRGB", RS_EXIF_FILE_TYPE_TIFF);
+  // FIXME: Aparantly something goes wrong if we copy exifdata...
+  //  rs_exif_copy(first, fullpath->str, "sRGB", RS_EXIF_FILE_TYPE_TIFF);
 
   return fullpath->str;
 }
