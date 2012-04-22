@@ -1426,9 +1426,8 @@ ACTION(enfuse)
 
   gboolean enfuse = TRUE;
 
-  rs_store_set_flags(rs->store, filename, NULL, NULL, NULL, &enfuse);
   rs_store_set_selected_name(rs->store, filename, TRUE);
-
+  rs_store_set_flags(rs->store, filename, NULL, NULL, NULL, &enfuse);
 }
 
 RADIOACTION(right_popup)
