@@ -535,6 +535,7 @@ rs_cache_load_quick(const gchar *filename, gint *priority, gboolean *exported, g
 
 	if (priority) *priority = PRIO_U;
 	if (exported) *exported = FALSE;
+	if (exported) *enfuse = FALSE;
 
 	if (!filename)
 		return;
