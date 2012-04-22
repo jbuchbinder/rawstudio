@@ -1419,15 +1419,13 @@ ACTION(about)
 
 ACTION(enfuse)
 {
+  gboolean enfuse = TRUE;
   GList *selected_names = rs_store_get_selected_names(rs->store);
   gchar *filename = rs_enfuse(selected_names);
   g_list_free(selected_names);
+  rs_cache_save_flags(filename, NULL, NULL, &enfuse);
   rs_store_load_file(rs->store, filename);
-
-  gboolean enfuse = TRUE;
-
   rs_store_set_selected_name(rs->store, filename, TRUE);
-  rs_store_set_flags(rs->store, filename, NULL, NULL, NULL, &enfuse);
 }
 
 RADIOACTION(right_popup)
