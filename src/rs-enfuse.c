@@ -34,6 +34,35 @@
 
 gboolean has_align_image_stack ();
 
+gint export_image(gchar *filename, RSOutput *output, RSFilter *filter, gint snapshot, double exposure, gchar *outputname) {
+
+  RS_PHOTO *photo = rs_photo_load_from_file(filename);
+  if (photo)
+    {
+      rs_metadata_load_from_file(photo->metadata, filename);
+      rs_cache_load(photo);
+
+      GList *filters = g_list_append(NULL, filter);
+      rs_photo_set_exposure(photo, 0, exposure);
+      rs_photo_apply_to_filters(photo, filters, snapshot);
+      
+      rs_filter_set_recursive(filter,
+			      "image", photo->input_response,
+			      "filename", photo->filename,
+			      "bounding-box", TRUE,
+			      "width", 1000,
+			      "height", 1000,
+			      NULL);
+
+      if (g_object_class_find_property(G_OBJECT_GET_CLASS(output), "filename"))
+	g_object_set(output, "filename", outputname, NULL);
+
+      rs_output_set_from_conf(output, "batch");
+      rs_output_execute(output, filter);
+      g_list_free(filters);
+    }
+}
+
 GList * export_images(GList *files, gchar *first, gchar *last)
 {
   gint num_selected = g_list_length(files);
@@ -60,8 +89,6 @@ GList * export_images(GList *files, gchar *first, gchar *last)
   
   RSOutput *output = rs_output_new("RSTifffile");
 
-  RS_PHOTO *photo = NULL;
-
   GList *exported_names = NULL;
 
   if (g_object_class_find_property(G_OBJECT_GET_CLASS(output), "uncompressed"))
@@ -80,57 +107,25 @@ GList * export_images(GList *files, gchar *first, gchar *last)
 	  output_unique = g_string_new(output_str->str);
 	  g_string_append_printf(output_unique, "%d", i);
 	  output_unique = g_string_append(output_unique, ".tif");
+	  export_image(name, output, fend, 0, 0.0, output_unique->str); /* FIXME: snapshot hardcoded */
   	  exported_names = g_list_append(exported_names, output_unique->str);
-
-	  photo = rs_photo_load_from_file(name);
-	  if (photo)
+	  if (g_strcmp0(name, first) == 0) 
+	    {  
+	      output_unique = g_string_new(output_str->str);
+	      g_string_append_printf(output_unique, "%d", i);
+	      output_unique = g_string_append(output_unique, "-2");
+	      output_unique = g_string_append(output_unique, ".tif");
+	      exported_names = g_list_append(exported_names, output_unique->str);
+	      export_image(name, output, fend, 0, -2.0, output_unique->str); /* FIXME: snapshot hardcoded */
+	    }
+	  if (g_strcmp0(name, last) == 0)
 	    {
-	      rs_metadata_load_from_file(photo->metadata, name);
-	      rs_cache_load(photo);
-
-	      GList *filters = g_list_append(NULL, fend);
-	      rs_photo_apply_to_filters(photo, filters, 0); /* FIXME: hardcoded */
-      
-	      rs_filter_set_recursive(fend,
-				      "image", photo->input_response,
-				      "filename", photo->filename,
-				      "bounding-box", TRUE,
-				      "width", 1000,
-				      "height", 1000,
-				      NULL);
-
-	      if (g_object_class_find_property(G_OBJECT_GET_CLASS(output), "filename"))
-		g_object_set(output, "filename", output_unique->str, NULL);
-
-	      rs_output_set_from_conf(output, "batch");
-	      rs_output_execute(output, fend);
-	      if (g_strcmp0(name, first) == 0) {
-		photo->settings[0]->exposure = -2.0;
-		  rs_photo_set_exposure(photo, 0, -2.0); /* FIXME: hardcoded */
-	      rs_photo_apply_to_filters(photo, filters, 0); /* FIXME: hardcoded */
-		  output_unique = g_string_new(output_str->str);
-		  g_string_append_printf(output_unique, "%d", i);
-		  output_unique = g_string_append(output_unique, "-2");
-		  output_unique = g_string_append(output_unique, ".tif");
-		  exported_names = g_list_append(exported_names, output_unique->str);
-		  if (g_object_class_find_property(G_OBJECT_GET_CLASS(output), "filename"))
-		    g_object_set(output, "filename", output_unique->str, NULL);
-		  rs_output_execute(output, fend);
-		}
-	      if (g_strcmp0(name, last) == 0) {
-		photo->settings[0]->exposure = 2.0;
-		  rs_photo_set_exposure(photo, 0, 2.0); /* FIXME: hardcoded */
-	      rs_photo_apply_to_filters(photo, filters, 0); /* FIXME: hardcoded */
-		  output_unique = g_string_new(output_str->str);
-		  g_string_append_printf(output_unique, "%d", i);
-		  output_unique = g_string_append(output_unique, "+2");
-		  output_unique = g_string_append(output_unique, ".tif");
-		  exported_names = g_list_append(exported_names, output_unique->str);
-		  if (g_object_class_find_property(G_OBJECT_GET_CLASS(output), "filename"))
-		    g_object_set(output, "filename", output_unique->str, NULL);
-		  rs_output_execute(output, fend);
-		}
-	      g_list_free(filters);
+	      output_unique = g_string_new(output_str->str);
+	      g_string_append_printf(output_unique, "%d", i);
+	      output_unique = g_string_append(output_unique, "+2");
+	      output_unique = g_string_append(output_unique, ".tif");
+	      exported_names = g_list_append(exported_names, output_unique->str);
+	      export_image(name, output, fend, 0, 2.0, output_unique->str); /* FIXME: snapshot hardcoded */
 	    }
 	}
     }
@@ -195,7 +190,7 @@ gchar * rs_enfuse(GList *files)
   gchar *last = NULL;
   gchar *align_options = NULL;
   gchar *enfuse_options = g_strdup("-d 16");
-  gboolean extend = FALSE;
+  gboolean extend = TRUE;
 
   if (num_selected == 1)
     extend = TRUE;
@@ -205,7 +200,7 @@ gchar * rs_enfuse(GList *files)
       for(i=0; i<num_selected; i++)
 	{
 	  name = (gchar*) g_list_nth_data(files, i);
-	  if (i == 0 && extend) /* FIXME: need to find the darkest */
+	  if (i == 1 && extend) /* FIXME: need to find the darkest */
 	    first = g_strdup(name);
 	  if (i == num_selected-1 && extend) /* FIXME: need to find the brightest */
 	    last = g_strdup(name); 
