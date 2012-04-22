@@ -94,6 +94,9 @@ GList * export_images(GList *files, gchar *first, gchar *last)
 	      rs_filter_set_recursive(fend,
 				      "image", photo->input_response,
 				      "filename", photo->filename,
+				      "bounding-box", TRUE,
+				      "width", 1000,
+				      "height", 1000,
 				      NULL);
 
 	      if (g_object_class_find_property(G_OBJECT_GET_CLASS(output), "filename"))
