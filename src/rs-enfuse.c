@@ -95,7 +95,7 @@ gint export_image(gchar *filename, RSOutput *output, RSFilter *filter, gint snap
     return -1;
 }
 
-GList * export_images(GList *files, gchar *first, gchar *last)
+GList * export_images(GList *files, gboolean extend, gint dark, gfloat darkstep, gint bright, gfloat brightstep)
 {
   gint num_selected = g_list_length(files);
   gint i;
@@ -130,6 +130,12 @@ GList * export_images(GList *files, gchar *first, gchar *last)
   if (g_object_class_find_property(G_OBJECT_GET_CLASS(output), "copy-metadata"))
     g_object_set(output, "copy-metadata", FALSE, NULL);
 
+  gint lightness = 0;
+  gint darkval = 255;
+  gint brightval = 0;
+  gchar *darkest = NULL;
+  gchar *brightest = NULL;
+
   num_selected = g_list_length(files);
   if (g_list_length(files))
     {
@@ -139,26 +145,45 @@ GList * export_images(GList *files, gchar *first, gchar *last)
 	  output_unique = g_string_new(output_str->str);
 	  g_string_append_printf(output_unique, "%d", i);
 	  output_unique = g_string_append(output_unique, ".tif");
-	  export_image(name, output, fend, 0, 0.0, output_unique->str); /* FIXME: snapshot hardcoded */
+	  lightness = export_image(name, output, fend, 0, 0.0, output_unique->str); /* FIXME: snapshot hardcoded */
   	  exported_names = g_list_append(exported_names, output_unique->str);
-	  if (g_strcmp0(name, first) == 0) 
-	    {  
-	      output_unique = g_string_new(output_str->str);
-	      g_string_append_printf(output_unique, "%d", i);
-	      output_unique = g_string_append(output_unique, "-2");
-	      output_unique = g_string_append(output_unique, ".tif");
-	      exported_names = g_list_append(exported_names, output_unique->str);
-	      export_image(name, output, fend, 0, -2.0, output_unique->str); /* FIXME: snapshot hardcoded */
-	    }
-	  if (g_strcmp0(name, last) == 0)
+
+	  if (lightness > brightval)
 	    {
-	      output_unique = g_string_new(output_str->str);
-	      g_string_append_printf(output_unique, "%d", i);
-	      output_unique = g_string_append(output_unique, "+2");
-	      output_unique = g_string_append(output_unique, ".tif");
-	      exported_names = g_list_append(exported_names, output_unique->str);
-	      export_image(name, output, fend, 0, 2.0, output_unique->str); /* FIXME: snapshot hardcoded */
+	      brightval = lightness;
+	      brightest = name;
 	    }
+
+	  if (lightness < darkval)
+	    {
+	      darkval = lightness;
+	      darkest = name;
+	    }
+	}
+    }
+
+  if (extend)
+    {
+      gint n;
+      for (n = 1; n <= dark; n++)
+	{
+	  output_unique = g_string_new(output_str->str);
+	  g_string_append_printf(output_unique, "%d", i);
+	  g_string_append_printf(output_unique, "_%.1f", (darkstep*n*-1));
+	  output_unique = g_string_append(output_unique, ".tif");
+	  exported_names = g_list_append(exported_names, output_unique->str);
+	  export_image(darkest, output, fend, 0, (darkstep*n*-1), output_unique->str); /* FIXME: snapshot hardcoded */
+	  i++;
+	}
+      for (n = 1; n <= bright; n++)
+	{
+	  output_unique = g_string_new(output_str->str);
+	  g_string_append_printf(output_unique, "%d", i);
+	  g_string_append_printf(output_unique, "_%.1f", (brightstep*n));
+	  output_unique = g_string_append(output_unique, ".tif");
+	  exported_names = g_list_append(exported_names, output_unique->str);
+	  export_image(brightest, output, fend, 0, (brightstep*n), output_unique->str); /* FIXME: snapshot hardcoded */
+	  i++;
 	}
     }
   return exported_names;
@@ -218,8 +243,6 @@ gchar * rs_enfuse(GList *files)
   gchar *file = NULL;
   GString *outname = g_string_new("");
   GString *fullpath = NULL;
-  gchar *first = NULL;
-  gchar *last = NULL;
   gchar *align_options = NULL;
   gchar *enfuse_options = g_strdup("-d 16");
   gboolean extend = TRUE;
@@ -232,10 +255,6 @@ gchar * rs_enfuse(GList *files)
       for(i=0; i<num_selected; i++)
 	{
 	  name = (gchar*) g_list_nth_data(files, i);
-	  if (i == 1 && extend) /* FIXME: need to find the darkest */
-	    first = g_strdup(name);
-	  if (i == num_selected-1 && extend) /* FIXME: need to find the brightest */
-	    last = g_strdup(name); 
 	  file = g_malloc(sizeof(char)*strlen(name));
 	  sscanf(g_path_get_basename(name), "%[^.]", file);
 	  outname = g_string_append(outname, file);
@@ -247,7 +266,8 @@ gchar * rs_enfuse(GList *files)
       fullpath = g_string_append(fullpath, outname->str);
       fullpath = g_string_append(fullpath, ".tif");
     }
-  GList *exported_names = export_images(files, first, last);
+
+  GList *exported_names = export_images(files, extend, 2, 1.0, 2, 1.0);
   GList *aligned_names = NULL;
   if (has_align_image_stack() && num_selected > 1)
       aligned_names = align_images(exported_names, align_options);
