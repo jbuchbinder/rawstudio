@@ -34,6 +34,32 @@
 
 gboolean has_align_image_stack ();
 
+gint calculate_lightness(RSFilter *filter)
+{
+      RSFilterRequest *request = rs_filter_request_new();
+      rs_filter_request_set_quick(RS_FILTER_REQUEST(request), TRUE);
+      rs_filter_param_set_object(RS_FILTER_PARAM(request), "colorspace", rs_color_space_new_singleton("RSSrgb"));
+      RSFilterResponse *response = rs_filter_get_image8(filter, request);
+      g_object_unref(request);
+
+      GdkPixbuf *pixbuf = rs_filter_response_get_image8(response);
+
+      guchar *pixels = gdk_pixbuf_get_pixels(pixbuf);
+      gint rowstride = gdk_pixbuf_get_rowstride(pixbuf);
+      gint height = gdk_pixbuf_get_height(pixbuf);
+
+      gint i;
+      gulong sum = 0;
+      gint num = 0;
+
+      for (i = 0; i<rowstride*height; i++)
+	{
+	  sum += pixels[i];
+	  num++;
+	}
+      return (gint) (sum/num);
+}
+
 gint export_image(gchar *filename, RSOutput *output, RSFilter *filter, gint snapshot, double exposure, gchar *outputname) {
 
   RS_PHOTO *photo = rs_photo_load_from_file(filename);
@@ -59,8 +85,14 @@ gint export_image(gchar *filename, RSOutput *output, RSFilter *filter, gint snap
 
       rs_output_set_from_conf(output, "batch");
       rs_output_execute(output, filter);
+
+      gint value = calculate_lightness(filter);
+      printf("%s: %d\n", filename, value);
       g_list_free(filters);
+      return value;
     }
+  else
+    return -1;
 }
 
 GList * export_images(GList *files, gchar *first, gchar *last)
