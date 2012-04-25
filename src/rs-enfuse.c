@@ -39,6 +39,7 @@ gint calculate_lightness(RSFilter *filter)
       RSFilterRequest *request = rs_filter_request_new();
       rs_filter_request_set_quick(RS_FILTER_REQUEST(request), TRUE);
       rs_filter_param_set_object(RS_FILTER_PARAM(request), "colorspace", rs_color_space_new_singleton("RSSrgb"));
+      rs_filter_request_set_quick(RS_FILTER_REQUEST(request), TRUE);
 
       rs_filter_set_recursive(filter,
 			      "bounding-box", TRUE,
