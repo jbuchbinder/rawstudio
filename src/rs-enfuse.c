@@ -68,7 +68,7 @@ gint calculate_lightness(RSFilter *filter)
       return (gint) (sum/num);
 }
 
-gint export_image(gchar *filename, RSOutput *output, RSFilter *filter, gint snapshot, double exposure, gchar *outputname) {
+gint export_image(gchar *filename, RSOutput *output, RSFilter *filter, gint snapshot, double exposure, gchar *outputname, gint boundingbox) {
 
   RS_PHOTO *photo = rs_photo_load_from_file(filename);
   if (photo)
@@ -80,13 +80,19 @@ gint export_image(gchar *filename, RSOutput *output, RSFilter *filter, gint snap
       rs_photo_set_exposure(photo, 0, exposure);
       rs_photo_apply_to_filters(photo, filters, snapshot);
       
-      rs_filter_set_recursive(filter,
-			      "image", photo->input_response,
-			      "filename", photo->filename,
-			      "bounding-box", TRUE,
-			      "width", 1000,
-			      "height", 1000,
-			      NULL);
+      if (boundingbox > 0)
+	rs_filter_set_recursive(filter,
+				"image", photo->input_response,
+				"filename", photo->filename,
+				"bounding-box", TRUE,
+				"width", boundingbox,
+				"height", boundingbox,
+				NULL);
+      else
+	rs_filter_set_recursive(filter,
+				"image", photo->input_response,
+				"filename", photo->filename,
+				NULL);
 
       if (g_object_class_find_property(G_OBJECT_GET_CLASS(output), "filename"))
 	g_object_set(output, "filename", outputname, NULL);
@@ -103,7 +109,7 @@ gint export_image(gchar *filename, RSOutput *output, RSFilter *filter, gint snap
     return -1;
 }
 
-GList * export_images(GList *files, gboolean extend, gint dark, gfloat darkstep, gint bright, gfloat brightstep)
+GList * export_images(GList *files, gboolean extend, gint dark, gfloat darkstep, gint bright, gfloat brightstep, gint boundingbox)
 {
   gint num_selected = g_list_length(files);
   gint i;
@@ -153,7 +159,7 @@ GList * export_images(GList *files, gboolean extend, gint dark, gfloat darkstep,
 	  output_unique = g_string_new(output_str->str);
 	  g_string_append_printf(output_unique, "%d", i);
 	  output_unique = g_string_append(output_unique, ".tif");
-	  lightness = export_image(name, output, fend, 0, 0.0, output_unique->str); /* FIXME: snapshot hardcoded */
+	  lightness = export_image(name, output, fend, 0, 0.0, output_unique->str, boundingbox); /* FIXME: snapshot hardcoded */
   	  exported_names = g_list_append(exported_names, output_unique->str);
 
 	  if (lightness > brightval)
@@ -180,7 +186,7 @@ GList * export_images(GList *files, gboolean extend, gint dark, gfloat darkstep,
 	  g_string_append_printf(output_unique, "_%.1f", (darkstep*n*-1));
 	  output_unique = g_string_append(output_unique, ".tif");
 	  exported_names = g_list_append(exported_names, output_unique->str);
-	  export_image(darkest, output, fend, 0, (darkstep*n*-1), output_unique->str); /* FIXME: snapshot hardcoded */
+	  export_image(darkest, output, fend, 0, (darkstep*n*-1), output_unique->str, boundingbox); /* FIXME: snapshot hardcoded */
 	  i++;
 	}
       for (n = 1; n <= bright; n++)
@@ -190,7 +196,7 @@ GList * export_images(GList *files, gboolean extend, gint dark, gfloat darkstep,
 	  g_string_append_printf(output_unique, "_%.1f", (brightstep*n));
 	  output_unique = g_string_append(output_unique, ".tif");
 	  exported_names = g_list_append(exported_names, output_unique->str);
-	  export_image(brightest, output, fend, 0, (brightstep*n), output_unique->str); /* FIXME: snapshot hardcoded */
+	  export_image(brightest, output, fend, 0, (brightstep*n), output_unique->str, boundingbox); /* FIXME: snapshot hardcoded */
 	  i++;
 	}
     }
@@ -254,6 +260,7 @@ gchar * rs_enfuse(GList *files)
   gchar *align_options = NULL;
   gchar *enfuse_options = g_strdup("-d 16");
   gboolean extend = TRUE;
+  gint boundingbox = 500;
 
   if (num_selected == 1)
     extend = TRUE;
@@ -275,7 +282,7 @@ gchar * rs_enfuse(GList *files)
       fullpath = g_string_append(fullpath, ".tif");
     }
 
-  GList *exported_names = export_images(files, extend, 2, 1.0, 2, 1.0);
+  GList *exported_names = export_images(files, extend, 2, 1.0, 2, 1.0, boundingbox);
   GList *aligned_names = NULL;
   if (has_align_image_stack() && num_selected > 1)
       aligned_names = align_images(exported_names, align_options);
