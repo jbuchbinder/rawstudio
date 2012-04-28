@@ -112,7 +112,7 @@ gint export_image(gchar *filename, RSOutput *output, RSFilter *filter, gint snap
 GList * export_images(GList *files, gboolean extend, gint dark, gfloat darkstep, gint bright, gfloat brightstep, gint boundingbox)
 {
   gint num_selected = g_list_length(files);
-  gint i;
+  gint i = 0;
   gchar *name;
 
   GString *output_str = g_string_new(g_get_tmp_dir());
