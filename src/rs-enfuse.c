@@ -347,6 +347,9 @@ gboolean rs_has_enfuse (gint major, gint minor)
       retval = TRUE;
     }
   }
+
+  g_free(tokens);
+
   return retval;
 }
 
