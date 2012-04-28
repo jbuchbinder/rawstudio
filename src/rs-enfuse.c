@@ -51,6 +51,7 @@ gint calculate_lightness(RSFilter *filter)
       g_object_unref(request);
 
       GdkPixbuf *pixbuf = rs_filter_response_get_image8(response);
+      g_object_unref(response);
 
       guchar *pixels = gdk_pixbuf_get_pixels(pixbuf);
       gint rowstride = gdk_pixbuf_get_rowstride(pixbuf);
@@ -65,6 +66,9 @@ gint calculate_lightness(RSFilter *filter)
 	  sum += pixels[i];
 	  num++;
 	}
+
+      g_object_unref(pixbuf);
+
       return (gint) (sum/num);
 }
 
