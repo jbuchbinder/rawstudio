@@ -164,19 +164,21 @@ GList * export_images(GList *files, gboolean extend, gint dark, gfloat darkstep,
 	  g_string_append_printf(output_unique, "%d", i);
 	  output_unique = g_string_append(output_unique, ".tif");
 	  lightness = export_image(name, output, fend, 0, 0.0, output_unique->str, boundingbox); /* FIXME: snapshot hardcoded */
-  	  exported_names = g_list_append(exported_names, output_unique->str);
+  	  exported_names = g_list_append(exported_names, g_strdup(output_unique->str));
+	  g_string_free(output_unique, TRUE);
 
 	  if (lightness > brightval)
 	    {
 	      brightval = lightness;
-	      brightest = name;
+	      brightest = g_strdup(name);
 	    }
 
 	  if (lightness < darkval)
 	    {
 	      darkval = lightness;
-	      darkest = name;
+	      darkest = g_strdup(name);
 	    }
+	  g_free(name);
 	}
     }
 
@@ -189,20 +191,24 @@ GList * export_images(GList *files, gboolean extend, gint dark, gfloat darkstep,
 	  g_string_append_printf(output_unique, "%d", i);
 	  g_string_append_printf(output_unique, "_%.1f", (darkstep*n*-1));
 	  output_unique = g_string_append(output_unique, ".tif");
-	  exported_names = g_list_append(exported_names, output_unique->str);
+	  exported_names = g_list_append(exported_names, g_strdup(output_unique->str));
 	  export_image(darkest, output, fend, 0, (darkstep*n*-1), output_unique->str, boundingbox); /* FIXME: snapshot hardcoded */
+	  g_string_free(output_unique, TRUE);
 	  i++;
 	}
+      g_free(darkest);
       for (n = 1; n <= bright; n++)
 	{
 	  output_unique = g_string_new(output_str->str);
 	  g_string_append_printf(output_unique, "%d", i);
 	  g_string_append_printf(output_unique, "_%.1f", (brightstep*n));
 	  output_unique = g_string_append(output_unique, ".tif");
-	  exported_names = g_list_append(exported_names, output_unique->str);
+	  exported_names = g_list_append(exported_names, g_strdup(output_unique->str));
 	  export_image(brightest, output, fend, 0, (brightstep*n), output_unique->str, boundingbox); /* FIXME: snapshot hardcoded */
+	  g_string_free(output_unique, TRUE);
 	  i++;
 	}
+      g_free(brightest);
     }
   return exported_names;
 }
