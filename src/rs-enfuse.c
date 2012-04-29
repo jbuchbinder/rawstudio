@@ -263,7 +263,7 @@ gchar * rs_enfuse(RS_BLOB *rs, GList *files)
   gchar *align_options = NULL;
   gchar *enfuse_options = g_strdup("-d 16");
   gboolean extend = TRUE;
-  gint boundingbox = -1;
+  gint boundingbox = 1000;
 
   if (num_selected == 1)
     extend = TRUE;
