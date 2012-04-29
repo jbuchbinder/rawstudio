@@ -1421,7 +1421,7 @@ ACTION(enfuse)
 {
   gboolean enfuse = TRUE;
   GList *selected_names = rs_store_get_selected_names(rs->store);
-  gchar *filename = rs_enfuse(selected_names);
+  gchar *filename = rs_enfuse(rs, selected_names);
   g_list_free(selected_names);
   rs_cache_save_flags(filename, NULL, NULL, &enfuse);
   rs_store_load_file(rs->store, filename);

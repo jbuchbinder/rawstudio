@@ -113,7 +113,7 @@ gint export_image(gchar *filename, RSOutput *output, RSFilter *filter, gint snap
     return -1;
 }
 
-GList * export_images(GList *files, gboolean extend, gint dark, gfloat darkstep, gint bright, gfloat brightstep, gint boundingbox)
+GList * export_images(RS_BLOB *rs, GList *files, gboolean extend, gint dark, gfloat darkstep, gint bright, gfloat brightstep, gint boundingbox)
 {
   gint num_selected = g_list_length(files);
   gint i = 0;
@@ -124,15 +124,9 @@ GList * export_images(GList *files, gboolean extend, gint dark, gfloat darkstep,
   output_str = g_string_append(output_str, ".rawstudio-enfuse-");
   GString *output_unique = NULL;
 
-  RSFilter *finput = rs_filter_new("RSInputImage16", NULL);
-  RSFilter *fdemosaic = rs_filter_new("RSDemosaic", finput);
-  RSFilter *ffujirotate = rs_filter_new("RSFujiRotate", fdemosaic);
-  RSFilter *frotate = rs_filter_new("RSRotate", ffujirotate);
-  RSFilter *fcrop = rs_filter_new("RSCrop", frotate);
-  RSFilter *ftransform_input = rs_filter_new("RSColorspaceTransform", fcrop);
+  RSFilter *ftransform_input = rs_filter_new("RSColorspaceTransform", rs->filter_crop);
   RSFilter *fdcp= rs_filter_new("RSDcp", ftransform_input);
-  RSFilter *fcache = rs_filter_new("RSCache", fdcp);
-  RSFilter *fresample= rs_filter_new("RSResample", fcache);
+  RSFilter *fresample= rs_filter_new("RSResample", fdcp);
   RSFilter *fdenoise= rs_filter_new("RSDenoise", fresample);
   RSFilter *ftransform_display = rs_filter_new("RSColorspaceTransform", fdenoise);
   RSFilter *fend = ftransform_display;
@@ -210,6 +204,9 @@ GList * export_images(GList *files, gboolean extend, gint dark, gfloat darkstep,
 	}
       g_free(brightest);
     }
+
+  /* FIXME: shouldn't 'files' be freed here? It breaks RSStore... */
+
   return exported_names;
 }
 
@@ -259,7 +256,7 @@ void enfuse_images(GList *files, gchar *out, gchar *options) {
     }
 }
 
-gchar * rs_enfuse(GList *files)
+gchar * rs_enfuse(RS_BLOB *rs, GList *files)
 {
   gint num_selected = g_list_length(files);
   gint i;
@@ -292,7 +289,7 @@ gchar * rs_enfuse(GList *files)
       fullpath = g_string_append(fullpath, ".tif");
     }
 
-  GList *exported_names = export_images(files, extend, 2, 1.0, 2, 1.0, boundingbox);
+  GList *exported_names = export_images(rs, files, extend, 2, 1.0, 2, 1.0, boundingbox);
   GList *aligned_names = NULL;
   if (has_align_image_stack() && num_selected > 1)
       aligned_names = align_images(exported_names, align_options);
