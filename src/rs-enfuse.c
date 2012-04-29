@@ -84,19 +84,13 @@ gint export_image(gchar *filename, RSOutput *output, RSFilter *filter, gint snap
       rs_photo_set_exposure(photo, 0, exposure);
       rs_photo_apply_to_filters(photo, filters, snapshot);
       
-      if (boundingbox > 0)
-	rs_filter_set_recursive(filter,
-				"image", photo->input_response,
-				"filename", photo->filename,
-				"bounding-box", TRUE,
-				"width", boundingbox,
-				"height", boundingbox,
-				NULL);
-      else
-	rs_filter_set_recursive(filter,
-				"image", photo->input_response,
-				"filename", photo->filename,
-				NULL);
+      rs_filter_set_recursive(filter,
+			      "image", photo->input_response,
+			      "filename", photo->filename,
+			      "bounding-box", TRUE,
+			      "width", boundingbox,
+			      "height", boundingbox,
+			      NULL);
 
       if (g_object_class_find_property(G_OBJECT_GET_CLASS(output), "filename"))
 	g_object_set(output, "filename", outputname, NULL);
@@ -268,7 +262,7 @@ gchar * rs_enfuse(RS_BLOB *rs, GList *files)
   gchar *align_options = NULL;
   gchar *enfuse_options = g_strdup("-d 16");
   gboolean extend = TRUE;
-  gint boundingbox = 500;
+  gint boundingbox = -1;
 
   if (num_selected == 1)
     extend = TRUE;
@@ -290,7 +284,7 @@ gchar * rs_enfuse(RS_BLOB *rs, GList *files)
       fullpath = g_string_append(fullpath, ".tif");
     }
 
-  GList *exported_names = export_images(rs, files, extend, 2, 1.0, 2, 1.0, boundingbox);
+  GList *exported_names = export_images(rs, files, extend, 0, 1.0, 0, 1.0, boundingbox);
   GList *aligned_names = NULL;
   if (has_align_image_stack() && num_selected > 1)
       aligned_names = align_images(exported_names, align_options);
