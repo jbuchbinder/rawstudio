@@ -279,6 +279,7 @@ gchar * rs_enfuse(RS_BLOB *rs, GList *files)
 	  file = g_malloc(sizeof(char)*strlen(name));
 	  sscanf(g_path_get_basename(name), "%[^.]", file);
 	  outname = g_string_append(outname, file);
+	  g_free(file);
 	  if (i+1 != num_selected)
 	    outname = g_string_append(outname, "+");
 	}
@@ -286,15 +287,21 @@ gchar * rs_enfuse(RS_BLOB *rs, GList *files)
       fullpath = g_string_append(fullpath, "/");
       fullpath = g_string_append(fullpath, outname->str);
       fullpath = g_string_append(fullpath, ".tif");
+      g_string_free(outname, TRUE);
     }
 
   GList *exported_names = export_images(rs, files, extend, 0, 1.0, 0, 1.0, boundingbox);
   GList *aligned_names = NULL;
   if (has_align_image_stack() && num_selected > 1)
+    {
       aligned_names = align_images(exported_names, align_options);
+      g_free(align_options);
+    }
   else
       aligned_names = exported_names;
   enfuse_images(aligned_names, fullpath->str, enfuse_options);
+  g_string_free(fullpath, TRUE);
+  g_free(enfuse_options);
 
   // FIXME: Aparantly something goes wrong if we copy exifdata...
   //  rs_exif_copy(first, fullpath->str, "sRGB", RS_EXIF_FILE_TYPE_TIFF);
