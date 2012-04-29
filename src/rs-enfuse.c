@@ -225,6 +225,7 @@ GList * align_images (GList *files, gchar *options) {
 	}
       printf("command: %s\n", command->str);
       if (system(command->str));
+      g_string_free(command, TRUE);
       g_list_free(files);
     }
   return aligned_names;
@@ -249,6 +250,8 @@ void enfuse_images(GList *files, gchar *out, gchar *options) {
       command = g_string_append(command, out);
       printf("command: %s\n", command->str);
       if(system(command->str));
+      g_string_free(command, TRUE);
+      g_list_free(files);
     }
 }
 
