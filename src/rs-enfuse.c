@@ -103,6 +103,7 @@ gint export_image(gchar *filename, RSOutput *output, RSFilter *filter, gint snap
 
       rs_output_set_from_conf(output, "batch");
       rs_output_execute(output, filter);
+      g_object_unref(photo);
 
       gint value = calculate_lightness(filter);
       printf("%s: %d\n", filename, value);
