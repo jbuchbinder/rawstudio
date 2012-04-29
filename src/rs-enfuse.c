@@ -225,6 +225,7 @@ GList * align_images (GList *files, gchar *options) {
 	}
       printf("command: %s\n", command->str);
       if (system(command->str));
+      g_list_free(files);
     }
   return aligned_names;
 }
