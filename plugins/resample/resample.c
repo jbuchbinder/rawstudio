@@ -114,12 +114,12 @@ rs_resample_class_init(RSResampleClass *klass)
 	g_object_class_install_property(object_class,
 		PROP_WIDTH, g_param_spec_int(
 			"width", "width", "The width of the scaled image",
-			-1, 65535, 100, G_PARAM_READWRITE)
+			6, 65535, 100, G_PARAM_READWRITE)
 	);
 	g_object_class_install_property(object_class,
 		PROP_HEIGHT, g_param_spec_int(
 			"height", "height", "The height of the scaled image",
-			-1, 65535, 100, G_PARAM_READWRITE)
+			6, 65535, 100, G_PARAM_READWRITE)
 	);
 	g_object_class_install_property(object_class,
 		PROP_BOUNDING_BOX, g_param_spec_boolean(
