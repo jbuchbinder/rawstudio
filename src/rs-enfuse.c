@@ -72,7 +72,7 @@ gint calculate_lightness(RSFilter *filter)
       return (gint) (sum/num);
 }
 
-gint export_image(gchar *filename, RSOutput *output, RSFilter *filter, gint snapshot, double exposure, gchar *outputname, gint boundingbox) {
+gint export_image(gchar *filename, RSOutput *output, RSFilter *filter, gint snapshot, double exposure, gchar *outputname, gint boundingbox, RSFilter *resample) {
 
   RS_PHOTO *photo = rs_photo_load_from_file(filename);
   if (photo)
@@ -84,13 +84,22 @@ gint export_image(gchar *filename, RSOutput *output, RSFilter *filter, gint snap
       rs_photo_set_exposure(photo, 0, exposure);
       rs_photo_apply_to_filters(photo, filters, snapshot);
       
-      rs_filter_set_recursive(filter,
-			      "image", photo->input_response,
-			      "filename", photo->filename,
-			      "bounding-box", TRUE,
-			      "width", boundingbox,
-			      "height", boundingbox,
-			      NULL);
+      if (boundingbox > 0) 
+	rs_filter_set_recursive(filter,
+				"image", photo->input_response,
+				"filename", photo->filename,
+				"bounding-box", TRUE,
+				"width", boundingbox,
+				"height", boundingbox,
+				NULL);
+      else
+	{
+	  rs_filter_set_enabled(resample, FALSE);
+	  rs_filter_set_recursive(filter,
+				  "image", photo->input_response,
+				  "filename", photo->filename,
+				  NULL);
+	}
 
       if (g_object_class_find_property(G_OBJECT_GET_CLASS(output), "filename"))
 	g_object_set(output, "filename", outputname, NULL);
@@ -152,7 +161,7 @@ GList * export_images(RS_BLOB *rs, GList *files, gboolean extend, gint dark, gfl
 	  output_unique = g_string_new(output_str->str);
 	  g_string_append_printf(output_unique, "%d", i);
 	  output_unique = g_string_append(output_unique, ".tif");
-	  lightness = export_image(name, output, fend, 0, 0.0, output_unique->str, boundingbox); /* FIXME: snapshot hardcoded */
+	  lightness = export_image(name, output, fend, 0, 0.0, output_unique->str, boundingbox, fresample); /* FIXME: snapshot hardcoded */
   	  exported_names = g_list_append(exported_names, g_strdup(output_unique->str));
 	  g_string_free(output_unique, TRUE);
 
@@ -181,7 +190,7 @@ GList * export_images(RS_BLOB *rs, GList *files, gboolean extend, gint dark, gfl
 	  g_string_append_printf(output_unique, "_%.1f", (darkstep*n*-1));
 	  output_unique = g_string_append(output_unique, ".tif");
 	  exported_names = g_list_append(exported_names, g_strdup(output_unique->str));
-	  export_image(darkest, output, fend, 0, (darkstep*n*-1), output_unique->str, boundingbox); /* FIXME: snapshot hardcoded */
+	  export_image(darkest, output, fend, 0, (darkstep*n*-1), output_unique->str, boundingbox, fresample); /* FIXME: snapshot hardcoded */
 	  g_string_free(output_unique, TRUE);
 	  i++;
 	}
@@ -193,7 +202,7 @@ GList * export_images(RS_BLOB *rs, GList *files, gboolean extend, gint dark, gfl
 	  g_string_append_printf(output_unique, "_%.1f", (brightstep*n));
 	  output_unique = g_string_append(output_unique, ".tif");
 	  exported_names = g_list_append(exported_names, g_strdup(output_unique->str));
-	  export_image(brightest, output, fend, 0, (brightstep*n), output_unique->str, boundingbox); /* FIXME: snapshot hardcoded */
+	  export_image(brightest, output, fend, 0, (brightstep*n), output_unique->str, boundingbox, fresample); /* FIXME: snapshot hardcoded */
 	  g_string_free(output_unique, TRUE);
 	  i++;
 	}
