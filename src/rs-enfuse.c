@@ -276,6 +276,8 @@ gchar * rs_enfuse(RS_BLOB *rs, GList *files)
   gchar *align_options = NULL;
   gchar *enfuse_options = g_strdup("-d 16");
   gboolean extend = TRUE;
+  gint extend_num = 1;
+  gfloat extend_step = 2.0;
   gint boundingbox = 0;
 
   gchar *first = NULL;
@@ -283,7 +285,11 @@ gchar * rs_enfuse(RS_BLOB *rs, GList *files)
   RS_PROGRESS *progress = gui_progress_new("Enfusing...", 4);
 
   if (num_selected == 1)
-    extend = TRUE;
+    {
+      extend = TRUE;
+      extend_num = 3;
+      extend_step = 1.0;
+    }
 
   if (g_list_length(files))
     {
@@ -311,7 +317,7 @@ gchar * rs_enfuse(RS_BLOB *rs, GList *files)
   g_usleep(500000); /* FIXME */
   gui_progress_advance_one(progress); /* 1 - initiate */
 
-  GList *exported_names = export_images(rs, files, extend, 1, 2.0, 1, 2.0, boundingbox);
+  GList *exported_names = export_images(rs, files, extend, extend_num, extend_step, extend_num, extend_step, boundingbox);
 
   gui_progress_advance_one(progress); /* 2 - after exported images */
 
