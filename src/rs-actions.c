@@ -1473,6 +1473,7 @@ ACTION(enfuse)
   rs_cache_save_flags(filename, NULL, NULL, &enfuse);
   rs_store_load_file(rs->store, filename);
   rs_store_set_selected_name(rs->store, filename, TRUE);
+  g_free(filename);
 }
 
 RADIOACTION(right_popup)

@@ -309,13 +309,13 @@ gchar * rs_enfuse(RS_BLOB *rs, GList *files)
   else
       aligned_names = exported_names;
   enfuse_images(aligned_names, fullpath->str, enfuse_options);
-  g_string_free(fullpath, TRUE);
+  gchar *filename = g_string_free(fullpath, FALSE);
   g_free(enfuse_options);
 
   // FIXME: Aparantly something goes wrong if we copy exifdata...
   //  rs_exif_copy(first, fullpath->str, "sRGB", RS_EXIF_FILE_TYPE_TIFF);
 
-  return fullpath->str;
+  return filename;
 }
 
 gboolean rs_has_enfuse (gint major, gint minor)
