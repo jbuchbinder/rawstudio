@@ -278,6 +278,8 @@ gchar * rs_enfuse(RS_BLOB *rs, GList *files)
   gboolean extend = TRUE;
   gint boundingbox = 1000;
 
+  gchar *first = NULL;
+
   RS_PROGRESS *progress = gui_progress_new("Enfusing...", 4);
 
   if (num_selected == 1)
@@ -288,6 +290,10 @@ gchar * rs_enfuse(RS_BLOB *rs, GList *files)
       for(i=0; i<num_selected; i++)
 	{
 	  name = (gchar*) g_list_nth_data(files, i);
+	  if (first == NULL) {
+	    first = g_malloc(strlen(name));
+	    g_utf8_strncpy(first, name, strlen(name));
+	  }
 	  file = g_malloc(sizeof(char)*strlen(name));
 	  sscanf(g_path_get_basename(name), "%[^.]", file);
 	  outname = g_string_append(outname, file);
@@ -329,8 +335,9 @@ gchar * rs_enfuse(RS_BLOB *rs, GList *files)
 
   gui_progress_free(progress);
 
-  // FIXME: Aparantly something goes wrong if we copy exifdata...
-  //  rs_exif_copy(first, fullpath->str, "sRGB", RS_EXIF_FILE_TYPE_TIFF);
+  // FIXME: Aparantly something goes wrong if we copy exifdata (and 16 bit tiff)
+  // rs_exif_copy(first, filename, "sRGB", RS_EXIF_FILE_TYPE_TIFF);
+  g_free(first);
 
   return filename;
 }
