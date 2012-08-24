@@ -30,6 +30,7 @@ rawstudio_DATA = rawstudio-cameras.xml\
 	Canon_EOS_5D-simple.dcp\
 	Canon_EOS_600D-simple.dcp\
 	Canon_EOS_60D-simple.dcp\
+	Canon_EOS_60Da-simple.dcp\
 	Canon_EOS_7D-simple.dcp\
 	Canon_EOS_D2000-simple.dcp\
 	Canon_EOS_D30-simple.dcp\
@@ -182,6 +183,7 @@ rawstudio_DATA = rawstudio-cameras.xml\
 	NIKON_D300-simple.dcp\
 	NIKON_D3000-simple.dcp\
 	NIKON_D3100-simple.dcp\
+	NIKON_D3200-simple.dcp\
 	NIKON_D3X-simple.dcp\
 	NIKON_D40-simple.dcp\
 	NIKON_D40X-simple.dcp\
@@ -287,6 +289,7 @@ rawstudio_DATA = rawstudio-cameras.xml\
 	PENTAX_K2000-simple.dcp\
 	PENTAX_K200D-simple.dcp\
 	PENTAX_K20D-simple.dcp\
+	PENTAX_K-30-simple.dcp\
 	PENTAX_K-x-simple.dcp\
 	PENTAX_Q-simple.dcp\
 	PENTAX_645D-simple.dcp\
@@ -302,6 +305,8 @@ rawstudio_DATA = rawstudio-cameras.xml\
 	Ricoh_S10_24-72mm-simple.dcp\
 	SAMSUNG_GX-1-simple.dcp\
 	SAMSUNG_NX100-simple.dcp\
+	SAMSUNG_NX200-simple.dcp\
+	SAMSUNG_NX210-simple.dcp\
 	SAMSUNG_S85-simple.dcp\
 	SAMSUNG_WB2000-simple.dcp\
 	SAMSUNG_NX11-simple.dcp\
@@ -340,6 +345,7 @@ rawstudio_DATA = rawstudio-cameras.xml\
 	SONY_NEX-C3-simple.dcp\
 	SONY_SLTA33-simple.dcp\
 	SONY_SLTA35-simple.dcp\
+	SONY_SLTA37-simple.dcp\
 	SONY_SLTA55V-simple.dcp\
 	SONY_SLTA65V-simple.dcp\
 	SONY_SLTA77V-simple.dcp\
@@ -444,7 +450,12 @@ rawstudio_DATA = rawstudio-cameras.xml\
 	Sony_SLT-A33_Rawstudio_Advanced_Profile.dcp\
 	Sony_SLT-A35_Rawstudio_Advanced_Profile.dcp\
 	Sony_SLT-A55V_Rawstudio_Advanced_Profile.dcp\
-	Sony_SLT-A77_Rawstudio_Advanced_Profile.dcp
+	Sony_SLT-A77_Rawstudio_Advanced_Profile.dcp\
+	FUJIFILM_X-Pro1-simple.dcp\
+	Panasonic_DMC-GF5-simple.dcp\
+	SAMSUNG_NX1000-simple.dcp\
+	SONY_DSC-R100-simple.dcp\
+	Canon_EOS_650D-simple.dcp
 
 EXTRA_DIST = $(rawstudio_DATA)\
 	recipes/Canon_1000D.dcpr\
@@ -716,6 +727,7 @@ EXTRA_DIST = $(rawstudio_DATA)\
 	simple-src/NIKON_D300-simple.xml\
 	simple-src/NIKON_D3000-simple.xml\
 	simple-src/NIKON_D3100-simple.xml\
+	simple-src/NIKON_D3200-simple.xml\
 	simple-src/NIKON_D3S-simple.xml\
 	simple-src/NIKON_D3X-simple.xml\
 	simple-src/NIKON_D40-simple.xml\
@@ -842,6 +854,8 @@ EXTRA_DIST = $(rawstudio_DATA)\
 	simple-src/SAMSUNG_GX20-simple.xml\
 	simple-src/SAMSUNG_NX10-simple.xml\
 	simple-src/SAMSUNG_NX100-simple.xml\
+	simple-src/SAMSUNG_NX200-simple.xml\
+	simple-src/SAMSUNG_NX210-simple.xml\
 	simple-src/SAMSUNG_NX11-simple.xml\
 	simple-src/SAMSUNG_NX5-simple.xml\
 	simple-src/SAMSUNG_S85-simple.xml\
@@ -874,6 +888,7 @@ EXTRA_DIST = $(rawstudio_DATA)\
 	simple-src/SONY_NEX-C3-simple.xml\
 	simple-src/SONY_SLTA33-simple.xml\
 	simple-src/SONY_SLTA35-simple.xml\
+	simple-src/SONY_SLTA37-simple.xml\
 	simple-src/SONY_SLTA55V-simple.xml\
 	simple-src/SONY_SLTA65V-simple.xml\
   simple-src/Canon_EOS_5D_Mark_III-simple.xml\
@@ -884,4 +899,11 @@ EXTRA_DIST = $(rawstudio_DATA)\
   simple-src/FUJIFILM_FinePix_X-S1-simple.xml\
   simple-src/NIKON_D4.xml\
   simple-src/NIKON_D800-simple.xml\
-	simple-src/SONY_SLTA77V-simple.xml
+	simple-src/SONY_SLTA77V-simple.xml\
+	simple-src/Canon_EOS_650D-simple.xml\
+	simple-src/SONY_DSC-R100-simple.xml\
+	simple-src/SAMSUNG_NX1000-simple.xml\
+	simple-src/Panasonic_DMC-GF5-simple.xml\
+	simple-src/FUJIFILM_X-Pro1-simple.xml\
+	simple-src/Canon_EOS_60Da-simple.xml\
+	simple-src/PENTAX_K-30-simple.xml

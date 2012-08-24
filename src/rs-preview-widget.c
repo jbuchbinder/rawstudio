@@ -166,6 +166,10 @@ struct _RSPreviewWidget
 	gfloat straighten_angle;
 	RSFilter *filter_input;
 
+	RSFilter *filter_lensfun[MAX_VIEWS];
+	RSFilter *filter_rotate[MAX_VIEWS];
+	RSFilter *filter_crop[MAX_VIEWS];
+	RSFilter *filter_cache0[MAX_VIEWS];
 	RSFilter *filter_resample[MAX_VIEWS];
 	RSFilter *filter_cache1[MAX_VIEWS];
 	RSFilter *filter_denoise[MAX_VIEWS];
@@ -176,7 +180,6 @@ struct _RSPreviewWidget
 	RSFilter *filter_mask[MAX_VIEWS];
 	RSFilter *filter_cache3[MAX_VIEWS];
 	RSFilter *filter_end[MAX_VIEWS]; /* For convenience */
-	RSFilter *filter_lensfun[MAX_VIEWS];
 
 	RSFilterRequest *request[MAX_VIEWS];
 	GdkRectangle *last_roi[MAX_VIEWS];
@@ -201,6 +204,7 @@ struct _RSPreviewWidget
 	RSFilter *loupe_transform_display;
 	RSFilter *loupe_filter_start;
 	RSFilter *loupe_filter_end;
+	gint loupe_view;
 
 	RSFilter *navigator_filter_scale;
 	RSFilter *navigator_transform_input;
@@ -268,6 +272,7 @@ static gboolean make_cbdata(RSPreviewWidget *preview, const gint view, RS_PREVIE
 static gpointer render_thread_func(gpointer _thread_info);
 static void rs_preview_do_render(RSPreviewWidget *preview, GdkRectangle *dirty_area);
 static void rs_preview_wait_for_render(RSPreviewWidget *preview);
+static void photo_spatial_changed(RS_PHOTO *photo, RSPreviewWidget *preview);
 /**
  * Class initializer
  */
@@ -374,6 +379,7 @@ rs_preview_widget_init(RSPreviewWidget *preview)
 	if (!preview->display_color_space)
 		preview->display_color_space = rs_get_display_profile(GTK_WIDGET(preview));
 
+	name = NULL;
 	name = rs_conf_get_string("exposure-mask-colorspace");
 	if (name)
 		preview->exposure_color_space = rs_color_space_new_singleton(name);
@@ -401,7 +407,11 @@ rs_preview_widget_init(RSPreviewWidget *preview)
 	preview->filter_input = NULL;
 	for(i=0;i<MAX_VIEWS;i++)
 	{
-		preview->filter_resample[i] = rs_filter_new("RSResample", NULL);
+		preview->filter_lensfun[i] = rs_filter_new("RSLensfun", NULL);
+		preview->filter_rotate[i] = rs_filter_new("RSRotate", preview->filter_lensfun[i]);
+		preview->filter_crop[i] = rs_filter_new("RSCrop", preview->filter_rotate[i]);
+		preview->filter_cache0[i] = rs_filter_new("RSCache", preview->filter_crop[i]);
+		preview->filter_resample[i] = rs_filter_new("RSResample", preview->filter_cache0[i]);
 		/* Careful - "make_cbdata" grabs data from "filter_cache1" */
 		preview->filter_cache1[i] = rs_filter_new("RSCache", preview->filter_resample[i]);
 		preview->filter_transform_input[i] = rs_filter_new("RSColorspaceTransform", preview->filter_cache1[i]);
@@ -442,6 +452,7 @@ rs_preview_widget_init(RSPreviewWidget *preview)
 	preview->loupe = rs_loupe_new();
 	g_object_set(preview->loupe_filter_cache, "ignore-roi", TRUE, NULL);
 	preview->photo = NULL;
+	preview->loupe_view = -1;
 
 	preview->navigator_filter_scale = rs_filter_new("RSResample", NULL);
 	preview->navigator_filter_cache = rs_filter_new("RSCache", preview->navigator_filter_scale);
@@ -473,6 +484,7 @@ rs_preview_widget_init(RSPreviewWidget *preview)
 	preview->prev_inside_image = FALSE;
 
 	g_object_ref(preview->display_color_space);
+	g_mutex_unlock(preview->render_thread->render_mutex);
 }
 
 /**
@@ -491,6 +503,24 @@ rs_preview_widget_new(GtkWidget *toolbox)
 
 	rs_toolbox_set_histogram_input(preview->toolbox, preview->navigator_filter_end, preview->exposure_color_space);
 	return widget;
+}
+
+static void
+photo_spatial_changed(RS_PHOTO *photo, RSPreviewWidget *preview)
+{
+	if (photo == preview->photo)
+	{
+		int i;
+		/* Update crop and rotate filters */
+		for(i=0;i<MAX_VIEWS;i++)
+		{
+			rs_filter_set_recursive(preview->filter_end[i],
+				"rectangle", rs_photo_get_crop(photo),
+				"angle", rs_photo_get_angle(photo),
+				"orientation", photo->orientation,
+				NULL);
+		}
+	}
 }
 
 extern void
@@ -634,6 +664,14 @@ rs_preview_widget_set_zoom_to_fit(RSPreviewWidget *preview, gboolean zoom_to_fit
 			/* Modify adjusters */
 			g_object_set(preview->hadjustment, "value", hvalue, NULL);
 			g_object_set(preview->vadjustment, "value", vvalue, NULL);
+
+			/* Build navigator */
+			rs_filter_set_recursive(preview->navigator_filter_end,
+				"orientation", preview->photo->orientation,
+				"rectangle", rs_photo_get_crop(preview->photo),
+				"angle", rs_photo_get_angle(preview->photo),
+				"settings", preview->photo->settings[preview->snapshot[0]],
+				NULL);
 		}
 
 		gdk_window_set_cursor(GTK_WIDGET(rawstudio_window)->window, NULL);
@@ -642,14 +680,6 @@ rs_preview_widget_set_zoom_to_fit(RSPreviewWidget *preview, gboolean zoom_to_fit
 		gtk_widget_show(preview->hscrollbar);
 
 		gdk_window_set_cursor(GTK_WIDGET(rawstudio_window)->window, NULL);
-
-		/* Build navigator */
-		rs_filter_set_recursive(preview->navigator_filter_end,
-			"orientation", preview->photo->orientation,
-			"rectangle", rs_photo_get_crop(preview->photo),
-			"angle", rs_photo_get_angle(preview->photo),
-			"settings", preview->photo->settings[preview->snapshot[0]],
-			NULL);
 
 		RSNavigator *navigator = rs_navigator_new();
 		rs_navigator_set_adjustments(navigator, preview->vadjustment, preview->hadjustment);
@@ -674,7 +704,7 @@ rs_preview_widget_set_zoom_to_fit(RSPreviewWidget *preview, gboolean zoom_to_fit
  * Enable the loupe
  */
 void
-rs_preview_widget_set_loupe_enabled(RSPreviewWidget *preview, gboolean enabled)
+rs_preview_widget_set_loupe_enabled(RSPreviewWidget *preview, int view, gboolean enabled)
 {
 	if (preview->loupe_enabled != enabled)
 	{
@@ -687,13 +717,16 @@ rs_preview_widget_set_loupe_enabled(RSPreviewWidget *preview, gboolean enabled)
 		{
 			rs_loupe_set_filter(preview->loupe, preview->loupe_filter_end);
 
-			rs_filter_set_previous(preview->loupe_filter_start, preview->filter_input);
-			/* FIXME: view is hardcoded to 0 */
+			if (view != preview->loupe_view)
+			{
+				rs_filter_set_previous(preview->loupe_filter_start, preview->filter_cache0[view]);
+				preview->loupe_view = view;
+			}
 			if (rs_photo_get_dcp_profile(preview->photo))
 				g_object_set(preview->loupe_filter_dcp, "profile", rs_photo_get_dcp_profile(preview->photo), NULL);
 			else
 				g_object_set(preview->loupe_filter_dcp, "use-profile", FALSE, NULL);
-			rs_filter_set_recursive(preview->loupe_filter_end, "settings", preview->photo->settings[preview->snapshot[0]], NULL);
+			rs_filter_set_recursive(preview->loupe_filter_end, "settings", preview->photo->settings[preview->snapshot[view]], NULL);
 			rs_loupe_set_colorspace(preview->loupe, preview->display_color_space);
 
 			gtk_widget_show_all(GTK_WIDGET(preview->loupe));
@@ -732,6 +765,7 @@ rs_preview_widget_set_photo(RSPreviewWidget *preview, RS_PHOTO *photo)
 		photo->thumbnail_filter = preview->navigator_filter_end;
 		g_signal_connect(G_OBJECT(preview->photo), "lens-changed", G_CALLBACK(lens_changed), preview);
 		g_signal_connect(G_OBJECT(preview->photo), "profile-changed", G_CALLBACK(profile_changed), preview);
+		g_signal_connect(G_OBJECT(preview->photo), "spatial-changed", G_CALLBACK(photo_spatial_changed), preview);
 	}
 }
 
@@ -803,14 +837,14 @@ rs_preview_widget_set_filter(RSPreviewWidget *preview, RSFilter *filter, RSFilte
 
 	preview->filter_input = filter;
 	rs_filter_set_recursive(RS_FILTER(preview->filter_input), "demosaic-allow-downscale",  preview->zoom_to_fit, NULL);
-	rs_filter_set_previous(preview->filter_resample[0], preview->filter_input);
-	rs_filter_set_previous(preview->filter_resample[1], preview->filter_input);
+	rs_filter_set_previous(preview->filter_lensfun[0], preview->filter_input);
+	rs_filter_set_previous(preview->filter_lensfun[1], preview->filter_input);
 	if (fast_filter)
 	{
 		g_assert(RS_IS_FILTER(fast_filter));
 		rs_filter_set_previous(preview->navigator_filter_scale, fast_filter);
 	} else
-		rs_filter_set_previous(preview->navigator_filter_scale, preview->filter_input);
+		rs_filter_set_previous(preview->navigator_filter_scale, filter);
 }
 
 /**
@@ -1367,6 +1401,7 @@ rs_preview_widget_quick_end(RSPreviewWidget *preview)
 	}
 
 	rs_preview_widget_update(preview, TRUE);
+	GTK_CATCHUP();
 }
 
 static void
@@ -1643,6 +1678,7 @@ scrollbar_release(GtkWidget *widget, GdkEventButton *event, gpointer user_data)
 {
 	RSPreviewWidget *preview = RS_PREVIEW_WIDGET(user_data);
 
+	GTK_CATCHUP();
 	rs_preview_widget_quick_end(preview);
 
 	return FALSE;
@@ -1830,24 +1866,19 @@ button(GtkWidget *widget, GdkEventButton *event, RSPreviewWidget *preview)
 		rs_photo_set_angle(preview->photo, preview->straighten_angle, TRUE);
 		gui_status_pop(preview->status_num);
 	}
-	/* Middle mouse -> loupe */
-	else if ((event->type == GDK_BUTTON_PRESS)
-		&& (event->button==2))
-	{
-		rs_loupe_set_coord(preview->loupe, real_x, real_y);
-		rs_preview_widget_set_loupe_enabled(preview, TRUE);
-	}
-	/* CTRL + left mouse -> loupe */
-	else if ((event->type == GDK_BUTTON_PRESS)
+	/* Middle mouse , ctrl + left -> loupe */
+	else if (((event->type == GDK_BUTTON_PRESS)
+		&& (event->button==2)) 
+		|| ((event->type == GDK_BUTTON_PRESS)
 		&& (event->button==1)
-		&& (event->state & GDK_CONTROL_MASK))
+		&& (event->state & GDK_CONTROL_MASK)))
 	{
 		rs_loupe_set_screen(preview->loupe, preview_screen, screen_number);
 		rs_loupe_set_coord(preview->loupe, real_x, real_y);
-		rs_preview_widget_set_loupe_enabled(preview, TRUE);
+		rs_preview_widget_set_loupe_enabled(preview, view, TRUE);
 	}
 	if (event->type == GDK_BUTTON_RELEASE)
-		rs_preview_widget_set_loupe_enabled(preview, FALSE);
+		rs_preview_widget_set_loupe_enabled(preview, view, FALSE);
 
 	return FALSE;
 }
@@ -2124,7 +2155,15 @@ motion(GtkWidget *widget, GdkEventMotion *event, gpointer user_data)
 
 	/* Update loupe if needed */
 	if (preview->loupe_enabled)
+	{
+		if (view != preview->loupe_view)
+		{
+			rs_filter_set_previous(preview->loupe_filter_start, preview->filter_cache0[view]);
+			rs_filter_set_recursive(preview->loupe_filter_end, "settings", preview->photo->settings[preview->snapshot[view]], NULL);
+			preview->loupe_view = view;
+		}
 		rs_loupe_set_coord(preview->loupe, real_x, real_y);
+	}
 
 
 	return TRUE;
@@ -2163,21 +2202,6 @@ settings_changed(RS_PHOTO *photo, RSSettingsMask mask, RSPreviewWidget *preview)
 		if (preview->snapshot[view] == snapshot)
 		{
 			DIRTY(preview->dirty[view], SCREEN);
-			if (mask & MASK_TCA || mask & MASK_VIGNETTING)
-			{
-				gfloat tca_kr = 0.0;
-				gfloat tca_kb = 0.0;
-				gfloat vignetting = 0.0;
-				g_object_get(preview->photo->settings[preview->snapshot[view]], "tca_kr", &tca_kr, NULL);
-				g_object_get(preview->photo->settings[preview->snapshot[view]], "tca_kb", &tca_kb, NULL);
-				g_object_get(preview->photo->settings[preview->snapshot[view]], "vignetting", &vignetting, NULL);
-
-				rs_filter_set_recursive(preview->filter_end[view],
-							"tca_kr", tca_kr,
-							"tca_kb", tca_kb,
-							"vignetting", vignetting,
-							NULL);
-			}
 		}
 	}
 }
@@ -2973,6 +2997,7 @@ render_thread_func(gpointer _thread_info)
 	ThreadInfo* t = _thread_info;
 	GTimeVal render_timeout;
 	GdkRectangle dirty_area_accum;
+	g_mutex_lock(t->render_mutex);
 	while (1)
 	{
 		t->render_pending = FALSE;
@@ -2996,14 +3021,15 @@ render_thread_func(gpointer _thread_info)
 			g_time_val_add(&render_timeout, wait); 
 			gdk_rectangle_union(&dirty_area_accum, &t->dirty_area, &dirty_area_accum);
 		} while (!t->finish_rendering && TRUE == g_cond_timed_wait(t->render, t->render_mutex, &render_timeout) && !t->finish_rendering);
+		g_mutex_unlock(t->render_mutex);
 
 		/* Do the render */
 		gdk_threads_enter();
 		rs_preview_do_render(t->preview, &dirty_area_accum);
-		GTK_CATCHUP();
+		GUI_CATCHUP();
 		gdk_threads_leave();
-#undef CAIRO_LINE
-		
 	}
 	return NULL;
 }
+
+#undef CAIRO_LINE

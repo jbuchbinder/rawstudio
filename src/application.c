@@ -57,7 +57,6 @@
 #include "rs-profile-factory-model.h"
 #include "rs-profile-camera.h"
 
-static void photo_spatial_changed(RS_PHOTO *photo, RS_BLOB *rs);
 static void photo_profile_changed(RS_PHOTO *photo, gpointer profile, RS_BLOB *rs);
 
 void
@@ -88,26 +87,10 @@ rs_set_photo(RS_BLOB *rs, RS_PHOTO *photo)
 			"image", rs->photo->input_response,
 			"filename", rs->photo->filename,
 			NULL);
-
-		g_signal_connect(G_OBJECT(rs->photo), "spatial-changed", G_CALLBACK(photo_spatial_changed), rs);
-		g_signal_connect(G_OBJECT(rs->photo), "profile-changed", G_CALLBACK(photo_profile_changed), rs);
 	}
+	g_signal_connect(G_OBJECT(rs->photo), "profile-changed", G_CALLBACK(photo_profile_changed), rs);
 }
 
-static void
-photo_spatial_changed(RS_PHOTO *photo, RS_BLOB *rs)
-{
-	if (photo == rs->photo)
-	{
-		/* Update crop and rotate filters */
-		rs_filter_set_recursive(rs->filter_end,
-			"rectangle", rs_photo_get_crop(photo),
-			"angle", rs_photo_get_angle(photo),
-			"orientation", rs->photo->orientation,
-			NULL);
-	}
-
-}
 
 static void
 photo_profile_changed(RS_PHOTO *photo, gpointer profile, RS_BLOB *rs)
@@ -222,8 +205,6 @@ rs_photo_copy_to_clipboard(RS_PHOTO *photo, RSFilter *prior_to_resample, gint wi
 RS_BLOB *
 rs_new(void)
 {
-	RSFilter *cache;
-
 	RS_BLOB *rs;
 	rs = g_malloc(sizeof(RS_BLOB));
 	rs->settings_buffer = NULL;
@@ -241,13 +222,8 @@ rs_new(void)
 	/* We need this for 100% zoom */
 	g_object_set(rs->filter_demosaic_cache, "ignore-roi", TRUE, NULL);
 
-	rs->filter_lensfun = rs_filter_new("RSLensfun", rs->filter_demosaic_cache);
-	rs->filter_rotate = rs_filter_new("RSRotate", rs->filter_lensfun);
-	rs->filter_crop = rs_filter_new("RSCrop", rs->filter_rotate);
-	cache = rs_filter_new("RSCache", rs->filter_crop);
-
 	rs_filter_set_recursive(rs->filter_input, "color-space", rs_color_space_new_singleton("RSProphoto"), NULL);
-	rs->filter_end = cache;
+	rs->filter_end = rs->filter_demosaic_cache;
 
 	return(rs);
 }
@@ -665,10 +641,12 @@ main(int argc, char **argv)
 	gboolean do_test = FALSE;
 	gboolean use_system_theme = DEFAULT_CONF_USE_SYSTEM_THEME;
 	gchar *debug = NULL;
+    gchar *client_mode_dest = NULL;
 
 	GError *error = NULL;
 	GOptionContext *option_context;
 	const GOptionEntry option_entries[] = {
+        { "output", 'o', 0, G_OPTION_ARG_STRING, &client_mode_dest, "Run in client mode", "target filename"},
 		{ "debug", 'd', 0, G_OPTION_ARG_STRING, &debug, "Debug flags to use", "flags" },
 		{ "do-tests", 't', G_OPTION_FLAG_HIDDEN, G_OPTION_ARG_NONE, &do_test, "Do internal tests", NULL },
 		{ NULL }
@@ -701,6 +679,19 @@ main(int argc, char **argv)
 
 	if (debug)	
 		rs_debug_setup(debug);
+		if (client_mode_dest)
+		{
+			/* Client mode. */
+			if (argc != 2)
+			{
+				g_printf("You must specify exactly one input and one output image to work in client mode.\n");
+					exit(1);
+			}
+			rs_conf_set_boolean("client-mode", TRUE);
+			rs_conf_set_string("client-mode-destination", client_mode_dest);
+		}
+		else
+			rs_conf_set_boolean("client-mode", FALSE);
 
 	gdk_threads_set_lock_functions(rs_gdk_lock, rs_gdk_unlock);
 #if GLIB_MAJOR_VERSION <= 2 && GLIB_MINOR_VERSION < 31
