@@ -311,7 +311,7 @@ gchar * rs_enfuse(RS_BLOB *rs, GList *files)
   g_usleep(500000); /* FIXME */
   gui_progress_advance_one(progress); /* 1 - initiate */
 
-  GList *exported_names = export_images(rs, files, extend, 0, 1.0, 0, 1.0, boundingbox);
+  GList *exported_names = export_images(rs, files, extend, 1, 2.0, 1, 2.0, boundingbox);
 
   gui_progress_advance_one(progress); /* 2 - after exported images */
 
