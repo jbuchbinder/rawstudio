@@ -302,6 +302,7 @@ gchar * rs_enfuse(RS_BLOB *rs, GList *files)
       g_string_free(outname, TRUE);
     }
 
+  g_usleep(100000); /* FIXME */
   gui_progress_advance_one(progress); /* 1 - initiate */
 
   GList *exported_names = export_images(rs, files, extend, 0, 1.0, 0, 1.0, boundingbox);

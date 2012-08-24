@@ -1468,11 +1468,22 @@ ACTION(enfuse)
 {
   gboolean enfuse = TRUE;
   GList *selected_names = rs_store_get_selected_names(rs->store);
+
+  /* a bit of cleanup before we start enfusing */
+  rs_photo_close(rs->photo);
+  rs_preview_widget_set_photo((RSPreviewWidget *) rs->preview, NULL);
+  rs_preview_widget_lock_renderer((RSPreviewWidget *) rs->preview);
+  GUI_CATCHUP();
+
   gchar *filename = rs_enfuse(rs, selected_names);
   g_list_free(selected_names);
   rs_cache_save_flags(filename, NULL, NULL, &enfuse);
   rs_store_load_file(rs->store, filename);
   rs_store_set_selected_name(rs->store, filename, TRUE);
+
+  /* unlocking render after enfusing */
+  rs_preview_widget_unlock_renderer((RSPreviewWidget *) rs->preview);
+
   g_free(filename);
 }
 
