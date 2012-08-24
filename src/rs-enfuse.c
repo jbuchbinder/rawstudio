@@ -128,7 +128,7 @@ GList * export_images(RS_BLOB *rs, GList *files, gboolean extend, gint dark, gfl
   output_str = g_string_append(output_str, ".rawstudio-enfuse-");
   GString *output_unique = NULL;
 
-  RSFilter *ftransform_input = rs_filter_new("RSColorspaceTransform", rs->filter_crop);
+  RSFilter *ftransform_input = rs_filter_new("RSColorspaceTransform", rs->filter_demosaic_cache);
   RSFilter *fdcp= rs_filter_new("RSDcp", ftransform_input);
   RSFilter *fresample= rs_filter_new("RSResample", fdcp);
   RSFilter *fdenoise= rs_filter_new("RSDenoise", fresample);
