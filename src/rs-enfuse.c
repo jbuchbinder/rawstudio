@@ -31,6 +31,7 @@
 #include "gtk-helper.h"
 #include "rs-photo.h"
 #include "rs-cache.h"
+#include "gtk-progress.h"
 
 gboolean has_align_image_stack ();
 
@@ -277,6 +278,8 @@ gchar * rs_enfuse(RS_BLOB *rs, GList *files)
   gboolean extend = TRUE;
   gint boundingbox = 1000;
 
+  RS_PROGRESS *progress = gui_progress_new("Enfusing...", 4);
+
   if (num_selected == 1)
     extend = TRUE;
 
@@ -299,7 +302,12 @@ gchar * rs_enfuse(RS_BLOB *rs, GList *files)
       g_string_free(outname, TRUE);
     }
 
+  gui_progress_advance_one(progress); /* 1 - initiate */
+
   GList *exported_names = export_images(rs, files, extend, 0, 1.0, 0, 1.0, boundingbox);
+
+  gui_progress_advance_one(progress); /* 2 - after exported images */
+
   GList *aligned_names = NULL;
   if (has_align_image_stack() && num_selected > 1)
     {
@@ -308,9 +316,17 @@ gchar * rs_enfuse(RS_BLOB *rs, GList *files)
     }
   else
       aligned_names = exported_names;
+
+  gui_progress_advance_one(progress); /* 3 - after aligned images */
+
   enfuse_images(aligned_names, fullpath->str, enfuse_options);
+
+  gui_progress_advance_one(progress); /* 4 - after enfusing */
+
   gchar *filename = g_string_free(fullpath, FALSE);
   g_free(enfuse_options);
+
+  gui_progress_free(progress);
 
   // FIXME: Aparantly something goes wrong if we copy exifdata...
   //  rs_exif_copy(first, fullpath->str, "sRGB", RS_EXIF_FILE_TYPE_TIFF);
