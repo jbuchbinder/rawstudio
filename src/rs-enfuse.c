@@ -145,7 +145,7 @@ GList * export_images(RS_BLOB *rs, GList *files, gboolean extend, gint dark, gfl
   if (g_object_class_find_property(G_OBJECT_GET_CLASS(output), "save16bit"))
     g_object_set(output, "save16bit", FALSE, NULL); /* We get odd results if we use 16 bit output */
   if (g_object_class_find_property(G_OBJECT_GET_CLASS(output), "copy-metadata"))
-    g_object_set(output, "copy-metadata", FALSE, NULL);
+    g_object_set(output, "copy-metadata", FALSE, NULL); /* Doesn't make sense to enable - Enfuse doesn't copy it */
 
   gint lightness = 0;
   gint darkval = 255;
