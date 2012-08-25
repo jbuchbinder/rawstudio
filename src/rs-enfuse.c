@@ -129,11 +129,11 @@ GList * export_images(RS_BLOB *rs, GList *files, gboolean extend, gint dark, gfl
   output_str = g_string_append(output_str, ".rawstudio-enfuse-");
   GString *output_unique = NULL;
 
+  /* a simple chain - we wanna use the "original" image with only white balance corrected and nothing else to get the best result */
   RSFilter *ftransform_input = rs_filter_new("RSColorspaceTransform", rs->filter_demosaic_cache);
   RSFilter *fdcp= rs_filter_new("RSDcp", ftransform_input);
   RSFilter *fresample= rs_filter_new("RSResample", fdcp);
-  RSFilter *fdenoise= rs_filter_new("RSDenoise", fresample);
-  RSFilter *ftransform_display = rs_filter_new("RSColorspaceTransform", fdenoise);
+  RSFilter *ftransform_display = rs_filter_new("RSColorspaceTransform", fdcp);
   RSFilter *fend = ftransform_display;
   
   RSOutput *output = rs_output_new("RSTifffile");
