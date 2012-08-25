@@ -2947,3 +2947,9 @@ rs_store_get_iconview_size(RSStore *store)
 
 	return n;
 }
+
+guint
+rs_store_get_current_priority(RSStore *store)
+{
+  return store->current_priority;
+}

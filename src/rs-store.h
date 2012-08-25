@@ -285,4 +285,7 @@ rs_store_is_photo_selected(RSStore *store, const gchar *filename);
 extern GtkIconView*
 rs_store_get_current_iconview(RSStore *store);
 
+extern guint
+rs_store_get_current_priority(RSStore *store);
+
 #endif /* RS_STORE_H */
