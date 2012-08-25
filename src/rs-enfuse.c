@@ -346,7 +346,8 @@ gchar * rs_enfuse(RS_BLOB *rs, GList *files)
 
   // FIXME: Aparantly something goes wrong if we copy exifdata (and 16 bit tiff)
   // rs_exif_copy(first, filename, "sRGB", RS_EXIF_FILE_TYPE_TIFF);
-  g_free(first);
+  if (first)
+    g_free(first);
 
   return parsed_filename;
 }
