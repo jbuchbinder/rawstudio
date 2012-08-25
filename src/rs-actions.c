@@ -1468,6 +1468,7 @@ ACTION(enfuse)
 {
   gboolean enfuse = TRUE;
   GList *selected_names = rs_store_get_selected_names(rs->store);
+  guint priority = rs_store_get_current_priority(rs->store);
 
   /* a bit of cleanup before we start enfusing */
   rs_photo_close(rs->photo);
@@ -1477,7 +1478,7 @@ ACTION(enfuse)
 
   gchar *filename = rs_enfuse(rs, selected_names);
   g_list_free(selected_names);
-  rs_cache_save_flags(filename, NULL, NULL, &enfuse);
+  rs_cache_save_flags(filename, &priority, NULL, &enfuse);
   rs_store_load_file(rs->store, filename);
   rs_store_set_selected_name(rs->store, filename, TRUE);
 
