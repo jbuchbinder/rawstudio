@@ -243,7 +243,7 @@ ACTION(quick_export)
 	g_string_append(filename, ".");
 	g_string_append(filename, rs_output_get_extension(output));
 
-	parsed_filename = filename_parse(filename->str, rs->photo->filename, rs->current_setting);
+	parsed_filename = filename_parse(filename->str, rs->photo->filename, rs->current_setting, TRUE);
 
 	if (parsed_filename && output)
 	{

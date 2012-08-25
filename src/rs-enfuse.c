@@ -313,7 +313,7 @@ gchar * rs_enfuse(RS_BLOB *rs, GList *files)
       fullpath = g_string_append(fullpath, outname->str);
       fullpath = g_string_append(fullpath, "_%2c");
       fullpath = g_string_append(fullpath, ".tif");
-      parsed_filename = filename_parse(fullpath->str, first, 0);
+      parsed_filename = filename_parse(fullpath->str, first, 0, FALSE);
       g_string_free(outname, TRUE);
       g_string_free(fullpath, TRUE);
     }

@@ -728,7 +728,7 @@ update_example(QUICK_EXPORT *quick)
 	RSOutput *output;
 	GtkLabel *example = GTK_LABEL(quick->example_label);
 
-	parsed = filename_parse(quick->filename, "filename", 0);
+	parsed = filename_parse(quick->filename, "filename", 0, TRUE);
 
 	output = rs_output_new(quick->output_type);
 	if (output)
