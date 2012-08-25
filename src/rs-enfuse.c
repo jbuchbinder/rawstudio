@@ -281,6 +281,7 @@ gchar * rs_enfuse(RS_BLOB *rs, GList *files)
   gint boundingbox = 0;
 
   gchar *first = NULL;
+  gchar *parsed_filename = NULL;
 
   RS_PROGRESS *progress = gui_progress_new("Enfusing...", 4);
 
@@ -310,8 +311,11 @@ gchar * rs_enfuse(RS_BLOB *rs, GList *files)
       fullpath = g_string_new(g_path_get_dirname(name));
       fullpath = g_string_append(fullpath, "/");
       fullpath = g_string_append(fullpath, outname->str);
+      fullpath = g_string_append(fullpath, "_%2c");
       fullpath = g_string_append(fullpath, ".tif");
+      parsed_filename = filename_parse(fullpath->str, first, 0);
       g_string_free(outname, TRUE);
+      g_string_free(fullpath, TRUE);
     }
 
   g_usleep(500000); /* FIXME */
@@ -332,11 +336,10 @@ gchar * rs_enfuse(RS_BLOB *rs, GList *files)
 
   gui_progress_advance_one(progress); /* 3 - after aligned images */
 
-  enfuse_images(aligned_names, fullpath->str, enfuse_options);
+  enfuse_images(aligned_names, parsed_filename, enfuse_options);
 
   gui_progress_advance_one(progress); /* 4 - after enfusing */
 
-  gchar *filename = g_string_free(fullpath, FALSE);
   g_free(enfuse_options);
 
   gui_progress_free(progress);
@@ -345,7 +348,7 @@ gchar * rs_enfuse(RS_BLOB *rs, GList *files)
   // rs_exif_copy(first, filename, "sRGB", RS_EXIF_FILE_TYPE_TIFF);
   g_free(first);
 
-  return filename;
+  return parsed_filename;
 }
 
 gboolean rs_has_enfuse (gint major, gint minor)
