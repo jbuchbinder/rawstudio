@@ -177,7 +177,6 @@ GList * export_images(RS_BLOB *rs, GList *files, gboolean extend, gint dark, gfl
 	      darkval = lightness;
 	      darkest = g_strdup(name);
 	    }
-	  g_free(name);
 	}
     }
 
@@ -224,7 +223,8 @@ GList * align_images (GList *files, gchar *options) {
   if (g_list_length(files))
     {
       GString *command = g_string_new("align_image_stack -a /tmp/.rawstudio-enfuse-aligned- ");
-      command = g_string_append(command, options);
+      if (options)
+         command = g_string_append(command, options);
       command = g_string_append(command, " ");
       for(i=0; i<num_selected; i++)
 	{
@@ -297,10 +297,8 @@ gchar * rs_enfuse(RS_BLOB *rs, GList *files)
       for(i=0; i<num_selected; i++)
 	{
 	  name = (gchar*) g_list_nth_data(files, i);
-	  if (first == NULL) {
-	    first = g_malloc(strlen(name));
-	    g_utf8_strncpy(first, name, strlen(name));
-	  }
+	  if (first == NULL)
+	    first = g_strdup(name);
 	  file = g_malloc(sizeof(char)*strlen(name));
 	  sscanf(g_path_get_basename(name), "%[^.]", file);
 	  outname = g_string_append(outname, file);
@@ -313,7 +311,7 @@ gchar * rs_enfuse(RS_BLOB *rs, GList *files)
       fullpath = g_string_append(fullpath, outname->str);
       fullpath = g_string_append(fullpath, "_%2c");
       fullpath = g_string_append(fullpath, ".tif");
-      parsed_filename = filename_parse(fullpath->str, first, 0, FALSE);
+      parsed_filename = filename_parse(fullpath->str, g_strdup(first), 0, FALSE);
       g_string_free(outname, TRUE);
       g_string_free(fullpath, TRUE);
     }
