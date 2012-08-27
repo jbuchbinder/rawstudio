@@ -1479,7 +1479,12 @@ ACTION(enfuse)
   gchar *filename = rs_enfuse(rs, selected_names);
   g_list_free(selected_names);
   rs_cache_save_flags(filename, &priority, NULL, &enfuse);
-  rs_store_load_file(rs->store, filename);
+
+  /* reload store - grabbed from reload function */
+  rs_store_remove(rs->store, NULL, NULL);
+  rs_store_load_directory(rs->store, NULL);
+  rs_core_actions_update_menu_items(rs);
+
   rs_store_set_selected_name(rs->store, filename, TRUE);
 
   /* unlocking render after enfusing */
