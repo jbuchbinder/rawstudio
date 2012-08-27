@@ -323,7 +323,8 @@ filename_parse(const gchar *in, const gchar *filename, const gint snapshot, gboo
 	g_free(basename);
 	g_free(tm);
 	g_free(path);
-	g_object_unref(metadata);
+	if (metadata)
+	  g_object_unref(metadata);
 	
 	return output;
 }
