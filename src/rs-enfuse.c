@@ -51,6 +51,9 @@ gint calculate_lightness(RSFilter *filter)
       RSFilterResponse *response = rs_filter_get_image8(filter, request);
       g_object_unref(request);
 
+      if(!rs_filter_response_has_image8(response))
+	return 127;
+
       GdkPixbuf *pixbuf = rs_filter_response_get_image8(response);
       g_object_unref(response);
 
