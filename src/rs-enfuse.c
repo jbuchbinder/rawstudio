@@ -60,19 +60,27 @@ gint calculate_lightness(RSFilter *filter)
       guchar *pixels = gdk_pixbuf_get_pixels(pixbuf);
       gint rowstride = gdk_pixbuf_get_rowstride(pixbuf);
       gint height = gdk_pixbuf_get_height(pixbuf);
+      gint width = gdk_pixbuf_get_width(pixbuf);
+      gint channels = gdk_pixbuf_get_n_channels(pixbuf);
 
-      gint i;
+      gint x,y,c;
       gulong sum = 0;
       gint num = 0;
 
-      for (i = 0; i<rowstride*height; i++)
-	{
-	  sum += pixels[i];
-	  num++;
+      for (y = 0; y < height; y++)
+        {
+	  for (x = 0; x < width; x++)
+	    {
+	      for (c = 0; c < channels; c++)
+		{
+		  sum += pixels[x+c+y*rowstride];
+		}
+	    }
 	}
 
       g_object_unref(pixbuf);
 
+      num = width*height*channels;
       return (gint) (sum/num);
 }
 
