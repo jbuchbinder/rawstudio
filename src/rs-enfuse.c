@@ -73,7 +73,7 @@ gint calculate_lightness(RSFilter *filter)
 	    {
 	      for (c = 0; c < channels; c++)
 		{
-		  sum += pixels[x+c+y*rowstride];
+		  sum += pixels[x*c+y*rowstride];
 		}
 	    }
 	}
