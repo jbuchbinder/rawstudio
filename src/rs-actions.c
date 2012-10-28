@@ -1493,6 +1493,12 @@ ACTION(enfuse)
   g_free(filename);
 }
 
+ACTION(auto_adjust_curve_ends)
+{
+  GtkWidget *curve = rs_toolbox_get_curve(RS_TOOLBOX(rs->tools), rs->current_setting);
+  rs_curve_auto_adjust_ends(curve);
+}
+
 RADIOACTION(right_popup)
 {
 	rs_preview_widget_set_snapshot(RS_PREVIEW_WIDGET(rs->preview), 1, gtk_radio_action_get_current_value(radioaction));
@@ -1575,6 +1581,7 @@ rs_get_core_action_group(RS_BLOB *rs)
 	{ "Flip", RS_STOCK_FLIP, _("Flip"), NULL, NULL, ACTION_CB(flip) },
 	{ "Mirror", RS_STOCK_MIRROR, _("Mirror"), NULL, NULL, ACTION_CB(mirror) },
 	{ "Enfuse", NULL, _("Enfuse"), "<ctrl><alt>E", NULL, ACTION_CB(enfuse) },
+	{ "AutoAdjustCurveEnds", NULL, _("Auto adjust curve ends"), "<control><shift>L", NULL, ACTION_CB(auto_adjust_curve_ends) },
 
 	/* View menu */
 	{ "PreviousPhoto", GTK_STOCK_GO_BACK, _("_Previous Photo"), "<control>Left", NULL, ACTION_CB(previous_photo) },

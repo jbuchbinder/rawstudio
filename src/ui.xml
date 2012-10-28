@@ -44,6 +44,7 @@
    <menuitem action="Flip" />
    <menuitem action="Mirror" />
    <menuitem action="Enfuse" />
+   <menuitem action="AutoAdjustCurveEnds" />
   </menu>
   <menu action="ViewMenu">
    <menuitem action="PreviousPhoto" />
