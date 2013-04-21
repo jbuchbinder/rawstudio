@@ -351,6 +351,7 @@ gchar * rs_enfuse(RS_BLOB *rs, GList *files)
 
   gui_progress_free(progress);
 
+  /* FIXME: should use the photo in the middle as it's averaged between it... */
   rs_exif_copy(first, parsed_filename, "sRGB", RS_EXIF_FILE_TYPE_PNG);
   if (first)
     g_free(first);
