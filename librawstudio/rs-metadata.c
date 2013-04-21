@@ -121,7 +121,8 @@ rs_metadata_new (void)
 void
 rs_metadata_cache_save(RSMetadata *metadata, const gchar *filename)
 {
-	g_return_if_fail(filename != NULL);
+	if (!filename)
+	  return FALSE;
 
 	gchar *cache_filename;
 	gchar *thumb_filename;
@@ -201,7 +202,8 @@ rs_metadata_cache_save(RSMetadata *metadata, const gchar *filename)
 static gboolean
 rs_metadata_cache_load(RSMetadata *metadata, const gchar *filename)
 {
-	g_return_if_fail(filename != NULL);
+	if (!filename)
+	  return FALSE;
 
 	gboolean ret = FALSE;
 	gchar *cache_filename;
