@@ -173,4 +173,9 @@ rs_plugin_load(RSPlugin *plugin)
 	rs_filetype_register_meta_loader(".png", "PNG", rs_gdk_load_meta, 10, RS_LOADER_FLAGS_8BIT);
 	rs_filetype_register_meta_loader(".tif", "TIFF", rs_gdk_load_meta, 20, RS_LOADER_FLAGS_8BIT);
 	rs_filetype_register_meta_loader(".tiff", "TIFF", rs_gdk_load_meta, 20, RS_LOADER_FLAGS_8BIT);
+
+	/* Our own extension for RS Enfused PNGs */
+	rs_filetype_register_loader(".rse", "JPEG", load_gdk, 10, RS_LOADER_FLAGS_RAW);
+	rs_filetype_register_meta_loader(".rse", "PNG", rs_gdk_load_meta, 10, RS_LOADER_FLAGS_RAW);
+
 }

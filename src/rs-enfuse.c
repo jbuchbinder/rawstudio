@@ -291,8 +291,9 @@ gchar * rs_enfuse(RS_BLOB *rs, GList *files)
 
   gchar *first = NULL;
   gchar *parsed_filename = NULL;
+  gchar *temp_filename = g_strdup("/tmp/.rawstudio-temp.png");
 
-  RS_PROGRESS *progress = gui_progress_new("Enfusing...", 4);
+  RS_PROGRESS *progress = gui_progress_new("Enfusing...", 5);
 
   if (num_selected == 1)
     {
@@ -319,7 +320,7 @@ gchar * rs_enfuse(RS_BLOB *rs, GList *files)
       fullpath = g_string_append(fullpath, "/");
       fullpath = g_string_append(fullpath, outname->str);
       fullpath = g_string_append(fullpath, "_%2c");
-      fullpath = g_string_append(fullpath, ".png");
+      fullpath = g_string_append(fullpath, ".rse");
       parsed_filename = filename_parse(fullpath->str, g_strdup(first), 0, FALSE);
       g_string_free(outname, TRUE);
       g_string_free(fullpath, TRUE);
@@ -343,18 +344,27 @@ gchar * rs_enfuse(RS_BLOB *rs, GList *files)
 
   gui_progress_advance_one(progress); /* 3 - after aligned images */
 
-  enfuse_images(aligned_names, parsed_filename, enfuse_options);
+  enfuse_images(aligned_names, temp_filename, enfuse_options);
+  g_free(enfuse_options);
 
   gui_progress_advance_one(progress); /* 4 - after enfusing */
 
-  g_free(enfuse_options);
-
-  gui_progress_free(progress);
-
   /* FIXME: should use the photo in the middle as it's averaged between it... */
-  rs_exif_copy(first, parsed_filename, "sRGB", RS_EXIF_FILE_TYPE_PNG);
+  rs_exif_copy(first, temp_filename, "sRGB", RS_EXIF_FILE_TYPE_PNG);
   if (first)
     g_free(first);
+
+  GString *mv = g_string_new("mv ");
+  mv = g_string_append(mv, temp_filename);
+  mv = g_string_append(mv, " ");
+  mv = g_string_append(mv, parsed_filename);
+  printf("command: %s\n", mv->str);
+  if(system(mv->str)); 
+  g_string_free(mv, TRUE);
+
+  gui_progress_advance_one(progress); /* 5 - misc file operations */
+
+  gui_progress_free(progress);
 
   return parsed_filename;
 }
