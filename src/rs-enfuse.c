@@ -32,6 +32,7 @@
 #include "rs-photo.h"
 #include "rs-cache.h"
 #include "gtk-progress.h"
+#include "rs-metadata.h"
 
 gboolean has_align_image_stack ();
 
@@ -274,7 +275,7 @@ void enfuse_images(GList *files, gchar *out, gchar *options) {
     }
 }
 
-gchar * rs_enfuse(RS_BLOB *rs, GList *files)
+gchar * rs_enfuse(RS_BLOB *rs, GList *files, gboolean quick)
 {
   gint num_selected = g_list_length(files);
   gint i;
@@ -293,7 +294,9 @@ gchar * rs_enfuse(RS_BLOB *rs, GList *files)
   gchar *parsed_filename = NULL;
   gchar *temp_filename = g_strdup("/tmp/.rawstudio-temp.png");
 
-  RS_PROGRESS *progress = gui_progress_new("Enfusing...", 5);
+  RS_PROGRESS *progress = NULL;
+  if (quick == FALSE)
+    progress = gui_progress_new("Enfusing...", 5);
 
   if (num_selected == 1)
     {
@@ -326,15 +329,19 @@ gchar * rs_enfuse(RS_BLOB *rs, GList *files)
       g_string_free(fullpath, TRUE);
     }
 
-  g_usleep(500000); /* FIXME */
-  gui_progress_advance_one(progress); /* 1 - initiate */
+  if (quick == FALSE)
+    {
+      g_usleep(500000); /* FIXME */
+      gui_progress_advance_one(progress); /* 1 - initiate */
+    }
 
   GList *exported_names = export_images(rs, files, extend, extend_num, extend_step, extend_num, extend_step, boundingbox);
 
-  gui_progress_advance_one(progress); /* 2 - after exported images */
+  if (quick == FALSE)
+    gui_progress_advance_one(progress); /* 2 - after exported images */
 
   GList *aligned_names = NULL;
-  if (has_align_image_stack() && num_selected > 1)
+  if (has_align_image_stack() && num_selected > 1 && quick == FALSE)
     {
       aligned_names = align_images(exported_names, align_options);
       g_free(align_options);
@@ -342,12 +349,14 @@ gchar * rs_enfuse(RS_BLOB *rs, GList *files)
   else
       aligned_names = exported_names;
 
-  gui_progress_advance_one(progress); /* 3 - after aligned images */
+  if (quick == FALSE)
+    gui_progress_advance_one(progress); /* 3 - after aligned images */
 
   enfuse_images(aligned_names, temp_filename, enfuse_options);
   g_free(enfuse_options);
 
-  gui_progress_advance_one(progress); /* 4 - after enfusing */
+  if (quick == FALSE)
+    gui_progress_advance_one(progress); /* 4 - after enfusing */
 
   /* FIXME: should use the photo in the middle as it's averaged between it... */
   rs_exif_copy(first, temp_filename, "sRGB", RS_EXIF_FILE_TYPE_PNG);
@@ -362,9 +371,11 @@ gchar * rs_enfuse(RS_BLOB *rs, GList *files)
   if(system(mv->str)); 
   g_string_free(mv, TRUE);
 
-  gui_progress_advance_one(progress); /* 5 - misc file operations */
-
-  gui_progress_free(progress);
+  if (quick == FALSE)
+    {
+      gui_progress_advance_one(progress); /* 5 - misc file operations */
+      gui_progress_free(progress);
+    }
 
   return parsed_filename;
 }

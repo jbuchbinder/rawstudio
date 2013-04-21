@@ -22,7 +22,7 @@
 
 #include "application.h"
 
-extern gchar * rs_enfuse(RS_BLOB *rs, GList *files);
+extern gchar * rs_enfuse(RS_BLOB *rs, GList *files, gboolean quick);
 extern gboolean rs_has_enfuse (gint major, gint minor);
 
 #endif /* RS_ENFUSE_H  */
