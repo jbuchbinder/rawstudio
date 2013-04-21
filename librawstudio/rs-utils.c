@@ -78,11 +78,18 @@ rs_atof(const gchar *str)
 GTime
 rs_exiftime_to_unixtime(const gchar *str)
 {
-	struct tm *tm = g_new0(struct tm, 1);
+	struct tm *tm;
 	GTime timestamp = -1;
+
+	g_return_val_if_fail(str != NULL, -1);
+
+	tm = g_new0(struct tm, 1);
+
 #ifndef WIN32 /* There is no strptime() in time.h in MinGW */
 	if (strptime(str, "%Y:%m:%d %H:%M:%S", tm))
 		timestamp = (GTime) mktime(tm);
+#else
+ #warning rs_exiftime_to_unixtime() must be ported to WIN32
 #endif
 
 	g_free(tm);
@@ -126,6 +133,9 @@ rs_unixtime_to_exiftime(GTime timestamp)
 void
 rs_constrain_to_bounding_box(gint target_width, gint target_height, gint *width, gint *height)
 {
+	g_return_if_fail(width != NULL);
+	g_return_if_fail(height != NULL);
+
 	gdouble target_aspect = ((gdouble)target_width) / ((gdouble)target_height);
 	gdouble input_aspect = ((gdouble)*width) / ((gdouble)*height);
 	gdouble scale;
@@ -185,6 +195,8 @@ rs_get_number_of_processor_cores(void)
 #elif defined(_WIN32)
 		/* Use pthread on windows */
 		temp_num = pthread_num_processors_np();
+#else
+ #error This needs porting
 #endif
 		/* Be sure we have at least 1 processor and as sanity check, clamp to no more than 127 */
 		temp_num = (temp_num <= 0) ? 1 : MIN(temp_num, 127);
@@ -376,51 +388,57 @@ gchar *
 rs_dotdir_get(const gchar *filename)
 {
 	gchar *ret = NULL;
-	gchar *directory;
-	GString *dotdir;
+	gchar *directory = NULL;
+	GString *dotdir = NULL;
 	gboolean dotdir_is_local = FALSE;
 
-	rs_conf_get_boolean(CONF_CACHEDIR_IS_LOCAL, &dotdir_is_local);
+	/* We never have local cache for /var/, since it is temporary */
+	if (0 != g_ascii_strncasecmp(filename, "/var/", 5))
+	{
+		rs_conf_get_boolean(CONF_CACHEDIR_IS_LOCAL, &dotdir_is_local);
 
-	if (g_file_test(filename, G_FILE_TEST_IS_DIR))
-		directory = g_strdup(filename);
-	else
-		directory = g_path_get_dirname(filename);
-	
-	if (dotdir_is_local)
-	{
-		dotdir = g_string_new(g_get_home_dir());
-		dotdir = g_string_append(dotdir, G_DIR_SEPARATOR_S);
-		dotdir = g_string_append(dotdir, DOTDIR);
-		dotdir = g_string_append(dotdir, G_DIR_SEPARATOR_S);
-		dotdir = g_string_append(dotdir, directory);
-	}
-	else
-	{
-		dotdir = g_string_new(directory);
-		dotdir = g_string_append(dotdir, G_DIR_SEPARATOR_S);
-		dotdir = g_string_append(dotdir, DOTDIR);
-	}
-
-	if (!g_file_test(dotdir->str, (G_FILE_TEST_EXISTS | G_FILE_TEST_IS_DIR)))
-	{
-		if (g_mkdir_with_parents(dotdir->str, 0700) != 0)
-			ret = NULL;
+		if (g_file_test(filename, G_FILE_TEST_IS_DIR))
+			directory = g_strdup(filename);
 		else
+			directory = g_path_get_dirname(filename);
+	
+		if (dotdir_is_local)
+		{
+			dotdir = g_string_new(g_get_home_dir());
+			dotdir = g_string_append(dotdir, G_DIR_SEPARATOR_S);
+			dotdir = g_string_append(dotdir, DOTDIR);
+			dotdir = g_string_append(dotdir, G_DIR_SEPARATOR_S);
+			dotdir = g_string_append(dotdir, directory);
+		}
+		else
+		{
+			dotdir = g_string_new(directory);
+			dotdir = g_string_append(dotdir, G_DIR_SEPARATOR_S);
+			dotdir = g_string_append(dotdir, DOTDIR);
+		}
+
+		if (!g_file_test(dotdir->str, (G_FILE_TEST_EXISTS | G_FILE_TEST_IS_DIR)))
+		{
+			if (g_mkdir_with_parents(dotdir->str, 0700) != 0)
+				ret = NULL;
+			else
+				ret = dotdir->str;
+		}
+		else if (g_file_test(dotdir->str, G_FILE_TEST_IS_DIR))
 			ret = dotdir->str;
+		else 
+			ret = NULL;
 	}
-	else if (g_file_test(dotdir->str, G_FILE_TEST_IS_DIR))
-		ret = dotdir->str;
-	else 
-		ret = NULL;
 
 	/* If we for some reason cannot write to the current directory, */
 	/* we save it to a new folder named as the md5 of the file content, */
 	/* not particularly fast, but ensures that the images can be moved */
 	if (ret == NULL)
 	{
-		g_string_free(dotdir, TRUE);
-		g_free(directory);
+		if (dotdir)
+			g_string_free(dotdir, TRUE);
+		if (directory)
+			g_free(directory);
 		if (g_file_test(filename, G_FILE_TEST_IS_REGULAR))
 		{
 			gchar* md5 = rs_file_checksum(filename);
@@ -450,6 +468,9 @@ rs_rect_normalize(RS_RECT *in, RS_RECT *out)
 	gint n;
 	gint x1,y1;
 	gint x2,y2;
+
+	g_return_if_fail(in != NULL);
+	g_return_if_fail(out != NULL);
 
 	x1 = in->x2;
 	x2 = in->x1;
@@ -488,6 +509,9 @@ rs_rect_flip(RS_RECT *in, RS_RECT *out, gint w, gint h)
 	gint x1,y1;
 	gint x2,y2;
 
+	g_return_if_fail(in != NULL);
+	g_return_if_fail(out != NULL);
+
 	x1 = in->x1;
 	x2 = in->x2;
 	y1 = h - in->y2 - 1;
@@ -512,6 +536,9 @@ rs_rect_mirror(RS_RECT *in, RS_RECT *out, gint w, gint h)
 {
 	gint x1,y1;
 	gint x2,y2;
+
+	g_return_if_fail(in != NULL);
+	g_return_if_fail(out != NULL);
 
 	x1 = w - in->x2 - 1;
 	x2 = w - in->x1 - 1;
@@ -538,6 +565,9 @@ rs_rect_rotate(RS_RECT *in, RS_RECT *out, gint w, gint h, gint quarterturns)
 {
 	gint x1,y1;
 	gint x2,y2;
+
+	g_return_if_fail(in != NULL);
+	g_return_if_fail(out != NULL);
 
 	x1 = in->x2;
 	x2 = in->x1;
@@ -581,12 +611,16 @@ rs_rect_rotate(RS_RECT *in, RS_RECT *out, gint w, gint h, gint quarterturns)
 void
 rs_object_class_property_reset(GObject *object, const gchar *property_name)
 {
-	GObjectClass *klass = G_OBJECT_GET_CLASS(object);
+	GObjectClass *klass;
 	GParamSpec *spec;
 	GValue value = {0};
 
+	g_return_if_fail(G_IS_OBJECT(object));
+	g_return_if_fail(property_name != NULL);
+
+	klass = G_OBJECT_GET_CLASS(object);
 	spec = g_object_class_find_property(klass, property_name);
-	g_assert(spec != NULL);
+	g_return_if_fail(spec != NULL);
 
 	g_value_init(&value, spec->value_type);
 
@@ -669,6 +703,9 @@ CanonEv(gint val)
  */
 GList *
 rs_split_string(const gchar *str, const gchar *delimiters) {
+	g_return_val_if_fail(str != NULL, NULL);
+	g_return_val_if_fail(delimiters != NULL, NULL);
+
 	gchar **temp = g_strsplit_set(str, delimiters, 0);
 
 	int i = 0;
@@ -691,8 +728,11 @@ rs_file_checksum(const gchar *filename)
 {
 	gchar *checksum = NULL;
 	struct stat st;
-	gint fd = open(filename, O_RDONLY);
+	gint fd;
 
+	g_return_val_if_fail(filename != NULL, NULL);
+
+	fd = open(filename, O_RDONLY);
 	if (fd > 0)
 	{
 		fstat(fd, &st);
@@ -749,6 +789,8 @@ rs_human_focal(gdouble min, gdouble max)
 gchar *
 rs_normalize_path(const gchar *path)
 {
+	g_return_val_if_fail(path != NULL, NULL);
+
 #ifdef PATH_MAX
 	gint path_max = PATH_MAX;
 #else

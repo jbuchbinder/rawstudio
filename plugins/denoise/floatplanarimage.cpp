@@ -170,7 +170,9 @@ void FloatPlanarImage::unpackInterleavedYUV( const ImgConvertJob* j )
   blueCorrection = MAX(0.0f, blueCorrection);
   
 #if defined (__x86_64__)
-  if (image->pixelsize == 4)
+  if (image->pixelsize == 4 && (rs_detect_cpu_features() & RS_CPU_FLAG_SSE4_1))
+    return unpackInterleavedYUV_SSE4(j);
+  else if (image->pixelsize == 4)
     return unpackInterleavedYUV_SSE2(j);
 #endif
 
@@ -191,8 +193,14 @@ void FloatPlanarImage::unpackInterleavedYUV( const ImgConvertJob* j )
       float g = shortToFloat[(*(pix+1))];
       float b = shortToFloat[((*(pix+2))*bluec)>>13];
       *Y++ = r * 0.299 + g * 0.587 + b * 0.114 ;
-      *Cb++ = r * -0.169 + g * -0.331 + b * 0.499;
-      *Cr++ = r * 0.499 + g * -0.418 + b * -0.0813;
+      float cb = r * -0.169 + g * -0.331 + b * 0.499;
+      float cr = r * 0.499 + g * -0.418 + b * -0.0813;
+      if (cr > 0.0f)   /* 50% Stronger denoise on red/blue */
+        cr *= 0.5f;
+      if (cb > 0.0f)
+        cb *= 0.5f;
+      *Cb++ = cb;
+      *Cr++ = cr;
       pix += image->pixelsize;
     }
   }
@@ -227,9 +235,8 @@ void FloatPlanarImage::packInterleavedYUV( const ImgConvertJob* j)
   guint cpu = rs_detect_cpu_features();
 #if defined (__x86_64__)
   if ((image->pixelsize == 4) && (cpu & RS_CPU_FLAG_SSE4_1))  {
-    // TODO: Test on SSE4 capable machine before enabling.
-//    packInterleavedYUV_SSE4(j);
-//    return;
+    packInterleavedYUV_SSE4(j);
+    return;
   }
 #endif
 #if defined (__i386__) || defined (__x86_64__)
@@ -246,9 +253,15 @@ void FloatPlanarImage::packInterleavedYUV( const ImgConvertJob* j)
     gfloat *Cr = p[2]->getAt(ox, y+oy);
     gushort* out = GET_PIXEL(image,0,y);
     for (int x=0; x<image->w; x++) {
-      float fr = (Y[x] + 1.402 * Cr[x]);
-      float fg = Y[x] - 0.344 * Cb[x] - 0.714 * Cr[x];
-      float fb = (Y[x] + 1.772 * Cb[x]) ;
+      float cr = Cr[x];
+      float cb = Cb[x];
+      if (cr > 0.0f) /* 50% Stronger denoise on red/blue */
+        cr += cr;
+      if (cb > 0.0f)
+        cb += cb;
+      float fr = (Y[x] + 1.402 * cr);
+      float fg = Y[x] - 0.344 * cb - 0.714 * cr;
+      float fb = (Y[x] + 1.772 * cb) ;
       int r = (int)(fr*fr* r_factor);
       int g = (int)(fg*fg);
       int b = (int)(fb*fb* b_factor);

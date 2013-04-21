@@ -317,7 +317,6 @@ free_dcp_profile(RSDcp *dcp)
 	dcp->huesatmap = NULL;
 	dcp->tone_curve = NULL;
 	dcp->looktable = NULL;
-	dcp->looktable = NULL;
 	dcp->tone_curve_lut = NULL;
 	dcp->use_profile = FALSE;
 	if (dcp->huesatmap_precalc->lookups)
@@ -330,6 +329,9 @@ free_dcp_profile(RSDcp *dcp)
 		free(dcp->looktable_precalc->lookups);
 		dcp->looktable_precalc->lookups = NULL;
 	}
+	dcp->temp1 = dcp->temp2 = 0;
+	dcp->has_color_matrix1 = dcp->has_color_matrix2 = dcp->has_forward_matrix1 = dcp->has_forward_matrix2 = FALSE;
+	
 }
 
 #define ALIGNTO16(PTR) ((guintptr)PTR + ((16 - ((guintptr)PTR % 16)) % 16))
@@ -437,7 +439,6 @@ set_property(GObject *object, guint property_id, const GValue *value, GParamSpec
 		case PROP_PROFILE:
 			g_static_rec_mutex_lock(&dcp_mutex);
 			read_profile(dcp, g_value_get_object(value));
-			precalc(dcp);
 			changed = TRUE;
 			g_static_rec_mutex_unlock(&dcp_mutex);
 			break;
@@ -855,9 +856,13 @@ huesat_map(RSHuesatMap *map, gfloat *h, gfloat *s, gfloat *v)
 		hueShift = sFract0 * hueShift0 + sFract1 * hueShift1;
 		satScale = sFract0 * satScale0 + sFract1 * satScale1;
 		valScale = sFract0 * valScale0 + sFract1 * valScale1;
+		*v = MIN(*v * valScale, 1.0);
 	}
 	else
 	{
+		if (map->v_encoding == 1)
+			*v = powf(*v , 1.0f/2.2f);
+
 		gfloat hScaled = *h * hScale;
 		gfloat sScaled = *s * sScale;
 		gfloat vScaled = *v * vScale;
@@ -926,16 +931,20 @@ huesat_map(RSHuesatMap *map, gfloat *h, gfloat *s, gfloat *v)
 			vFract1 * (hFract0 * entry10->fValScale +
 			hFract1 * entry11->fValScale);
 
+		valScale = sFract0 * valScale0 + sFract1 * valScale1;
 		hueShift = sFract0 * hueShift0 + sFract1 * hueShift1;
 		satScale = sFract0 * satScale0 + sFract1 * satScale1;
-		valScale = sFract0 * valScale0 + sFract1 * valScale1;
+
+		if (map->v_encoding == 1)
+			*v = powf(MIN(*v * valScale, 1.0), 2.2f);
+		else
+			*v = MIN(*v * valScale, 1.0);
 	}
 
 	hueShift *= (6.0f / 360.0f);
 
 	*h += hueShift;
 	*s = MIN(*s * satScale, 1.0);
-	*v = MIN(*v * valScale, 1.0);
 }
 
 static inline gfloat 

@@ -218,7 +218,7 @@ rs_curve_set_histogram_data(RSCurveWidget *curve, const gint *input)
 		g_free(curve->bg_buffer);
 	curve->bg_buffer = NULL;
 	curve->histogram_uptodate = TRUE;
-	rs_curve_draw_histogram(curve);
+	gtk_widget_queue_draw(GTK_WIDGET(curve));
 	gdk_threads_leave();
 }
 
@@ -234,13 +234,14 @@ static void filter_changed(RSFilter *filter, RSFilterChangedMask mask, RSCurveWi
  * Set an image to base the histogram of
  * @param curve A RSCurveWidget
  * @param image An image
- * @param display_color_space Colorspace to use to transform the input.
+ * @param display_color_space Colorspace to use to transform the input or NULL.
  */
 void
 rs_curve_set_input(RSCurveWidget *curve, RSFilter* input, RSColorSpace *display_color_space)
 {
 	g_return_if_fail (RS_IS_CURVE_WIDGET(curve));
 	g_return_if_fail (RS_IS_FILTER(input));
+	g_return_if_fail (RS_IS_COLOR_SPACE(display_color_space) || display_color_space == NULL);
 
 	if (input != curve->input)
 	{
@@ -260,7 +261,7 @@ rs_curve_set_input(RSCurveWidget *curve, RSFilter* input, RSColorSpace *display_
 void
 rs_curve_draw_histogram(RSCurveWidget *curve)
 {
-	g_assert(RS_IS_CURVE_WIDGET(curve));
+	g_return_if_fail(RS_IS_CURVE_WIDGET(curve));
 
 	if (curve->input && !curve->histogram_uptodate)
 	{
@@ -274,7 +275,7 @@ rs_curve_draw_histogram(RSCurveWidget *curve)
 		g_object_unref(request);
 		g_object_unref(response);
 	}
-	rs_curve_draw(curve);
+	gtk_widget_queue_draw(GTK_WIDGET(curve));
 }
 
 void 
@@ -293,7 +294,7 @@ rs_curve_set_highlight(RSCurveWidget *curve, const guchar* rgb_values)
 		curve->rgb_values[1] = -1;
 		curve->rgb_values[2] = -1;
 	}
-	rs_curve_draw(curve);
+	gtk_widget_queue_draw(GTK_WIDGET(curve));
 }
 
 /**
@@ -373,7 +374,8 @@ rs_curve_widget_move_knot(RSCurveWidget *curve, gint knot, gfloat x, gfloat y)
 	rs_curve_changed(curve);
 
 	/* Redraw everything */
-	rs_curve_draw(curve);
+	gtk_widget_queue_draw(GTK_WIDGET(curve));
+
 	return;
 }
 
@@ -406,7 +408,8 @@ rs_curve_widget_set_knots(RSCurveWidget *curve, const gfloat *knots, const guint
 {
 	gint i;
 
-	g_assert(RS_IS_CURVE_WIDGET(curve));
+	g_return_if_fail(RS_IS_CURVE_WIDGET(curve));
+	g_return_if_fail(knots != NULL);
 
 	/* Free thew current spline */
 	if (curve->spline)
@@ -435,6 +438,9 @@ rs_curve_widget_set_knots(RSCurveWidget *curve, const gfloat *knots, const guint
 extern void
 rs_curve_widget_get_knots(RSCurveWidget *curve, gfloat **knots, guint *nknots)
 {
+	g_return_if_fail(RS_IS_CURVE_WIDGET(curve));
+	g_return_if_fail(knots != NULL);
+
 	rs_spline_get_knots(curve->spline, knots, nknots);
 }
 
@@ -474,6 +480,10 @@ rs_curve_widget_save(RSCurveWidget *curve, const gchar *filename)
 	xmlTextWriterPtr writer;
 	guint nknots, i;
 	gfloat *curve_knots;
+
+	g_return_val_if_fail(RS_IS_CURVE_WIDGET(curve), FALSE);
+	g_return_val_if_fail(filename != NULL, FALSE);
+
 	rs_curve_widget_get_knots(curve, &curve_knots, &nknots);
 	
 	if ((writer = xmlNewTextWriterFilename(filename, 0)))
@@ -508,6 +518,8 @@ rs_curve_widget_load(RSCurveWidget *curve, const gchar *filename)
 	xmlDocPtr doc;
 	xmlNodePtr cur;
 	xmlChar *val;
+
+	g_return_val_if_fail(RS_IS_CURVE_WIDGET(curve), FALSE);
 
 	if (!filename) return FALSE;
 	if (!g_file_test(filename, G_FILE_TEST_IS_REGULAR)) return FALSE;
@@ -951,7 +963,7 @@ rs_curve_widget_button_press(GtkWidget *widget, GdkEventButton *event)
 		g_signal_emit (G_OBJECT (curve), 
 			signals[RIGHTCLICK_SIGNAL], 0);
 
-	rs_curve_draw(curve);
+	gtk_widget_queue_draw(widget);
 
 	return(TRUE);
 }
@@ -1042,19 +1054,22 @@ rs_curve_widget_motion_notify(GtkWidget *widget, GdkEventMotion *event)
 
 		/* Find knot below cursor if any  */
 		curve->active_knot = -1;
+		/* This also indicates the closeness the cursor must be to 'pick up' a point */
+		float closest_distance = 16.0f;
 		for(i=0;i<n;i++)
 		{
-			if (fabsf(event->x-knots[i*2+0]) < 16.0)
+			float dist = fabsf(event->x-knots[i*2+0]);
+			if (dist < closest_distance)
 			{
+				closest_distance = dist;
 				curve->active_knot = i;
-				break;
 			}
 		}
 	}
 
 	/* Update knots if needed */
 	if (old_active_knot != curve->active_knot)
-		rs_curve_draw(RS_CURVE_WIDGET(widget));
+		gtk_widget_queue_draw(widget);
 	g_free(knots);
 
 	return(TRUE);
@@ -1078,6 +1093,8 @@ rs_curve_widget_size_allocate(GtkWidget *widget, GtkAllocation *allocation, gpoi
 /* Added by Anders Kvist */
 void
 rs_curve_auto_adjust_ends(GtkWidget *widget) {
+
+  g_return_if_fail(RS_IS_CURVE_WIDGET(widget));
 
   RSCurveWidget *curve = RS_CURVE_WIDGET(widget);
 

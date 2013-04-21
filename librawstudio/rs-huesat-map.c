@@ -61,6 +61,7 @@ rs_huesat_map_new(guint hue_divisions, guint sat_division, guint val_divisions)
 	map->val_step = hue_divisions * map->hue_step;
 
 	map->deltas = g_new0(RS_VECTOR3, rs_huesat_map_get_deltacount(map));
+	map->v_encoding = 0;
 
 	return map;
 }
@@ -72,7 +73,7 @@ rs_huesat_map_new_from_dcp(RSTiff *tiff, const guint ifd, const gushort dims_tag
 	RSTiffIfdEntry *entry;
 	guint hue_count = 0, sat_count = 0, val_count = 0;
 
-	g_assert(RS_IS_TIFF(tiff));
+	g_return_val_if_fail(RS_IS_TIFF(tiff), NULL);
 
 	entry = rs_tiff_get_ifd_entry(tiff, ifd, dims_tag);
 	if (entry && (entry->count > 1))
@@ -111,6 +112,18 @@ rs_huesat_map_new_from_dcp(RSTiff *tiff, const guint ifd, const gushort dims_tag
 		}
 	}
 
+	if (NULL == map)
+		return map;
+
+	entry = NULL;
+	if (table_tag == 50938 || table_tag == 50939) /* ProfileHueSatMapData1  or  ProfileHueSatMapData2*/
+		entry = rs_tiff_get_ifd_entry(tiff, ifd, 51107); /*ProfileHueSatMapEncoding */
+	else if (table_tag == 50982) /* ProfileLookTableData */
+		entry = rs_tiff_get_ifd_entry(tiff, ifd, 51108);  /*ProfileLookTableEncoding*/
+
+	if (NULL != entry && entry->count == 1)
+		map->v_encoding = entry->value_offset;
+
 	return map;
 }
 
@@ -119,8 +132,8 @@ rs_huesat_map_new_interpolated(const RSHuesatMap *map1, RSHuesatMap *map2, gfloa
 {
 	RSHuesatMap *map = NULL;
 
-	g_assert(RS_IS_HUESAT_MAP(map1));
-	g_assert(RS_IS_HUESAT_MAP(map2));
+	g_return_val_if_fail(RS_IS_HUESAT_MAP(map1), NULL);
+	g_return_val_if_fail(RS_IS_HUESAT_MAP(map2), NULL);
 
 	if (weight1 >= 1.0)
 		return RS_HUESAT_MAP(g_object_ref(G_OBJECT(map1)));
@@ -150,6 +163,7 @@ rs_huesat_map_new_interpolated(const RSHuesatMap *map1, RSHuesatMap *map2, gfloa
 			data2++;
 			data3++;
 		}
+		map->v_encoding = map1->v_encoding;
 	}
 
 	return map;
@@ -158,13 +172,17 @@ rs_huesat_map_new_interpolated(const RSHuesatMap *map1, RSHuesatMap *map2, gfloa
 guint
 rs_huesat_map_get_deltacount(RSHuesatMap *map)
 {
+	g_return_val_if_fail(RS_IS_HUESAT_MAP(map), 0);
+
 	return map->val_divisions * map->hue_divisions * map->sat_divisions;
 }
 
 void
 rs_huesat_map_get_delta(RSHuesatMap *map, const guint hue_div, const guint sat_div, const guint val_div, RS_VECTOR3 *modify)
 {
-	g_assert(RS_IS_HUESAT_MAP(map));
+	g_return_if_fail(RS_IS_HUESAT_MAP(map));
+	g_return_if_fail(modify != NULL);
+
 	if (hue_div >= map->hue_divisions || sat_div >= map->sat_divisions || val_div >= map->val_divisions)
 	{
 		modify->h = 0.0;
@@ -182,7 +200,8 @@ rs_huesat_map_get_delta(RSHuesatMap *map, const guint hue_div, const guint sat_d
 void
 rs_huesat_map_set_delta(RSHuesatMap *map, const guint hue_div, const guint sat_div, const guint val_div, const RS_VECTOR3 *modify)
 {
-	g_assert(RS_IS_HUESAT_MAP(map));
+	g_return_if_fail(RS_IS_HUESAT_MAP(map));
+	g_return_if_fail(modify != NULL);
 
 	if (hue_div >= map->hue_divisions || sat_div >= map->sat_divisions || val_div >= map->val_divisions)
 		return;
