@@ -1500,6 +1500,26 @@ ACTION(about)
 	);
 }
 
+GList *
+get_thumbnails_from_list(GList *files)
+{
+  if (files == NULL)
+    return NULL;
+
+  gint i;
+  gint num_selected = g_list_length(files);
+  gchar *name = NULL;
+  GList *thumbnails = NULL;
+
+  for(i=0; i<num_selected; i++) 
+    {
+      name = (gchar*) g_list_nth_data(files, i);
+      thumbnails = g_list_append(thumbnails, rs_metadata_dotdir_helper(name, DOTDIR_THUMB));
+    }
+
+  return thumbnails;
+}
+
 ACTION(enfuse)
 {
   gboolean enfuse = TRUE;
@@ -1512,7 +1532,29 @@ ACTION(enfuse)
   rs_preview_widget_lock_renderer((RSPreviewWidget *) rs->preview);
   GUI_CATCHUP();
 
-  gchar *filename = rs_enfuse(rs, selected_names);
+  GList *thumbs = get_thumbnails_from_list(selected_names);
+  gchar *thumb = rs_enfuse(rs, thumbs, TRUE);
+
+  GtkWidget *dialog = NULL;
+  dialog = gui_dialog_make_from_text(GTK_STOCK_DIALOG_QUESTION, _("Enfuse"), _("This might take quite some time and will lock up UI until finished..."));
+  gtk_dialog_add_button (GTK_DIALOG (dialog), GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL);
+  gtk_dialog_add_button (GTK_DIALOG (dialog), GTK_STOCK_EXECUTE, GTK_RESPONSE_ACCEPT);
+
+  GtkWidget *content = gtk_dialog_get_content_area(GTK_DIALOG(dialog));
+  GtkWidget *image = gtk_image_new_from_file(thumb);
+  gtk_container_add(GTK_CONTAINER(content), image);
+  gtk_widget_show_all(dialog);
+
+  if (gtk_dialog_run(GTK_DIALOG(dialog)) != GTK_RESPONSE_ACCEPT)
+    {
+      gtk_widget_destroy(dialog);
+      /* unlock render or we won't be able to do anything */
+      rs_preview_widget_unlock_renderer((RSPreviewWidget *) rs->preview);
+      return;
+    }
+  gtk_widget_destroy(dialog);
+
+  gchar *filename = rs_enfuse(rs, selected_names, FALSE);
   g_list_free(selected_names);
   rs_cache_save_flags(filename, &priority, NULL, &enfuse);
 
