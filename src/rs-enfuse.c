@@ -147,16 +147,14 @@ GList * export_images(RS_BLOB *rs, GList *files, gboolean extend, gint dark, gfl
   RSFilter *ftransform_display = rs_filter_new("RSColorspaceTransform", fdcp);
   RSFilter *fend = ftransform_display;
   
-  RSOutput *output = rs_output_new("RSTifffile");
+  RSOutput *output = rs_output_new("RSPngfile");
 
   GList *exported_names = NULL;
 
-  if (g_object_class_find_property(G_OBJECT_GET_CLASS(output), "uncompressed"))
-    g_object_set(output, "uncompressed", FALSE, NULL);
   if (g_object_class_find_property(G_OBJECT_GET_CLASS(output), "save16bit"))
-    g_object_set(output, "save16bit", FALSE, NULL); /* We get odd results if we use 16 bit output - probably due to liniearity */
+    g_object_set(output, "save16bit", TRUE, NULL); /* We get odd results if we use 16 bit output - probably due to liniearity */
   if (g_object_class_find_property(G_OBJECT_GET_CLASS(output), "copy-metadata"))
-    g_object_set(output, "copy-metadata", FALSE, NULL); /* Doesn't make sense to enable - Enfuse doesn't copy it */
+    g_object_set(output, "copy-metadata", TRUE, NULL); /* Doesn't make sense to enable - Enfuse doesn't copy it */
 
   gint lightness = 0;
   gint darkval = 255;
@@ -172,7 +170,7 @@ GList * export_images(RS_BLOB *rs, GList *files, gboolean extend, gint dark, gfl
 	  name = (gchar*) g_list_nth_data(files, i);
 	  output_unique = g_string_new(output_str->str);
 	  g_string_append_printf(output_unique, "%d", i);
-	  output_unique = g_string_append(output_unique, ".tif");
+	  output_unique = g_string_append(output_unique, ".png");
 	  lightness = export_image(name, output, fend, 0, 0.0, output_unique->str, boundingbox, fresample); /* FIXME: snapshot hardcoded */
   	  exported_names = g_list_append(exported_names, g_strdup(output_unique->str));
 	  g_string_free(output_unique, TRUE);
@@ -199,7 +197,7 @@ GList * export_images(RS_BLOB *rs, GList *files, gboolean extend, gint dark, gfl
 	  output_unique = g_string_new(output_str->str);
 	  g_string_append_printf(output_unique, "%d", i);
 	  g_string_append_printf(output_unique, "_%.1f", (darkstep*n*-1));
-	  output_unique = g_string_append(output_unique, ".tif");
+	  output_unique = g_string_append(output_unique, ".png");
 	  exported_names = g_list_append(exported_names, g_strdup(output_unique->str));
 	  export_image(darkest, output, fend, 0, (darkstep*n*-1), output_unique->str, boundingbox, fresample); /* FIXME: snapshot hardcoded */
 	  g_string_free(output_unique, TRUE);
@@ -211,7 +209,7 @@ GList * export_images(RS_BLOB *rs, GList *files, gboolean extend, gint dark, gfl
 	  output_unique = g_string_new(output_str->str);
 	  g_string_append_printf(output_unique, "%d", i);
 	  g_string_append_printf(output_unique, "_%.1f", (brightstep*n));
-	  output_unique = g_string_append(output_unique, ".tif");
+	  output_unique = g_string_append(output_unique, ".png");
 	  exported_names = g_list_append(exported_names, g_strdup(output_unique->str));
 	  export_image(brightest, output, fend, 0, (brightstep*n), output_unique->str, boundingbox, fresample); /* FIXME: snapshot hardcoded */
 	  g_string_free(output_unique, TRUE);
@@ -321,7 +319,7 @@ gchar * rs_enfuse(RS_BLOB *rs, GList *files)
       fullpath = g_string_append(fullpath, "/");
       fullpath = g_string_append(fullpath, outname->str);
       fullpath = g_string_append(fullpath, "_%2c");
-      fullpath = g_string_append(fullpath, ".tif");
+      fullpath = g_string_append(fullpath, ".png");
       parsed_filename = filename_parse(fullpath->str, g_strdup(first), 0, FALSE);
       g_string_free(outname, TRUE);
       g_string_free(fullpath, TRUE);
@@ -353,8 +351,7 @@ gchar * rs_enfuse(RS_BLOB *rs, GList *files)
 
   gui_progress_free(progress);
 
-  // FIXME: Aparantly something goes wrong if we copy exifdata (and 16 bit tiff)
-  // rs_exif_copy(first, filename, "sRGB", RS_EXIF_FILE_TYPE_TIFF);
+  rs_exif_copy(first, parsed_filename, "sRGB", RS_EXIF_FILE_TYPE_PNG);
   if (first)
     g_free(first);
 
