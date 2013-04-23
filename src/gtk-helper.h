@@ -91,3 +91,5 @@ extern void gui_box_notify(GConfClient *client, guint cnxn_id, GConfEntry *entry
 extern GtkWidget * gui_box(const gchar *title, GtkWidget *in, gchar *key, gboolean default_expanded);
 
 extern RSColorSpace* rs_get_display_profile(GtkWidget *widget);
+
+extern GtkWidget * rs_combobox_new(const gchar *text, GtkListStore *store, const gchar *conf_key);

@@ -832,3 +832,20 @@ rs_get_display_profile(GtkWidget *widget)
 	RSIccProfile* profile = rs_icc_profile_new_from_memory((gchar*)buffer, buffer_size, FALSE);
 	return rs_color_space_icc_new_from_icc(profile);
 }
+
+GtkWidget *
+rs_combobox_new(const gchar *text, GtkListStore *store, const gchar *conf_key)
+{
+  GtkWidget *combo = gtk_combo_box_new_with_model(GTK_TREE_MODEL(store));
+  GtkWidget *hbox = gtk_hbox_new(FALSE, 0);
+  GtkWidget *label = gtk_label_new(text);
+  gtk_box_pack_start(GTK_BOX(hbox), label, TRUE, TRUE, 5);
+  gtk_box_pack_start(GTK_BOX(hbox), combo, TRUE, TRUE, 5);
+
+  GtkCellRenderer *cell = gtk_cell_renderer_text_new();
+  gtk_cell_layout_pack_start(GTK_CELL_LAYOUT(combo), cell, TRUE);
+  gtk_cell_layout_set_attributes(GTK_CELL_LAYOUT(combo), cell, "text", 0, NULL);
+  gtk_combo_box_set_active(GTK_COMBO_BOX(combo), 0);
+
+  return hbox;
+}

@@ -1542,7 +1542,24 @@ ACTION(enfuse)
 
   GtkWidget *content = gtk_dialog_get_content_area(GTK_DIALOG(dialog));
   GtkWidget *image = gtk_image_new_from_file(thumb);
-  gtk_container_add(GTK_CONTAINER(content), image);
+
+  GtkWidget *vbox = gtk_vbox_new(FALSE, 5);
+  gtk_box_pack_start(GTK_BOX(vbox), image, TRUE, TRUE, 5);
+
+  GtkListStore *enfuse_methods = gtk_list_store_new( 1, G_TYPE_STRING );
+  GtkTreeIter iter;
+  gtk_list_store_append(enfuse_methods, &iter);
+  gtk_list_store_set(enfuse_methods, &iter, 0, "Exposure Blending", -1 );
+  gtk_list_store_append(enfuse_methods, &iter);
+  gtk_list_store_set(enfuse_methods, &iter, 0, "Focus Stacking", -1 );
+
+  GtkWidget *enfuse_method_combo = rs_combobox_new(_("Enfuse method"), enfuse_methods, CONF_ENFUSE_METHOD);
+  gtk_box_pack_start(GTK_BOX(vbox), enfuse_method_combo, TRUE, TRUE, 5);
+
+  GtkWidget *align_check = checkbox_from_conf(CONF_ENFUSE_ALIGN_IMAGES, _("Align images (may take a long time)"), DEFAULT_CONF_ENFUSE_ALIGN_IMAGES);
+  gtk_box_pack_start(GTK_BOX(vbox), align_check, TRUE, TRUE, 5);
+
+  gtk_container_add(GTK_CONTAINER(content), vbox);
   gtk_widget_show_all(dialog);
 
   if (gtk_dialog_run(GTK_DIALOG(dialog)) != GTK_RESPONSE_ACCEPT)
