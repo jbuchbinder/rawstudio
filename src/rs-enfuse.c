@@ -33,6 +33,7 @@
 #include "rs-cache.h"
 #include "gtk-progress.h"
 #include "rs-metadata.h"
+#include "conf_interface.h"
 
 gboolean has_align_image_stack ();
 
@@ -290,6 +291,9 @@ gchar * rs_enfuse(RS_BLOB *rs, GList *files, gboolean quick)
   gfloat extend_step = 2.0;
   gint boundingbox = 0;
 
+  gboolean align = DEFAULT_CONF_ENFUSE_ALIGN_IMAGES;
+  rs_conf_get_boolean_with_default(CONF_ENFUSE_ALIGN_IMAGES, &align, DEFAULT_CONF_ENFUSE_ALIGN_IMAGES);
+
   gchar *first = NULL;
   gchar *parsed_filename = NULL;
   gchar *temp_filename = g_strdup("/tmp/.rawstudio-temp.png");
@@ -341,7 +345,7 @@ gchar * rs_enfuse(RS_BLOB *rs, GList *files, gboolean quick)
     gui_progress_advance_one(progress); /* 2 - after exported images */
 
   GList *aligned_names = NULL;
-  if (has_align_image_stack() && num_selected > 1 && quick == FALSE)
+  if (has_align_image_stack() && num_selected > 1 && quick == FALSE && align == TRUE)
     {
       aligned_names = align_images(exported_names, align_options);
       g_free(align_options);
