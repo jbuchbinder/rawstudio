@@ -1549,9 +1549,9 @@ ACTION(enfuse)
   GtkListStore *enfuse_methods = gtk_list_store_new( 1, G_TYPE_STRING );
   GtkTreeIter iter;
   gtk_list_store_append(enfuse_methods, &iter);
-  gtk_list_store_set(enfuse_methods, &iter, 0, "Exposure Blending", -1 );
+  gtk_list_store_set(enfuse_methods, &iter, 0, ENFUSE_METHOD_EXPOSURE_BLENDING, -1 );
   gtk_list_store_append(enfuse_methods, &iter);
-  gtk_list_store_set(enfuse_methods, &iter, 0, "Focus Stacking", -1 );
+  gtk_list_store_set(enfuse_methods, &iter, 0, ENFUSE_METHOD_FOCUS_STACKING, -1 );
 
   GtkWidget *enfuse_method_combo = rs_combobox_new(_("Enfuse method"), enfuse_methods, CONF_ENFUSE_METHOD);
   gtk_box_pack_start(GTK_BOX(vbox), enfuse_method_combo, TRUE, TRUE, 5);
