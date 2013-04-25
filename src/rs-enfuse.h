@@ -22,6 +22,16 @@
 
 #include "application.h"
 
+
+#define ENFUSE_METHOD_EXPOSURE_BLENDING "exposure blending"
+#define ENFUSE_METHOD_EXPOSURE_BLENDING_ID 0
+#define ENFUSE_OPTIONS_EXPOSURE_BLENDING "--exposure-weight=1 --saturation-weight=0.2 --contrast-weight=0 --soft-mask"
+
+#define ENFUSE_METHOD_FOCUS_STACKING "focus stacking"
+#define ENFUSE_METHOD_FOCUS_STACKING_ID 1
+#define ENFUSE_OPTIONS_FOCUS_STACKING "--exposure-weight=0 --saturation-weight=0 --contrast-weight=1 --hard-mask"
+
+
 extern gchar * rs_enfuse(RS_BLOB *rs, GList *files, gboolean quick);
 extern gboolean rs_has_enfuse (gint major, gint minor);
 
