@@ -23,11 +23,11 @@
 #include "application.h"
 
 
-#define ENFUSE_METHOD_EXPOSURE_BLENDING "exposure blending"
+#define ENFUSE_METHOD_EXPOSURE_BLENDING "Exposure blending"
 #define ENFUSE_METHOD_EXPOSURE_BLENDING_ID 0
 #define ENFUSE_OPTIONS_EXPOSURE_BLENDING "--exposure-weight=1 --saturation-weight=0.2 --contrast-weight=0 --soft-mask"
 
-#define ENFUSE_METHOD_FOCUS_STACKING "focus stacking"
+#define ENFUSE_METHOD_FOCUS_STACKING "Focus stacking"
 #define ENFUSE_METHOD_FOCUS_STACKING_ID 1
 #define ENFUSE_OPTIONS_FOCUS_STACKING "--exposure-weight=0 --saturation-weight=0 --contrast-weight=1 --hard-mask"
 
