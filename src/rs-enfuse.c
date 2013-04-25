@@ -35,6 +35,8 @@
 #include "rs-metadata.h"
 #include "conf_interface.h"
 
+#define ENFUSE_OPTIONS "-d 16"
+
 gboolean has_align_image_stack ();
 
 gint calculate_lightness(RSFilter *filter)
@@ -285,7 +287,7 @@ gchar * rs_enfuse(RS_BLOB *rs, GList *files, gboolean quick)
   GString *outname = g_string_new("");
   GString *fullpath = NULL;
   gchar *align_options = NULL;
-  gchar *enfuse_options = g_strdup("-d 16");
+  GString *enfuse_options = g_string_new("");
   gboolean extend = TRUE;
   gint extend_num = 1;
   gfloat extend_step = 2.0;
@@ -293,6 +295,21 @@ gchar * rs_enfuse(RS_BLOB *rs, GList *files, gboolean quick)
 
   gboolean align = DEFAULT_CONF_ENFUSE_ALIGN_IMAGES;
   rs_conf_get_boolean_with_default(CONF_ENFUSE_ALIGN_IMAGES, &align, DEFAULT_CONF_ENFUSE_ALIGN_IMAGES);
+
+  gint method = 0;
+  if (!rs_conf_get_integer(CONF_ENFUSE_METHOD, &method))
+    method = DEFAULT_CONF_ENFUSE_METHOD;
+
+  gchar *method_options = NULL;
+  if (method == ENFUSE_METHOD_EXPOSURE_BLENDING_ID) {
+    method_options = g_strdup(ENFUSE_OPTIONS_EXPOSURE_BLENDING);
+  } else if (method == ENFUSE_METHOD_FOCUS_STACKING_ID) {
+    method_options = g_strdup(ENFUSE_OPTIONS_FOCUS_STACKING);
+  }
+
+  enfuse_options = g_string_append(enfuse_options, ENFUSE_OPTIONS);
+  enfuse_options = g_string_append(enfuse_options, " ");
+  enfuse_options = g_string_append(enfuse_options, method_options);
 
   gchar *first = NULL;
   gchar *parsed_filename = NULL;
@@ -356,8 +373,8 @@ gchar * rs_enfuse(RS_BLOB *rs, GList *files, gboolean quick)
   if (quick == FALSE)
     gui_progress_advance_one(progress); /* 3 - after aligned images */
 
-  enfuse_images(aligned_names, temp_filename, enfuse_options);
-  g_free(enfuse_options);
+  enfuse_images(aligned_names, temp_filename, enfuse_options->str);
+  g_string_free(enfuse_options, TRUE);
 
   if (quick == FALSE)
     gui_progress_advance_one(progress); /* 4 - after enfusing */
