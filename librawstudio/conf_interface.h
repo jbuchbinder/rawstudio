@@ -76,6 +76,7 @@
 #define CONF_PICASA_CLIENT_ALBUM_ID "picasa_client_album_id"
 #define CONF_ENFUSE_METHOD "conf_enfuse_method"
 #define CONF_ENFUSE_ALIGN_IMAGES "conf_enfuse_align_images"
+#define CONF_ENFUSE_EXTEND "conf_enfuse_extend"
 
 #define DEFAULT_CONF_EXPORT_FILENAME "%f_%2c"
 #define DEFAULT_CONF_BATCH_DIRECTORY "batch_exports/"
@@ -109,6 +110,7 @@
 #define DEFAULT_CONF_MAIN_WINDOW_MAXIMIZED FALSE
 #define DEFAULT_CONF_ENFUSE_METHOD 0
 #define DEFAULT_CONF_ENFUSE_ALIGN_IMAGES TRUE
+#define DEFAULT_CONF_ENFUSE_EXTEND TRUE
 
 /* get the last working directory from gconf */
 void rs_set_last_working_directory(const char *lwd);

@@ -288,13 +288,15 @@ gchar * rs_enfuse(RS_BLOB *rs, GList *files, gboolean quick)
   GString *fullpath = NULL;
   gchar *align_options = NULL;
   GString *enfuse_options = g_string_new("");
-  gboolean extend = TRUE;
   gint extend_num = 1;
   gfloat extend_step = 2.0;
   gint boundingbox = 0;
 
   gboolean align = DEFAULT_CONF_ENFUSE_ALIGN_IMAGES;
   rs_conf_get_boolean_with_default(CONF_ENFUSE_ALIGN_IMAGES, &align, DEFAULT_CONF_ENFUSE_ALIGN_IMAGES);
+
+  gboolean extend = DEFAULT_CONF_ENFUSE_EXTEND;
+  rs_conf_get_boolean_with_default(CONF_ENFUSE_EXTEND, &extend, DEFAULT_CONF_ENFUSE_EXTEND);
 
   gint method = 0;
   if (!rs_conf_get_integer(CONF_ENFUSE_METHOD, &method))
@@ -305,6 +307,7 @@ gchar * rs_enfuse(RS_BLOB *rs, GList *files, gboolean quick)
     method_options = g_strdup(ENFUSE_OPTIONS_EXPOSURE_BLENDING);
   } else if (method == ENFUSE_METHOD_FOCUS_STACKING_ID) {
     method_options = g_strdup(ENFUSE_OPTIONS_FOCUS_STACKING);
+    extend = FALSE;
   }
 
   enfuse_options = g_string_append(enfuse_options, ENFUSE_OPTIONS);
