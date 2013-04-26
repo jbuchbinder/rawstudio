@@ -101,13 +101,16 @@ gint export_image(gchar *filename, RSOutput *output, RSFilter *filter, gint snap
       rs_photo_apply_to_filters(photo, filters, snapshot);
       
       if (boundingbox > 0) 
-	rs_filter_set_recursive(filter,
-				"image", photo->input_response,
-				"filename", photo->filename,
-				"bounding-box", TRUE,
-				"width", boundingbox,
-				"height", boundingbox,
-				NULL);
+	{
+	  rs_filter_set_enabled(resample, TRUE);
+	  rs_filter_set_recursive(filter,
+				  "image", photo->input_response,
+				  "filename", photo->filename,
+				  "bounding-box", TRUE,
+				  "width", boundingbox,
+				  "height", boundingbox,
+				  NULL);
+	}
       else
 	{
 	  rs_filter_set_enabled(resample, FALSE);
@@ -148,7 +151,7 @@ GList * export_images(RS_BLOB *rs, GList *files, gboolean extend, gint dark, gfl
   RSFilter *ftransform_input = rs_filter_new("RSColorspaceTransform", rs->filter_demosaic_cache);
   RSFilter *fdcp= rs_filter_new("RSDcp", ftransform_input);
   RSFilter *fresample= rs_filter_new("RSResample", fdcp);
-  RSFilter *ftransform_display = rs_filter_new("RSColorspaceTransform", fdcp);
+  RSFilter *ftransform_display = rs_filter_new("RSColorspaceTransform", fresample);
   RSFilter *fend = ftransform_display;
   
   RSOutput *output = rs_output_new("RSPngfile");
