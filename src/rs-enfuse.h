@@ -32,7 +32,7 @@
 #define ENFUSE_OPTIONS_FOCUS_STACKING "--exposure-weight=0 --saturation-weight=0 --contrast-weight=1 --hard-mask"
 
 
-extern gchar * rs_enfuse(RS_BLOB *rs, GList *files, gboolean quick);
+extern gchar * rs_enfuse(RS_BLOB *rs, GList *files, gboolean quick, gint boundingbox);
 extern gboolean rs_has_enfuse (gint major, gint minor);
 
 #endif /* RS_ENFUSE_H  */

@@ -1533,7 +1533,7 @@ ACTION(enfuse)
   GUI_CATCHUP();
 
   GList *thumbs = get_thumbnails_from_list(selected_names);
-  gchar *thumb = rs_enfuse(rs, thumbs, TRUE);
+  gchar *thumb = rs_enfuse(rs, thumbs, TRUE, 250);
 
   GtkWidget *dialog = NULL;
   dialog = gui_dialog_make_from_text(GTK_STOCK_DIALOG_QUESTION, _("Enfuse"), _("This might take quite some time and will lock up UI until finished..."));
@@ -1574,7 +1574,7 @@ ACTION(enfuse)
     }
   gtk_widget_destroy(dialog);
 
-  gchar *filename = rs_enfuse(rs, selected_names, FALSE);
+  gchar *filename = rs_enfuse(rs, selected_names, FALSE, 1000);
   g_list_free(selected_names);
   rs_cache_save_flags(filename, &priority, NULL, &enfuse);
 

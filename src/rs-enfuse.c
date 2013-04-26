@@ -281,7 +281,7 @@ void enfuse_images(GList *files, gchar *out, gchar *options) {
     }
 }
 
-gchar * rs_enfuse(RS_BLOB *rs, GList *files, gboolean quick)
+gchar * rs_enfuse(RS_BLOB *rs, GList *files, gboolean quick, gint boundingbox)
 {
   gint num_selected = g_list_length(files);
   gint i;
@@ -293,7 +293,6 @@ gchar * rs_enfuse(RS_BLOB *rs, GList *files, gboolean quick)
   GString *enfuse_options = g_string_new("");
   gint extend_num = 1;
   gfloat extend_step = 2.0;
-  gint boundingbox = 0;
 
   gboolean align = DEFAULT_CONF_ENFUSE_ALIGN_IMAGES;
   rs_conf_get_boolean_with_default(CONF_ENFUSE_ALIGN_IMAGES, &align, DEFAULT_CONF_ENFUSE_ALIGN_IMAGES);
