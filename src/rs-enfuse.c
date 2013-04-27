@@ -304,6 +304,12 @@ gchar * rs_enfuse(RS_BLOB *rs, GList *files, gboolean quick, gint boundingbox)
   if (!rs_conf_get_integer(CONF_ENFUSE_METHOD, &method))
     method = DEFAULT_CONF_ENFUSE_METHOD;
 
+  if (boundingbox == -1) 
+    {
+      if (!rs_conf_get_integer(CONF_ENFUSE_SIZE, &boundingbox))
+	boundingbox = DEFAULT_CONF_ENFUSE_SIZE;
+    }
+
   gchar *method_options = NULL;
   if (method == ENFUSE_METHOD_EXPOSURE_BLENDING_ID) {
     method_options = g_strdup(ENFUSE_OPTIONS_EXPOSURE_BLENDING);
@@ -322,7 +328,10 @@ gchar * rs_enfuse(RS_BLOB *rs, GList *files, gboolean quick, gint boundingbox)
 
   RS_PROGRESS *progress = NULL;
   if (quick == FALSE)
-    progress = gui_progress_new("Enfusing...", 5);
+    {
+      progress = gui_progress_new("Enfusing...", 5);
+      GUI_CATCHUP();
+    }
 
   if (num_selected == 1)
     {

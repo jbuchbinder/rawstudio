@@ -1520,6 +1520,15 @@ get_thumbnails_from_list(GList *files)
   return thumbnails;
 }
 
+void
+enfuse_size_changed (GtkRange *range, gint *maxsize) {
+  gint size = gtk_range_get_value(GTK_RANGE(range));
+  /* to make it easier to adjust when using different size images next time */
+  if (size == *maxsize)
+    size = 0;
+  rs_conf_set_integer(CONF_ENFUSE_SIZE, size);  
+}
+
 ACTION(enfuse)
 {
   gboolean enfuse = TRUE;
@@ -1579,6 +1588,7 @@ ACTION(enfuse)
 
   GtkWidget *size_scale = gtk_hscale_new_with_range(300, maxsize, 1.0);
   gtk_range_set_value(GTK_RANGE(size_scale), size_value);
+  g_signal_connect(size_scale, "value-changed", G_CALLBACK(enfuse_size_changed), &maxsize);
   GtkWidget *size_label = gtk_label_new("Size:");
   GtkWidget *size_box = gtk_hbox_new(FALSE, 5);
   gtk_box_pack_start(GTK_BOX(size_box), size_label, FALSE, TRUE, 5);
@@ -1595,15 +1605,9 @@ ACTION(enfuse)
       rs_preview_widget_unlock_renderer((RSPreviewWidget *) rs->preview);
       return;
     }
-  gint size = gtk_range_get_value(GTK_RANGE(size_scale));
   gtk_widget_destroy(dialog);
 
-  /* to make it easier to adjust when using different size images next time */
-  if (size == maxsize)
-    size = 0;
-  rs_conf_set_integer(CONF_ENFUSE_SIZE, size);
-
-  gchar *filename = rs_enfuse(rs, selected_names, FALSE, size);
+  gchar *filename = rs_enfuse(rs, selected_names, FALSE, -1);
   g_list_free(selected_names);
   rs_cache_save_flags(filename, &priority, NULL, &enfuse);
 
