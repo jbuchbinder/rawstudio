@@ -1531,6 +1531,10 @@ enfuse_size_changed (GtkRange *range, gint *maxsize) {
 
 ACTION(enfuse)
 {
+  rs_preview_widget_blank((RSPreviewWidget *) rs->preview);
+  rs_photo_close(rs->photo);
+  rs->photo = NULL;
+
   gboolean enfuse = TRUE;
   GList *selected_names = rs_store_get_selected_names(rs->store);
   guint priority = rs_store_get_current_priority(rs->store);
