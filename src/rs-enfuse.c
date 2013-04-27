@@ -252,7 +252,6 @@ GList * align_images (GList *files, gchar *options) {
       printf("command: %s\n", command->str);
       if (system(command->str));
       g_string_free(command, TRUE);
-      g_list_free(files);
     }
   return aligned_names;
 }
@@ -277,7 +276,18 @@ void enfuse_images(GList *files, gchar *out, gchar *options) {
       printf("command: %s\n", command->str);
       if(system(command->str));
       g_string_free(command, TRUE);
-      g_list_free(files);
+    }
+}
+
+void
+delete_files_in_list(GList *list)
+{
+  gint i;
+  gchar *name = NULL;
+  for(i=0; i<g_list_length(list); i++)
+    {
+      name = (gchar*) g_list_nth_data(list, i);
+      g_unlink(name);
     }
 }
 
@@ -392,6 +402,14 @@ gchar * rs_enfuse(RS_BLOB *rs, GList *files, gboolean quick, gint boundingbox)
 
   if (quick == FALSE)
     gui_progress_advance_one(progress); /* 4 - after enfusing */
+
+  /* delete all temporary files */
+  if (exported_names != aligned_names) {
+      delete_files_in_list(aligned_names);
+      g_list_free(aligned_names);
+  }
+  delete_files_in_list(exported_names);
+  g_list_free(exported_names);
 
   /* FIXME: should use the photo in the middle as it's averaged between it... */
   rs_exif_copy(first, temp_filename, "sRGB", RS_EXIF_FILE_TYPE_PNG);
