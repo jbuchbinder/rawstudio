@@ -1526,6 +1526,15 @@ ACTION(enfuse)
   GList *selected_names = rs_store_get_selected_names(rs->store);
   guint priority = rs_store_get_current_priority(rs->store);
 
+  gchar *temp = g_list_nth_data(selected_names, 0);
+  RS_PHOTO *temp_photo = rs_photo_load_from_file(temp);
+  gint maxsize = 0;
+  if (temp_photo->input->w < temp_photo->input->h)
+    maxsize = temp_photo->input->h;
+  else
+    maxsize = temp_photo->input->w;
+  rs_photo_close(temp_photo);
+
   /* a bit of cleanup before we start enfusing */
   rs_photo_close(rs->photo);
   rs_preview_widget_set_photo((RSPreviewWidget *) rs->preview, NULL);
@@ -1562,6 +1571,20 @@ ACTION(enfuse)
   GtkWidget *extend_check = checkbox_from_conf(CONF_ENFUSE_EXTEND, _("Extend exposure (only for exposure blending)"), DEFAULT_CONF_ENFUSE_EXTEND);
   gtk_box_pack_start(GTK_BOX(vbox), extend_check, TRUE, TRUE, 5);
 
+  gint size_value = DEFAULT_CONF_ENFUSE_SIZE;
+  if (!rs_conf_get_integer(CONF_ENFUSE_SIZE, &size_value))
+    size_value = DEFAULT_CONF_ENFUSE_SIZE;
+  if (size_value == 0)
+    size_value = maxsize;
+
+  GtkWidget *size_scale = gtk_hscale_new_with_range(300, maxsize, 1.0);
+  gtk_range_set_value(GTK_RANGE(size_scale), size_value);
+  GtkWidget *size_label = gtk_label_new("Size:");
+  GtkWidget *size_box = gtk_hbox_new(FALSE, 5);
+  gtk_box_pack_start(GTK_BOX(size_box), size_label, FALSE, TRUE, 5);
+  gtk_box_pack_start(GTK_BOX(size_box), size_scale, TRUE, TRUE, 5);
+  gtk_box_pack_start(GTK_BOX(vbox), size_box, TRUE, TRUE, 5);
+
   gtk_container_add(GTK_CONTAINER(content), vbox);
   gtk_widget_show_all(dialog);
 
@@ -1572,9 +1595,15 @@ ACTION(enfuse)
       rs_preview_widget_unlock_renderer((RSPreviewWidget *) rs->preview);
       return;
     }
+  gint size = gtk_range_get_value(GTK_RANGE(size_scale));
   gtk_widget_destroy(dialog);
 
-  gchar *filename = rs_enfuse(rs, selected_names, FALSE, 1000);
+  /* to make it easier to adjust when using different size images next time */
+  if (size == maxsize)
+    size = 0;
+  rs_conf_set_integer(CONF_ENFUSE_SIZE, size);
+
+  gchar *filename = rs_enfuse(rs, selected_names, FALSE, size);
   g_list_free(selected_names);
   rs_cache_save_flags(filename, &priority, NULL, &enfuse);
 
