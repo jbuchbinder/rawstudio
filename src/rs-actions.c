@@ -1585,7 +1585,7 @@ ACTION(enfuse)
   GtkWidget *align_check = checkbox_from_conf(CONF_ENFUSE_ALIGN_IMAGES, _("Align images (may take a long time)"), DEFAULT_CONF_ENFUSE_ALIGN_IMAGES);
   gtk_box_pack_start(GTK_BOX(vbox), align_check, TRUE, TRUE, 5);
 
-  GtkWidget *extend_check = checkbox_from_conf(CONF_ENFUSE_EXTEND, _("Extend exposure (only for exposure blending)"), DEFAULT_CONF_ENFUSE_EXTEND);
+  GtkWidget *extend_check = checkbox_from_conf(CONF_ENFUSE_EXTEND, _("Extend exposure"), DEFAULT_CONF_ENFUSE_EXTEND);
   gtk_box_pack_start(GTK_BOX(vbox), extend_check, TRUE, TRUE, 5);
 
   gint size_value = DEFAULT_CONF_ENFUSE_SIZE;
@@ -1605,6 +1605,10 @@ ACTION(enfuse)
 
   gtk_container_add(GTK_CONTAINER(content), vbox);
   gtk_widget_show_all(dialog);
+
+#ifndef EXPERIMENTAL
+  gtk_widget_hide(enfuse_method_combo);
+#endif
 
   if (gtk_dialog_run(GTK_DIALOG(dialog)) != GTK_RESPONSE_ACCEPT)
     {
