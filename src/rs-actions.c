@@ -1535,6 +1535,8 @@ ACTION(enfuse)
   rs_photo_close(rs->photo);
   rs->photo = NULL;
 
+  rs_filter_set_recursive(rs->filter_input, "color-space", rs_color_space_new_singleton("RSProphoto"), NULL);
+
   gboolean enfuse = TRUE;
   GList *selected_names = rs_store_get_selected_names(rs->store);
   guint priority = rs_store_get_current_priority(rs->store);
