@@ -31,19 +31,6 @@
 #error "LCMS v1 or LCMS v2 required"
 #endif
 
-
-void abort_(const char * s, ...)
-{
-  va_list args;
-  va_start(args, s);
-  vfprintf(stderr, s, args);
-  fprintf(stderr, "\n");
-  va_end(args);
-  _exit(0);
-}
-
-
-
 /**
  * Open an image using libpng
  * @param filename The filename to open
@@ -68,24 +55,26 @@ load_png(const gchar *filename)
   /* open file and test for it being a png */
   FILE *fp = fopen(filename, "rb");
   if (!fp)
-    abort_("[read_png_file] File %s could not be opened for reading", filename);
-  if (fread(header, 1, 8, fp));
-  if (png_sig_cmp(header, 0, 8))
-    abort_("[read_png_file] File %s is not recognized as a PNG file", filename);
+    return NULL;
 
+  if (!fread(header, 1, 8, fp))
+    return NULL;
+
+  if (png_sig_cmp(header, 0, 8))
+    return NULL;
 
   /* initialize stuff */
   png_ptr = png_create_read_struct(PNG_LIBPNG_VER_STRING, NULL, NULL, NULL);
 
   if (!png_ptr)
-    abort_("[read_png_file] png_create_read_struct failed");
+    return NULL;
 
   info_ptr = png_create_info_struct(png_ptr);
   if (!info_ptr)
-    abort_("[read_png_file] png_create_info_struct failed");
+    return NULL;
 
   if (setjmp(png_jmpbuf(png_ptr)))
-    abort_("[read_png_file] Error during init_io");
+    return NULL;
 
   png_init_io(png_ptr, fp);
   png_set_sig_bytes(png_ptr, 8);
@@ -97,12 +86,14 @@ load_png(const gchar *filename)
   color_type = png_get_color_type(png_ptr, info_ptr);
   bit_depth = png_get_bit_depth(png_ptr, info_ptr);
 
+#ifdef DEBUG
   printf("width: %u\n", (guint32) width);
   printf("height: %u\n", (guint32) height);
   printf("bit_depth: %d\n", bit_depth);
   printf("color_type: %d\n", color_type);
+#endif
 
-  /* currently we only support 16BIT RGB */
+  /* currently we only support 16BIT RGBA */
   if (color_type != PNG_COLOR_TYPE_RGB_ALPHA || bit_depth != 16)
     return NULL;
 
@@ -110,7 +101,7 @@ load_png(const gchar *filename)
 
   /* read file */
   if (setjmp(png_jmpbuf(png_ptr)))
-    abort_("[read_png_file] Error during read_image");
+    return NULL;
 
   row_pointers = (png_bytep*) malloc(sizeof(png_bytep) * height);
 
@@ -127,10 +118,6 @@ load_png(const gchar *filename)
 
   png_read_image(png_ptr, row_pointers);
 
-  //  png_set_expand(png_ptr);
-  //  png_set_strip_16(png_ptr);
-
-
   RS_IMAGE16 *image = rs_image16_new(width, height, 3, 4);
 
   for (y=0; y<height; y++) {
@@ -140,9 +127,6 @@ load_png(const gchar *filename)
       image->pixels[dest++] = CLAMP((ptr[0]<<8)|ptr[1], 0, 65535);
       image->pixels[dest++] = CLAMP((ptr[2]<<8)|ptr[3], 0, 65535);
       image->pixels[dest++] = CLAMP((ptr[4]<<8)|ptr[5], 0, 65335);
-      //image->pixels[dest++] = ptr[0]*256;
-      //image->pixels[dest++] = ptr[1]*256;
-      //image->pixels[dest++] = ptr[2]*256;
       dest++;
     }
   }
