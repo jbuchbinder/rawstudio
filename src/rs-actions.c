@@ -111,7 +111,7 @@ rs_core_actions_update_menu_items(RS_BLOB *rs)
 	rs_core_action_group_set_sensivity("RotateCounterClockwise", RS_IS_PHOTO(rs->photo));
 	rs_core_action_group_set_sensivity("Flip", RS_IS_PHOTO(rs->photo));
 	rs_core_action_group_set_sensivity("Mirror", RS_IS_PHOTO(rs->photo));
-	rs_core_action_group_set_sensivity("Enfuse", rs_has_enfuse(4,0));
+	rs_core_action_group_set_sensivity("Enfuse", rs_has_enfuse(4,0) && num_selected >= 1);
 #ifndef EXPERIMENTAL
 	rs_core_action_group_set_visibility("Group", FALSE);
 	rs_core_action_group_set_visibility("Ungroup", FALSE);
@@ -1541,6 +1541,8 @@ ACTION(enfuse)
   GList *selected_names = rs_store_get_selected_names(rs->store);
   gint num_selected = g_list_length(selected_names);
   guint priority = rs_store_get_current_priority(rs->store);
+
+  g_assert(selected_names);
 
   gchar *temp = g_list_nth_data(selected_names, 0);
   RS_PHOTO *temp_photo = rs_photo_load_from_file(temp);
