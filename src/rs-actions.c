@@ -1597,6 +1597,22 @@ ACTION(enfuse)
       gtk_widget_set_sensitive(extend_check, FALSE);
     }
 
+  GtkWidget *extend_negative = rs_spinbox_new(_("Extend negative steps"), 
+					      (num_selected == 1) ? CONF_ENFUSE_EXTEND_NEGATIVE_SINGLE : CONF_ENFUSE_EXTEND_NEGATIVE_MULTI,
+					      (num_selected == 1) ? DEFAULT_CONF_ENFUSE_EXTEND_NEGATIVE_SINGLE : DEFAULT_CONF_ENFUSE_EXTEND_NEGATIVE_MULTI,
+					      0.0, 10.0, 1, 2);
+  GtkWidget *extend_positive = rs_spinbox_new(_("Extend positive steps"),
+					      (num_selected == 1) ? CONF_ENFUSE_EXTEND_POSITIVE_SINGLE : CONF_ENFUSE_EXTEND_POSITIVE_MULTI,
+					      (num_selected == 1) ? DEFAULT_CONF_ENFUSE_EXTEND_POSITIVE_SINGLE : DEFAULT_CONF_ENFUSE_EXTEND_POSITIVE_MULTI,
+0.0, 10.0, 1, 2);
+  GtkWidget *extend_step = rs_spinbox_new(_("Extend exposure"), 
+					  (num_selected == 1) ? CONF_ENFUSE_EXTEND_STEP_SINGLE : CONF_ENFUSE_EXTEND_STEP_MULTI,
+					  (num_selected == 1) ? DEFAULT_CONF_ENFUSE_EXTEND_STEP_SINGLE : DEFAULT_CONF_ENFUSE_EXTEND_STEP_MULTI,
+					  0.5, 10.0, 0.5, 1);
+  gtk_box_pack_start(GTK_BOX(vbox), extend_negative, TRUE, TRUE, 5);
+  gtk_box_pack_start(GTK_BOX(vbox), extend_positive, TRUE, TRUE, 5);
+  gtk_box_pack_start(GTK_BOX(vbox), extend_step, TRUE, TRUE, 5);
+
   gint size_value = DEFAULT_CONF_ENFUSE_SIZE;
   if (!rs_conf_get_integer(CONF_ENFUSE_SIZE, &size_value))
     size_value = DEFAULT_CONF_ENFUSE_SIZE;

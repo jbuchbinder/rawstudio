@@ -301,8 +301,24 @@ gchar * rs_enfuse(RS_BLOB *rs, GList *files, gboolean quick, gint boundingbox)
   GString *fullpath = NULL;
   gchar *align_options = NULL;
   GString *enfuse_options = g_string_new("");
-  gint extend_num = 1;
-  gfloat extend_step = 2.0;
+  gdouble extend_negative = 0.0;
+  gdouble extend_positive = 0.0;
+  gdouble extend_step = 0.0;
+
+  if (!rs_conf_get_double(
+			  (num_selected == 1) ? CONF_ENFUSE_EXTEND_NEGATIVE_SINGLE : CONF_ENFUSE_EXTEND_NEGATIVE_MULTI,
+			  &extend_negative))
+    extend_negative = (num_selected == 1) ? DEFAULT_CONF_ENFUSE_EXTEND_NEGATIVE_SINGLE : DEFAULT_CONF_ENFUSE_EXTEND_NEGATIVE_MULTI;
+
+  if (!rs_conf_get_double(
+			  (num_selected == 1) ? CONF_ENFUSE_EXTEND_POSITIVE_SINGLE : CONF_ENFUSE_EXTEND_POSITIVE_MULTI,
+			  &extend_positive))
+    extend_positive = (num_selected == 1) ? DEFAULT_CONF_ENFUSE_EXTEND_POSITIVE_SINGLE : DEFAULT_CONF_ENFUSE_EXTEND_POSITIVE_MULTI;
+
+  if (!rs_conf_get_double(
+			  (num_selected == 1) ? CONF_ENFUSE_EXTEND_STEP_SINGLE : CONF_ENFUSE_EXTEND_STEP_MULTI,
+			  &extend_step))
+    extend_step = (num_selected == 1) ? DEFAULT_CONF_ENFUSE_EXTEND_STEP_SINGLE : DEFAULT_CONF_ENFUSE_EXTEND_STEP_MULTI;
 
   gboolean align = DEFAULT_CONF_ENFUSE_ALIGN_IMAGES;
   rs_conf_get_boolean_with_default(CONF_ENFUSE_ALIGN_IMAGES, &align, DEFAULT_CONF_ENFUSE_ALIGN_IMAGES);
@@ -343,12 +359,9 @@ gchar * rs_enfuse(RS_BLOB *rs, GList *files, gboolean quick, gint boundingbox)
       GUI_CATCHUP();
     }
 
+  /* if only one picture is selected we have to do extending, it doesn't make sense to run enfuse on a single photo otherwise... */
   if (num_selected == 1)
-    {
       extend = TRUE;
-      extend_num = 3;
-      extend_step = 1.0;
-    }
 
   if (g_list_length(files))
     {
@@ -380,7 +393,7 @@ gchar * rs_enfuse(RS_BLOB *rs, GList *files, gboolean quick, gint boundingbox)
       gui_progress_advance_one(progress); /* 1 - initiate */
     }
 
-  GList *exported_names = export_images(rs, files, extend, extend_num, extend_step, extend_num, extend_step, boundingbox);
+  GList *exported_names = export_images(rs, files, extend, extend_negative, extend_step, extend_positive, extend_step, boundingbox);
 
   if (quick == FALSE)
     gui_progress_advance_one(progress); /* 2 - after exported images */
