@@ -1590,8 +1590,12 @@ ACTION(enfuse)
 
   GtkWidget *extend_check = checkbox_from_conf(CONF_ENFUSE_EXTEND, _("Extend exposure"), DEFAULT_CONF_ENFUSE_EXTEND);
   gtk_box_pack_start(GTK_BOX(vbox), extend_check, TRUE, TRUE, 5);
-  if (num_selected == 1)
-    gtk_widget_set_sensitive(extend_check, FALSE);
+
+  if (num_selected == 1) 
+    {
+      gtk_widget_set_sensitive(align_check, FALSE);
+      gtk_widget_set_sensitive(extend_check, FALSE);
+    }
 
   gint size_value = DEFAULT_CONF_ENFUSE_SIZE;
   if (!rs_conf_get_integer(CONF_ENFUSE_SIZE, &size_value))
