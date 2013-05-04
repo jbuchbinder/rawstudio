@@ -1539,6 +1539,7 @@ ACTION(enfuse)
 
   gboolean enfuse = TRUE;
   GList *selected_names = rs_store_get_selected_names(rs->store);
+  gint num_selected = g_list_length(selected_names);
   guint priority = rs_store_get_current_priority(rs->store);
 
   gchar *temp = g_list_nth_data(selected_names, 0);
@@ -1587,6 +1588,8 @@ ACTION(enfuse)
 
   GtkWidget *extend_check = checkbox_from_conf(CONF_ENFUSE_EXTEND, _("Extend exposure"), DEFAULT_CONF_ENFUSE_EXTEND);
   gtk_box_pack_start(GTK_BOX(vbox), extend_check, TRUE, TRUE, 5);
+  if (num_selected == 1)
+    gtk_widget_set_sensitive(extend_check, FALSE);
 
   gint size_value = DEFAULT_CONF_ENFUSE_SIZE;
   if (!rs_conf_get_integer(CONF_ENFUSE_SIZE, &size_value))
