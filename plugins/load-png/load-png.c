@@ -137,9 +137,9 @@ load_png(const gchar *filename)
     png_byte* row = row_pointers[y];
     for (x=0; x<width; x++) {
       png_byte* ptr = &(row[x*8]);
-      image->pixels[dest++] = ptr[0]*ptr[1];
-      image->pixels[dest++] = ptr[2]*ptr[3];
-      image->pixels[dest++] = ptr[4]*ptr[5];
+      image->pixels[dest++] = CLAMP((ptr[0]<<8)|ptr[1], 0, 65535);
+      image->pixels[dest++] = CLAMP((ptr[2]<<8)|ptr[3], 0, 65535);
+      image->pixels[dest++] = CLAMP((ptr[4]<<8)|ptr[5], 0, 65335);
       //image->pixels[dest++] = ptr[0]*256;
       //image->pixels[dest++] = ptr[1]*256;
       //image->pixels[dest++] = ptr[2]*256;
