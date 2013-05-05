@@ -1529,6 +1529,23 @@ enfuse_size_changed (GtkRange *range, gint *maxsize) {
   rs_conf_set_integer(CONF_ENFUSE_SIZE, size);  
 }
 
+typedef struct _image_data {
+  RS_BLOB *rs;
+  GList *selected;
+  GtkWidget *image;
+} IMAGE_DATA;
+
+static gboolean
+update_image_callback (GtkWidget *event_box, GdkEventButton *event, IMAGE_DATA *image_data) 
+{
+  gui_set_busy(TRUE);
+  gchar *thumb = rs_enfuse(image_data->rs, image_data->selected, TRUE, 250);
+  gtk_image_set_from_file(GTK_IMAGE(image_data->image), thumb);
+  unlink(thumb);
+  gui_set_busy(FALSE);
+  return TRUE;
+}
+
 ACTION(enfuse)
 {
   rs_preview_widget_blank((RSPreviewWidget *) rs->preview);
@@ -1571,9 +1588,17 @@ ACTION(enfuse)
 
   GtkWidget *content = gtk_dialog_get_content_area(GTK_DIALOG(dialog));
   GtkWidget *image = gtk_image_new_from_file(thumb);
+  GtkWidget *image_container = gtk_event_box_new();
+  gtk_container_add (GTK_CONTAINER (image_container), image);
+  IMAGE_DATA *image_data = g_new0(IMAGE_DATA, 1);
+  image_data->rs = rs;
+  image_data->selected = selected_names;
+  image_data->image = image;
+
+  g_signal_connect (G_OBJECT (image_container), "button_press_event", G_CALLBACK (update_image_callback), image_data);
 
   GtkWidget *vbox = gtk_vbox_new(FALSE, 5);
-  gtk_box_pack_start(GTK_BOX(vbox), image, TRUE, TRUE, 5);
+  gtk_box_pack_start(GTK_BOX(vbox), image_container, TRUE, TRUE, 5);
 
   GtkListStore *enfuse_methods = gtk_list_store_new( 1, G_TYPE_STRING );
   GtkTreeIter iter;
