@@ -136,7 +136,7 @@ gint export_image(gchar *filename, RSOutput *output, RSFilter *filter, gint snap
     return -1;
 }
 
-GList * export_images(RS_BLOB *rs, GList *files, gboolean extend, gint dark, gfloat darkstep, gint bright, gfloat brightstep, gint boundingbox)
+GList * export_images(RS_BLOB *rs, GList *files, gboolean extend, gint dark, gfloat darkstep, gint bright, gfloat brightstep, gint boundingbox, gboolean quick)
 {
   gint num_selected = g_list_length(files);
   gint i = 0;
@@ -162,6 +162,8 @@ GList * export_images(RS_BLOB *rs, GList *files, gboolean extend, gint dark, gfl
     g_object_set(output, "save16bit", TRUE, NULL); /* We get odd results if we use 16 bit output - probably due to liniearity */
   if (g_object_class_find_property(G_OBJECT_GET_CLASS(output), "copy-metadata"))
     g_object_set(output, "copy-metadata", TRUE, NULL); /* Doesn't make sense to enable - Enfuse doesn't copy it */
+  if (g_object_class_find_property(G_OBJECT_GET_CLASS(output), "quick"))
+    g_object_set(output, "quick", quick, NULL); /* Allow for quick exports when generating thumbnails */
 
   gint lightness = 0;
   gint darkval = 255;
@@ -393,7 +395,7 @@ gchar * rs_enfuse(RS_BLOB *rs, GList *files, gboolean quick, gint boundingbox)
       gui_progress_advance_one(progress); /* 1 - initiate */
     }
 
-  GList *exported_names = export_images(rs, files, extend, extend_negative, extend_step, extend_positive, extend_step, boundingbox);
+  GList *exported_names = export_images(rs, files, extend, extend_negative, extend_step, extend_positive, extend_step, boundingbox, quick);
 
   if (quick == FALSE)
     gui_progress_advance_one(progress); /* 2 - after exported images */
