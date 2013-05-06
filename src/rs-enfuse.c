@@ -89,13 +89,20 @@ gint calculate_lightness(RSFilter *filter)
 }
 
 gint export_image(gchar *filename, GHashTable *cache, RSOutput *output, RSFilter *filter, gint snapshot, double exposure, gchar *outputname, gint boundingbox, RSFilter *resample) {
-  RS_PHOTO *photo = (RS_PHOTO *) g_hash_table_lookup(cache, filename);
-  if (!photo)
+  RS_PHOTO *photo = NULL;
+
+  if (cache) 
     {
-      photo = rs_photo_load_from_file(filename);
-      g_hash_table_insert(cache, filename, photo);
-      printf("Adding %s to cache\n", filename);
+      photo = (RS_PHOTO *) g_hash_table_lookup(cache, filename);
+      if (!photo)
+	{
+	  photo = rs_photo_load_from_file(filename);
+	  g_hash_table_insert(cache, filename, photo);
+	  printf("Adding %s to cache\n", filename);
+	}
     }
+  else
+    photo = rs_photo_load_from_file(filename);
 
   if (photo)
     {

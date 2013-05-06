@@ -1585,8 +1585,12 @@ ACTION(enfuse)
   GUI_CATCHUP();
 
   /* initialize cache system */
-  if (!rs->enfuse_cache)
+  gboolean enfuse_cache = DEFAULT_CONF_ENFUSE_CACHE;
+  rs_conf_get_boolean_with_default(CONF_ENFUSE_CACHE, &enfuse_cache, DEFAULT_CONF_ENFUSE_CACHE);
+  if (!rs->enfuse_cache && enfuse_cache)
     rs->enfuse_cache = g_hash_table_new(enfuse_cache_hash, enfuse_cache_hash_equal);
+  else
+    printf("Enfuse cache disabled\n");
 
   gui_set_busy(TRUE);
   GList *thumbs = get_thumbnails_from_list(selected_names);

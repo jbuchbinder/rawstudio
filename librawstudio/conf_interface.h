@@ -84,6 +84,7 @@
 #define CONF_ENFUSE_EXTEND_NEGATIVE_MULTI "conf_enfuse_extend_negative_multi"
 #define CONF_ENFUSE_EXTEND_POSITIVE_MULTI "conf_enfuse_extend_positive_multi"
 #define CONF_ENFUSE_EXTEND_STEP_MULTI "conf_enfuse_extend_step_multi"
+#define CONF_ENFUSE_CACHE "conf_enfuse_cache"
 
 #define DEFAULT_CONF_EXPORT_FILENAME "%f_%2c"
 #define DEFAULT_CONF_BATCH_DIRECTORY "batch_exports/"
@@ -125,6 +126,7 @@
 #define DEFAULT_CONF_ENFUSE_EXTEND_NEGATIVE_MULTI 1.0
 #define DEFAULT_CONF_ENFUSE_EXTEND_POSITIVE_MULTI 1.0
 #define DEFAULT_CONF_ENFUSE_EXTEND_STEP_MULTI 2.0
+#define DEFAULT_CONF_ENFUSE_CACHE TRUE
 
 /* get the last working directory from gconf */
 void rs_set_last_working_directory(const char *lwd);
