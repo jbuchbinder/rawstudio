@@ -1554,6 +1554,19 @@ gboolean enfuse_cache_hash_equal (gconstpointer a, gconstpointer b) {
   return g_str_equal(a, b);
 }
 
+gboolean cache_cleanup_free_data(gpointer key, gpointer value, gpointer user_data) {
+  /* FIXME: is this enough? */
+  g_object_unref(RS_PHOTO(value));
+  g_free(key);
+  return TRUE;
+}
+
+void
+cache_cleanup(GHashTable *hashtable) {
+  if (hashtable)
+    g_hash_table_foreach_remove(hashtable, cache_cleanup_free_data, NULL);
+}
+
 ACTION(enfuse)
 {
   rs_preview_widget_blank((RSPreviewWidget *) rs->preview);
@@ -1681,6 +1694,7 @@ ACTION(enfuse)
       gtk_widget_destroy(dialog);
       /* unlock render or we won't be able to do anything */
       rs_preview_widget_unlock_renderer((RSPreviewWidget *) rs->preview);
+      cache_cleanup(rs->enfuse_cache);
       return;
     }
   gtk_widget_destroy(dialog);
@@ -1689,7 +1703,7 @@ ACTION(enfuse)
   gchar *filename = rs_enfuse(rs, selected_names, FALSE, -1);
   gui_set_busy(FALSE);
 
-  /* FIXME: cleanup rs->enfuse_cache and free everything in it */
+  cache_cleanup(rs->enfuse_cache);
 
   g_list_free(selected_names);
   rs_cache_save_flags(filename, &priority, NULL, &enfuse);
