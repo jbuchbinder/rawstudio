@@ -307,6 +307,9 @@ gchar * rs_enfuse(RS_BLOB *rs, GList *files, gboolean quick, gint boundingbox)
   gdouble extend_positive = 0.0;
   gdouble extend_step = 0.0;
 
+  GTimer *timer = g_timer_new();
+  g_timer_start(timer);
+
   if (!rs_conf_get_double(
 			  (num_selected == 1) ? CONF_ENFUSE_EXTEND_NEGATIVE_SINGLE : CONF_ENFUSE_EXTEND_NEGATIVE_MULTI,
 			  &extend_negative))
@@ -444,6 +447,9 @@ gchar * rs_enfuse(RS_BLOB *rs, GList *files, gboolean quick, gint boundingbox)
       gui_progress_advance_one(progress); /* 5 - misc file operations */
       gui_progress_free(progress);
     }
+
+  g_timer_stop(timer);
+  printf("Total execution time: %.2f\n", g_timer_elapsed(timer, NULL));
 
   return parsed_filename;
 }
