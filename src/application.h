@@ -81,6 +81,7 @@ typedef struct {
 	RSStore *store;
 	RS_MAIN_SIGNAL signal; 
 	gchar *post_open_event;
+	GHashTable *enfuse_cache;
 
 	/* These should be moved to a future RS_WINDOW */
 	GtkWidget *window;

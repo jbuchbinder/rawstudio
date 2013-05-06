@@ -88,9 +88,15 @@ gint calculate_lightness(RSFilter *filter)
       return (gint) (sum/num);
 }
 
-gint export_image(gchar *filename, RSOutput *output, RSFilter *filter, gint snapshot, double exposure, gchar *outputname, gint boundingbox, RSFilter *resample) {
+gint export_image(gchar *filename, GHashTable *cache, RSOutput *output, RSFilter *filter, gint snapshot, double exposure, gchar *outputname, gint boundingbox, RSFilter *resample) {
+  RS_PHOTO *photo = (RS_PHOTO *) g_hash_table_lookup(cache, filename);
+  if (!photo)
+    {
+      photo = rs_photo_load_from_file(filename);
+      g_hash_table_insert(cache, filename, photo);
+      printf("Adding %s to cache\n", filename);
+    }
 
-  RS_PHOTO *photo = rs_photo_load_from_file(filename);
   if (photo)
     {
       rs_metadata_load_from_file(photo->metadata, filename);
@@ -125,7 +131,6 @@ gint export_image(gchar *filename, RSOutput *output, RSFilter *filter, gint snap
 
       rs_output_set_from_conf(output, "batch");
       rs_output_execute(output, filter);
-      g_object_unref(photo);
 
       gint value = calculate_lightness(filter);
       printf("%s: %d\n", filename, value);
@@ -180,7 +185,7 @@ GList * export_images(RS_BLOB *rs, GList *files, gboolean extend, gint dark, gfl
 	  output_unique = g_string_new(output_str->str);
 	  g_string_append_printf(output_unique, "%d", i);
 	  output_unique = g_string_append(output_unique, ".png");
-	  lightness = export_image(name, output, fend, 0, 0.0, output_unique->str, boundingbox, fresample); /* FIXME: snapshot hardcoded */
+	  lightness = export_image(name, rs->enfuse_cache, output, fend, 0, 0.0, output_unique->str, boundingbox, fresample); /* FIXME: snapshot hardcoded */
   	  exported_names = g_list_append(exported_names, g_strdup(output_unique->str));
 	  g_string_free(output_unique, TRUE);
 
@@ -208,7 +213,7 @@ GList * export_images(RS_BLOB *rs, GList *files, gboolean extend, gint dark, gfl
 	  g_string_append_printf(output_unique, "_%.1f", (darkstep*n*-1));
 	  output_unique = g_string_append(output_unique, ".png");
 	  exported_names = g_list_append(exported_names, g_strdup(output_unique->str));
-	  export_image(darkest, output, fend, 0, (darkstep*n*-1), output_unique->str, boundingbox, fresample); /* FIXME: snapshot hardcoded */
+	  export_image(darkest, rs->enfuse_cache, output, fend, 0, (darkstep*n*-1), output_unique->str, boundingbox, fresample); /* FIXME: snapshot hardcoded */
 	  g_string_free(output_unique, TRUE);
 	  i++;
 	}
@@ -220,7 +225,7 @@ GList * export_images(RS_BLOB *rs, GList *files, gboolean extend, gint dark, gfl
 	  g_string_append_printf(output_unique, "_%.1f", (brightstep*n));
 	  output_unique = g_string_append(output_unique, ".png");
 	  exported_names = g_list_append(exported_names, g_strdup(output_unique->str));
-	  export_image(brightest, output, fend, 0, (brightstep*n), output_unique->str, boundingbox, fresample); /* FIXME: snapshot hardcoded */
+	  export_image(brightest, rs->enfuse_cache, output, fend, 0, (brightstep*n), output_unique->str, boundingbox, fresample); /* FIXME: snapshot hardcoded */
 	  g_string_free(output_unique, TRUE);
 	  i++;
 	}

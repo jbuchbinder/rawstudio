@@ -1546,6 +1546,14 @@ update_image_callback (GtkWidget *event_box, GdkEventButton *event, IMAGE_DATA *
   return TRUE;
 }
 
+guint enfuse_cache_hash (gconstpointer key) {
+  return g_str_hash(key);
+}
+
+gboolean enfuse_cache_hash_equal (gconstpointer a, gconstpointer b) {
+  return g_str_equal(a, b);
+}
+
 ACTION(enfuse)
 {
   rs_preview_widget_blank((RSPreviewWidget *) rs->preview);
@@ -1575,6 +1583,10 @@ ACTION(enfuse)
   rs_preview_widget_set_photo((RSPreviewWidget *) rs->preview, NULL);
   rs_preview_widget_lock_renderer((RSPreviewWidget *) rs->preview);
   GUI_CATCHUP();
+
+  /* initialize cache system */
+  if (!rs->enfuse_cache)
+    rs->enfuse_cache = g_hash_table_new(enfuse_cache_hash, enfuse_cache_hash_equal);
 
   gui_set_busy(TRUE);
   GList *thumbs = get_thumbnails_from_list(selected_names);
@@ -1672,6 +1684,8 @@ ACTION(enfuse)
   gui_set_busy(TRUE);
   gchar *filename = rs_enfuse(rs, selected_names, FALSE, -1);
   gui_set_busy(FALSE);
+
+  /* FIXME: cleanup rs->enfuse_cache and free everything in it */
 
   g_list_free(selected_names);
   rs_cache_save_flags(filename, &priority, NULL, &enfuse);

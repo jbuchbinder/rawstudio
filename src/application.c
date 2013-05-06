@@ -212,6 +212,7 @@ rs_new(void)
 	rs->queue = rs_batch_new_queue(rs);
 	rs->current_setting = 0;
 	rs->signal = MAIN_SIGNAL_NONE;
+	rs->enfuse_cache = NULL;
 
 	/* Build basic filter chain */
 	rs->filter_input = rs_filter_new("RSInputImage16", NULL);
