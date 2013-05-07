@@ -36,6 +36,7 @@
 #include "conf_interface.h"
 
 #define ENFUSE_OPTIONS "-d 16"
+#define ENFUSE_OPTIONS_QUICK "-d 8"
 
 gboolean has_align_image_stack ();
 
@@ -171,7 +172,7 @@ GList * export_images(RS_BLOB *rs, GList *files, gboolean extend, gint dark, gfl
   GList *exported_names = NULL;
 
   if (g_object_class_find_property(G_OBJECT_GET_CLASS(output), "save16bit"))
-    g_object_set(output, "save16bit", TRUE, NULL); /* We get odd results if we use 16 bit output - probably due to liniearity */
+    g_object_set(output, "save16bit", !quick, NULL); /* We get odd results if we use 16 bit output - probably due to liniearity */
   if (g_object_class_find_property(G_OBJECT_GET_CLASS(output), "copy-metadata"))
     g_object_set(output, "copy-metadata", TRUE, NULL); /* Doesn't make sense to enable - Enfuse doesn't copy it */
   if (g_object_class_find_property(G_OBJECT_GET_CLASS(output), "quick"))
@@ -361,7 +362,10 @@ gchar * rs_enfuse(RS_BLOB *rs, GList *files, gboolean quick, gint boundingbox)
     extend = FALSE;
   }
 
-  enfuse_options = g_string_append(enfuse_options, ENFUSE_OPTIONS);
+  if (quick)
+    enfuse_options = g_string_append(enfuse_options, ENFUSE_OPTIONS_QUICK);
+  else
+    enfuse_options = g_string_append(enfuse_options, ENFUSE_OPTIONS);
   enfuse_options = g_string_append(enfuse_options, " ");
   enfuse_options = g_string_append(enfuse_options, method_options);
 
