@@ -1614,6 +1614,7 @@ ACTION(enfuse)
   dialog = gui_dialog_make_from_text(GTK_STOCK_DIALOG_QUESTION, _("Enfuse"), _("This might take quite some time and will lock up UI until finished..."));
   gtk_dialog_add_button (GTK_DIALOG (dialog), GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL);
   gtk_dialog_add_button (GTK_DIALOG (dialog), GTK_STOCK_EXECUTE, GTK_RESPONSE_ACCEPT);
+  gtk_window_set_title(GTK_WINDOW(dialog), _("Rawstudio Enfuse"));
 
   GtkWidget *content = gtk_dialog_get_content_area(GTK_DIALOG(dialog));
   GtkWidget *image = gtk_image_new_from_file(thumb);
