@@ -39,6 +39,7 @@
 #define ENFUSE_OPTIONS_QUICK "-d 8"
 
 gboolean has_align_image_stack ();
+gboolean has_enfuse_mp ();
 
 gint calculate_lightness(RSFilter *filter)
 {
@@ -271,14 +272,18 @@ GList * align_images (GList *files, gchar *options) {
   return aligned_names;
 }
 
-void enfuse_images(GList *files, gchar *out, gchar *options) {
+void enfuse_images(GList *files, gchar *out, gchar *options, gboolean has_enfuse_mp) {
   gint num_selected = g_list_length(files);
   gint i;
   gchar *name;
 
   if (g_list_length(files))
     {
-      GString *command = g_string_new("enfuse ");
+      GString *command = NULL;
+      if (has_enfuse_mp)
+	command = g_string_new("enfuse-mp ");
+      else
+	command = g_string_new("enfuse");
       for(i=0; i<num_selected; i++)
 	{
 	  name = (gchar*) g_list_nth_data(files, i);
@@ -431,7 +436,7 @@ gchar * rs_enfuse(RS_BLOB *rs, GList *files, gboolean quick, gint boundingbox)
   if (quick == FALSE)
     gui_progress_advance_one(progress); /* 3 - after aligned images */
 
-  enfuse_images(aligned_names, temp_filename, enfuse_options->str);
+  enfuse_images(aligned_names, temp_filename, enfuse_options->str, has_enfuse_mp());
   g_string_free(enfuse_options, TRUE);
 
   if (quick == FALSE)
@@ -468,6 +473,14 @@ gchar * rs_enfuse(RS_BLOB *rs, GList *files, gboolean quick, gint boundingbox)
   printf("Total execution time: %.2f\n", g_timer_elapsed(timer, NULL));
 
   return parsed_filename;
+}
+
+gboolean has_enfuse_mp()
+{
+  if (popen("enfuse-mp", "r"))
+    return TRUE;
+  else
+    return FALSE;
 }
 
 gboolean rs_has_enfuse (gint major, gint minor)
