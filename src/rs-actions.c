@@ -1538,11 +1538,16 @@ typedef struct _image_data {
 static gboolean
 update_image_callback (GtkWidget *event_box, GdkEventButton *event, IMAGE_DATA *image_data) 
 {
-  gui_set_busy(TRUE);
+  GdkCursor* cursor = gdk_cursor_new(GDK_WATCH);
+  gdk_window_set_cursor(gtk_widget_get_window(event_box), cursor);
+  gdk_cursor_unref(cursor);
+
   gchar *thumb = rs_enfuse(image_data->rs, image_data->selected, TRUE, 250);
   gtk_image_set_from_file(GTK_IMAGE(image_data->image), thumb);
   unlink(thumb);
-  gui_set_busy(FALSE);
+
+  gdk_window_set_cursor(gtk_widget_get_window(event_box), NULL);
+
   return TRUE;
 }
 
